@@ -73,53 +73,28 @@ func main() {
 
 func setupHandlers(db *database.Database, cfg *config.Config) *route.Handlers {
 	// Datasources
-	productDS := datasource.NewProductDataSource(db.DB)
 	orderDS := datasource.NewOrderDataSource(db.DB)
-	orderProductDS := datasource.NewOrderProductDataSource(db.DB)
-	orderHistoryDS := datasource.NewOrderHistoryDataSource(db.DB)
-	categoryDS := datasource.NewCategoryDataSource(db.DB)
-
 	// Services
 	jwtService := service.NewJWTService(cfg)
 
 	// Gateways
-	productGateway := gateway.NewProductGateway(productDS)
-	orderHistoryGateway := gateway.NewOrderHistoryGateway(orderHistoryDS)
 	orderGateway := gateway.NewOrderGateway(orderDS)
-	orderProductGateway := gateway.NewOrderProductGateway(orderProductDS)
-	categoryGateway := gateway.NewCategoryGateway(categoryDS)
 
 	// Use cases
-	productUC := usecase.NewProductUseCase(productGateway)
-	orderHistoryUC := usecase.NewOrderHistoryUseCase(orderHistoryGateway)
-	orderUC := usecase.NewOrderUseCase(orderGateway, orderHistoryUC)
-	orderProductUC := usecase.NewOrderProductUseCase(orderProductGateway)
-	categoryUC := usecase.NewCategoryUseCase(categoryGateway)
+	orderUC := usecase.NewOrderUseCase(orderGateway)
 
 	// Controllers
-	productController := controller.NewProductController(productUC)
 	orderController := controller.NewOrderController(orderUC)
-	orderProductController := controller.NewOrderProductController(orderProductUC)
-	orderHistoryController := controller.NewOrderHistoryController(orderHistoryUC)
-	categoryController := controller.NewCategoryController(categoryUC)
 
 	// Handlers
-	productHandler := handler.NewProductHandler(productController)
 	orderHandler := handler.NewOrderHandler(orderController, jwtService)
-	orderProductHandler := handler.NewOrderProductHandler(orderProductController)
 	healthCheckHandler := handler.NewHealthCheckHandler()
-	orderHistoryHandler := handler.NewOrderHistoryHandler(orderHistoryController, jwtService)
-	categoryHandler := handler.NewCategoryHandler(categoryController)
 	redocHandler := handler.NewRedocHandler()
 
 	handlers := &route.Handlers{
-		Product:      productHandler,
-		Order:        orderHandler,
-		OrderProduct: orderProductHandler,
-		OrderHistory: orderHistoryHandler,
-		HealthCheck:  healthCheckHandler,
-		Category:     categoryHandler,
-		Redoc:        redocHandler,
+		Order:       orderHandler,
+		HealthCheck: healthCheckHandler,
+		Redoc:       redocHandler,
 	}
 
 	return handlers

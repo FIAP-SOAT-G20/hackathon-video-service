@@ -122,9 +122,6 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Create() {
 				s.mockGateway.EXPECT().
 					Create(s.ctx, gomock.Any()).
 					Return(nil)
-				s.mockOrderHistoryUseCase.EXPECT().
-					Create(s.ctx, gomock.Any()).
-					Return(&entity.OrderHistory{OrderID: 1, Status: valueobject.OPEN}, nil)
 			},
 			checkResult: func(t *testing.T, order *entity.Order, err error) {
 				assert.NoError(t, err)
@@ -157,10 +154,6 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Create() {
 				s.mockGateway.EXPECT().
 					Create(s.ctx, gomock.Any()).
 					Return(nil)
-
-				s.mockOrderHistoryUseCase.EXPECT().
-					Create(s.ctx, gomock.Any()).
-					Return(nil, assert.AnError)
 			},
 			checkResult: func(t *testing.T, order *entity.Order, err error) {
 				assert.Error(t, err)
@@ -274,10 +267,6 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Update() {
 						assert.Equal(s.T(), uint64(1), p.ID)
 						return nil
 					})
-
-				s.mockOrderHistoryUseCase.EXPECT().
-					Create(s.ctx, gomock.Any()).
-					Return(&entity.OrderHistory{OrderID: 1, Status: valueobject.RECEIVED}, nil)
 			},
 			checkResult: func(t *testing.T, order *entity.Order, err error) {
 				assert.NoError(t, err)
@@ -412,10 +401,6 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Update() {
 				s.mockGateway.EXPECT().
 					Update(s.ctx, gomock.Any()).
 					Return(nil)
-
-				s.mockOrderHistoryUseCase.EXPECT().
-					Create(s.ctx, gomock.Any()).
-					Return(nil, assert.AnError)
 			},
 			checkResult: func(t *testing.T, order *entity.Order, err error) {
 				assert.Error(t, err)

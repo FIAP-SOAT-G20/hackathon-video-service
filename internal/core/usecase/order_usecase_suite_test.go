@@ -17,7 +17,6 @@ import (
 type OrderUsecaseSuiteTest struct {
 	suite.Suite
 	mockOrders              []*entity.Order
-	mockOrderHistoryUseCase *mockport.MockOrderHistoryUseCase
 	mockGateway             *mockport.MockOrderGateway
 	useCase                 port.OrderUseCase
 	ctx                     context.Context
@@ -26,9 +25,8 @@ type OrderUsecaseSuiteTest struct {
 func (s *OrderUsecaseSuiteTest) SetupTest() {
 	ctrl := gomock.NewController(s.T())
 	defer ctrl.Finish()
-	s.mockOrderHistoryUseCase = mockport.NewMockOrderHistoryUseCase(ctrl)
 	s.mockGateway = mockport.NewMockOrderGateway(ctrl)
-	s.useCase = usecase.NewOrderUseCase(s.mockGateway, s.mockOrderHistoryUseCase)
+	s.useCase = usecase.NewOrderUseCase(s.mockGateway)
 	s.ctx = context.Background()
 	currentTime := time.Now()
 	s.mockOrders = []*entity.Order{

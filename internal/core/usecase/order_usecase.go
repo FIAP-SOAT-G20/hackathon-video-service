@@ -11,13 +11,12 @@ import (
 )
 
 type orderUseCase struct {
-	gateway             port.OrderGateway
-	orderHistoryUseCase port.OrderHistoryUseCase
+	gateway port.OrderGateway
 }
 
 // NewOrderUseCase creates a new OrdersUseCase
-func NewOrderUseCase(gateway port.OrderGateway, orderHistoryUseCase port.OrderHistoryUseCase) port.OrderUseCase {
-	return &orderUseCase{gateway, orderHistoryUseCase}
+func NewOrderUseCase(gateway port.OrderGateway) port.OrderUseCase {
+	return &orderUseCase{gateway}
 }
 
 // List returns a list of Orders
@@ -35,15 +34,6 @@ func (uc *orderUseCase) Create(ctx context.Context, i dto.CreateOrderInput) (*en
 	order := &entity.Order{CustomerID: i.CustomerID, Status: valueobject.OPEN}
 
 	if err := uc.gateway.Create(ctx, order); err != nil {
-		return nil, domain.NewInternalError(err)
-	}
-
-	_, err := uc.orderHistoryUseCase.Create(ctx, dto.CreateOrderHistoryInput{
-		OrderID: order.ID,
-		Status:  valueobject.OPEN,
-		StaffID: nil,
-	})
-	if err != nil {
 		return nil, domain.NewInternalError(err)
 	}
 
@@ -90,25 +80,10 @@ func (uc *orderUseCase) Update(ctx context.Context, i dto.UpdateOrderInput) (*en
 		}
 	}
 
-	orderProducts := order.OrderProducts
 	order.Update(i.CustomerID, i.Status)
 
 	if err := uc.gateway.Update(ctx, order); err != nil {
 		return nil, domain.NewInternalError(err)
-	}
-
-	// Restore order products, to calculate total bill in the presenter
-	order.OrderProducts = orderProducts // TODO: Remove relations from entities
-
-	// if status has changed, create a new order history
-	if i.Status != "" && statusHasChanged {
-		if _, err := uc.orderHistoryUseCase.Create(ctx, dto.CreateOrderHistoryInput{
-			OrderID: order.ID,
-			Status:  i.Status,
-			StaffID: &i.StaffID,
-		}); err != nil {
-			return nil, domain.NewInternalError(err)
-		}
 	}
 
 	return order, nil

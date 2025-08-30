@@ -36,11 +36,8 @@ func main() {
 	}
 
 	orderDS := datasource.NewOrderDataSource(db.DB)
-	orderHistoryDS := datasource.NewOrderHistoryDataSource(db.DB)
 	orderGateway := gateway.NewOrderGateway(orderDS)
-	orderHistoryGateway := gateway.NewOrderHistoryGateway(orderHistoryDS)
-	orderHistoryUC := usecase.NewOrderHistoryUseCase(orderHistoryGateway)
-	orderUC := usecase.NewOrderUseCase(orderGateway, orderHistoryUC)
+	orderUC := usecase.NewOrderUseCase(orderGateway)
 
 	if appCfg.AWS_SQS_OrderStatusUpdatedURL == "" {
 		loggerInstance.Error("AWS SQS Order Status Updated URL is not configured")

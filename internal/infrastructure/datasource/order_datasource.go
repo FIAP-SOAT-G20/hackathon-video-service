@@ -97,11 +97,6 @@ func (ds *orderDataSource) Update(ctx context.Context, order *entity.Order) erro
 }
 
 func (ds *orderDataSource) Delete(ctx context.Context, id uint64) error {
-	// Delete all order products first
-	if err := ds.db.WithContext(ctx).Where("order_id = ?", id).Delete(&entity.OrderProduct{}).Error; err != nil {
-		return fmt.Errorf("error deleting order products: %w", err)
-	}
-
 	result := ds.db.WithContext(ctx).Delete(&entity.Order{}, id)
 	if result.Error != nil {
 		return fmt.Errorf("error deleting order: %w", result.Error)

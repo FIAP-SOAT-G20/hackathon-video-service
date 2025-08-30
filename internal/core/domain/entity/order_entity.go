@@ -10,7 +10,6 @@ type Order struct {
 	ID            uint64
 	CustomerID    uint64
 	Status        valueobject.OrderStatus
-	OrderProducts []OrderProduct
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }
@@ -22,6 +21,5 @@ func (p *Order) Update(customerID uint64, status valueobject.OrderStatus) {
 	if status != valueobject.UNDEFINDED {
 		p.Status = status
 	}
-	p.OrderProducts = nil
 	p.UpdatedAt = time.Now()
 }
