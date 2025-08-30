@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/config"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/handler/response"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/config"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler/response"
 
 	"github.com/gin-gonic/gin"
 )

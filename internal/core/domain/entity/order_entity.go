@@ -3,15 +3,15 @@ package entity
 import (
 	"time"
 
-	valueobject "github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/value_object"
+	valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
 )
 
 type Order struct {
-	ID            uint64
-	CustomerID    uint64
-	Status        valueobject.OrderStatus
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID         uint64
+	CustomerID uint64
+	Status     valueobject.OrderStatus
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 func (p *Order) Update(customerID uint64, status valueobject.OrderStatus) {

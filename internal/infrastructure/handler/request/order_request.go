@@ -1,6 +1,6 @@
 package request
 
-import valueobject "github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/value_object"
+import valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
 
 type ListOrdersQueryRequest struct {
 	CustomerID    uint64 `form:"customer_id" example:"1" default:"0"`

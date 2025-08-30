@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/entity"
-	valueobject "github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/value_object"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/entity"
+	valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
 	"github.com/cucumber/godog"
 	"github.com/docker/go-connections/nat"
 	"github.com/gin-gonic/gin"

@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/logger"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

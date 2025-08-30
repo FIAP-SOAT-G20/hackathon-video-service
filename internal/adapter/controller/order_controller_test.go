@@ -7,11 +7,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/adapter/controller"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/entity"
-	valueobject "github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/value_object"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/dto"
-	mockport "github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/port/mocks"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/adapter/controller"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/entity"
+	valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/dto"
+	mockport "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port/mocks"
 )
 
 // TODO: Add more test cenarios

@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/entity"
-	valueobject "github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/value_object"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/port"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/entity"
+	valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
 )
 
 type orderGateway struct {

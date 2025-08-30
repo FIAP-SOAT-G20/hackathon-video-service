@@ -3,8 +3,8 @@ package port
 import (
 	"context"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/entity"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/dto"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/entity"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/dto"
 )
 
 type OrderUseCase interface {

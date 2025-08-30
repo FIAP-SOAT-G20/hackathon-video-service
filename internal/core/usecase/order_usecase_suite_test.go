@@ -5,21 +5,21 @@ import (
 	"testing"
 	"time"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/entity"
-	valueobject "github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/value_object"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/port"
-	mockport "github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/port/mocks"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/usecase"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/entity"
+	valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
+	mockport "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port/mocks"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/usecase"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
 )
 
 type OrderUsecaseSuiteTest struct {
 	suite.Suite
-	mockOrders              []*entity.Order
-	mockGateway             *mockport.MockOrderGateway
-	useCase                 port.OrderUseCase
-	ctx                     context.Context
+	mockOrders  []*entity.Order
+	mockGateway *mockport.MockOrderGateway
+	useCase     port.OrderUseCase
+	ctx         context.Context
 }
 
 func (s *OrderUsecaseSuiteTest) SetupTest() {

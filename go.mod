@@ -1,4 +1,4 @@
-module github.com/FIAP-SOAT-G20/tc4-order-service
+module github.com/FIAP-SOAT-G20/hackathon-video-service
 
 go 1.24.2
 

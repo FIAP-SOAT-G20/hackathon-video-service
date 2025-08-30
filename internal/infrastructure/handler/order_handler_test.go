@@ -6,10 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain"
-	valueobject "github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/value_object"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/dto"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/util"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain"
+	valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/dto"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/util"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )

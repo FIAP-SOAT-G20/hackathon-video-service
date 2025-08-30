@@ -12,8 +12,8 @@ import (
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/config"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/logger"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/config"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 )

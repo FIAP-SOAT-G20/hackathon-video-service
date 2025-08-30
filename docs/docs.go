@@ -2967,7 +2967,7 @@ const docTemplate = `{
     ],
     "externalDocs": {
         "description": "GitHub Repository",
-        "url": "https://github.com/FIAP-SOAT-G20/tc4-order-service"
+        "url": "https://github.com/FIAP-SOAT-G20/hackathon-video-service"
     }
 }`
 

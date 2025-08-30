@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	mockport "github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/port/mocks"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/handler"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/util"
+	mockport "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port/mocks"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"

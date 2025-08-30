@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/entity"
-	valueobject "github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/domain/value_object"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/dto"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/entity"
+	valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/dto"
 )
 
 func (s *OrderUsecaseSuiteTest) TestOrdersUseCase_List() {

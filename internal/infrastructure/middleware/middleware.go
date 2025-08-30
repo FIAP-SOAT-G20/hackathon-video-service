@@ -3,7 +3,7 @@ package middleware
 import (
 	"time"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/logger"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )

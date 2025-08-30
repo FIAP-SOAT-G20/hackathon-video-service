@@ -1,8 +1,8 @@
 package httpclient
 
 import (
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/config"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/logger"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/config"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
 	"github.com/go-resty/resty/v2"
 )
 

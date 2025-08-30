@@ -7,8 +7,8 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/port"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/config"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/config"
 )
 
 type jwtService struct {

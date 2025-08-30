@@ -3,18 +3,18 @@ package main
 import (
 	"os"
 
-	_ "github.com/FIAP-SOAT-G20/tc4-order-service/docs"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/adapter/controller"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/adapter/gateway"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/usecase"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/config"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/database"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/datasource"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/handler"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/logger"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/route"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/server"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/infrastructure/service"
+	_ "github.com/FIAP-SOAT-G20/hackathon-video-service/docs"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/adapter/controller"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/adapter/gateway"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/usecase"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/config"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/database"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/datasource"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/route"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/server"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/service"
 )
 
 // @title						Fast Food API v3
@@ -40,7 +40,7 @@ import (
 // @tag.description			Health check
 //
 // @externalDocs.description	GitHub Repository
-// @externalDocs.url			https://github.com/FIAP-SOAT-G20/tc4-order-service
+// @externalDocs.url			https://github.com/FIAP-SOAT-G20/hackathon-video-service
 //
 // @securityDefinitions.apikey	BearerAuth
 // @in							header

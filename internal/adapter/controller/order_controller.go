@@ -3,8 +3,8 @@ package controller
 import (
 	"context"
 
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/dto"
-	"github.com/FIAP-SOAT-G20/tc4-order-service/internal/core/port"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/dto"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
 )
 
 type OrderController struct {
