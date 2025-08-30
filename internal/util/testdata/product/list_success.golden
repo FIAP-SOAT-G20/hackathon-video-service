@@ -1,0 +1,25 @@
+{
+  "total": 5,
+  "page": 1,
+  "limit": 10,
+  "products": [
+    {
+      "id": 2,
+      "name": "Coca-Cola 350ml",
+      "description": "Refrigerante Coca-Cola lata",
+      "price": 6.9,
+      "category_id": 2,
+      "created_at": "2025-02-28T16:28:18Z",
+      "updated_at": "2025-02-28T16:28:18Z"
+    },
+    {
+      "id": 3,
+      "name": "Sundae",
+      "description": "Sorvete com calda de chocolate",
+      "price": 12.9,
+      "category_id": 3,
+      "created_at": "2025-02-28T16:28:18Z",
+      "updated_at": "2025-02-28T16:28:18Z"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+    "order_id": 15,
+    "product_id": 2,
+    "quantity": 4,
+    "order": {
+        "id": 15,
+        "customer_id": 5,
+        "status": "PENDING",
+        "created_at": "2025-03-06T15:19:09Z",
+        "updated_at": "2025-03-06T15:21:03Z"
+    },
+    "product": {
+        "id": 2,
+        "name": "Coca-Cola 350ml",
+        "description": "Refrigerante Coca-Cola lata",
+        "price": 6.9,
+        "category_id": 2,
+        "created_at": "2025-02-28T16:28:18Z",
+        "updated_at": "2025-02-28T16:28:18Z"
+    },
+    "created_at": "2025-03-06T18:58:18Z",
+    "updated_at": "2025-03-06T18:58:18Z"
+}

@@ -1,0 +1,19 @@
+{
+  "total": 2,
+  "page": 1,
+  "limit": 10,
+  "categories": [
+    {
+      "id": 1,
+      "name": "Foods",
+      "created_at": "2025-02-28T16:28:18Z",
+      "updated_at": "2025-02-28T16:28:18Z"
+    },
+    {
+      "id": 2,
+      "name": "Beverages",
+      "created_at": "2025-02-28T16:28:18Z",
+      "updated_at": "2025-02-28T16:28:18Z"
+    }
+  ]
+}

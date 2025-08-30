@@ -1,0 +1,2965 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "### FIAP Tech Challenge Phase 3 - 10SOAT - G22",
+        "title": "Fast Food API v3",
+        "contact": {},
+        "version": "1"
+    },
+    "basePath": "/api/v1",
+    "paths": {
+        "/auth": {
+            "post": {
+                "description": "Authenticates a user by CPF and returns a JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sign-in"
+                ],
+                "summary": "Authenticate user",
+                "parameters": [
+                    {
+                        "description": "User CPF",
+                        "name": "authentication",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AuthenticateBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.AuthenticationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/categories": {
+            "get": {
+                "description": "List all categories",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "List categories",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CategoryJsonPaginatedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new category",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Create category",
+                "parameters": [
+                    {
+                        "description": "Category data",
+                        "name": "category",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateCategoryBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CategoryJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/categories/{id}": {
+            "get": {
+                "description": "Search for a category by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Get category",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CategoryJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing category",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Update category",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Category data",
+                        "name": "category",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateCategoryBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CategoryJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a category by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Delete category",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CategoryJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/customers": {
+            "get": {
+                "description": "List all customers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers"
+                ],
+                "summary": "List customers (Reference TC-1 2.b.i)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CustomerJsonPaginatedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new customer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers",
+                    "sign-up"
+                ],
+                "summary": "Create customer",
+                "parameters": [
+                    {
+                        "description": "Customer data",
+                        "name": "customer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateCustomerBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CustomerJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/customers/{id}": {
+            "get": {
+                "description": "Search for a customer by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers"
+                ],
+                "summary": "Get customer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Customer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CustomerJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing customer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers"
+                ],
+                "summary": "Update customer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Customer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Customer data",
+                        "name": "customer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateCustomerBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CustomerJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a customer by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers"
+                ],
+                "summary": "Delete customer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Customer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CustomerJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Checks application readiness",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health-check"
+                ],
+                "summary": "Application Readiness",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.HealthCheckResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/response.HealthCheckResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/livez": {
+            "get": {
+                "description": "Checks application liveness",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health-check"
+                ],
+                "summary": "Application Liveness",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.HealthCheckLivenessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/readyz": {
+            "get": {
+                "description": "Checks application readiness",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health-check"
+                ],
+                "summary": "Application Readiness",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.HealthCheckResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/response.HealthCheckResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders": {
+            "get": {
+                "description": "List all orders\n## Order list is sorted by:\n- **Status** in **descending** order (`READY` \u003e `PREPARING` \u003e `RECEIVED` \u003e `PENDING` \u003e `OPEN`)\n- **Created date** (CreatedAt) in **ascending** order (oldest first)\nObs: Status CANCELLED and COMPLETED are not included in the list by default",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "List orders (Reference TC-1 2.b.vi; TC-2 1.a.iv)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter by customer ID",
+                        "name": "customer_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status (Accept many), options: \u003csub\u003eOPEN, PENDING, RECEIVED, PREPARING, READY\u003c/sub\u003e, ex: \u003csub\u003ePENDING\u003c/sub\u003e or \u003csub\u003eOPEN,PENDING\u003c/sub\u003e",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "CANCELLED,COMPLETED",
+                        "description": "Exclude by status (Accept many), options: \u003csub\u003eNONE, OPEN, PENDING, RECEIVED, PREPARING, READY, CANCELLED, COMPLETED\u003c/sub\u003e, ex: \u003csub\u003eCANCELLED\u003c/sub\u003e or \u003csub\u003eCANCELLED,COMPLETED\u003c/sub\u003e (default)",
+                        "name": "status_exclude",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "status:d,created_at",
+                        "description": "Sort by field (Accept many). Use `\u003cfield_name\u003e:d` for descending, and the default order is ascending",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderJsonPaginatedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Create order",
+                "parameters": [
+                    {
+                        "description": "Order data",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrderBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/histories": {
+            "get": {
+                "description": "List all order histories",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "List order histories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by order_id",
+                        "name": "order_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status. Available options: OPEN, CANCELLED, PENDING, RECEIVED, PREPARING, READY, COMPLETED",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderHistoryJsonPaginatedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/histories/{id}": {
+            "get": {
+                "description": "Search for a order history by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get order history",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "OrderHistory ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderHistoryJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a order history by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Delete order history",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "OrderHistory ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderHistoryJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/products": {
+            "get": {
+                "description": "List all order products",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "List order products",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by order ID",
+                        "name": "order_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderProductJsonPaginatedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/products/{order_id}/{product_id}": {
+            "get": {
+                "description": "Get an order product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get an order product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderProductJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing order product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Update order product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "OrderProduct data",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateOrderProductBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderProductJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create an order product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Create an order product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "OrderProduct data",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrderProductBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderProductJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a order product by Order ID and Product ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Delete order product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderProductJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/{id}": {
+            "get": {
+                "description": "Search for a order by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get order",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing order\nThe status are: **OPEN**, **CANCELLED**, **PENDING**, **RECEIVED**, **PREPARING**, **READY**, **COMPLETED**\n## Transition of status:\n- OPEN      -\u003e CANCELLED || PENDING\n- CANCELLED -\u003e {},\n- PENDING   -\u003e OPEN || RECEIVED\n- RECEIVED  -\u003e PREPARING\n- PREPARING -\u003e READY\n- READY     -\u003e COMPLETED\n- COMPLETED -\u003e {}",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Update order",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Order data",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateOrderBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a order by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Delete order",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Partially updates an existing order\nThe status are: **OPEN**, **CANCELLED**, **PENDING**, **RECEIVED**, **PREPARING**, **READY**, **COMPLETED**\n## Transition of status:\n- OPEN      -\u003e CANCELLED || PENDING\n- CANCELLED -\u003e {},\n- PENDING   -\u003e OPEN || RECEIVED\n- RECEIVED  -\u003e PREPARING\n- PREPARING -\u003e READY\n- READY     -\u003e COMPLETED\n- COMPLETED -\u003e {}",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Partial update order (Reference TC-2 1.a.v)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Order data",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateOrderPartilRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.OrderJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payments/callback": {
+            "post": {
+                "description": "Update a new payment (Webhook)\n- resource = external payment id, obtained from the checkout response\n- topic = payment\n\n\u003e The status of the payment will be set to CONFIRMED if the payment was successful\n## Possible status:\n- `PROCESSING` (default)\n- `CONFIRMED`\n- `FAILED`\n- `ABORTED`",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Update a payment (Webhook) (Reference TC-2 1.a.iii)",
+                "parameters": [
+                    {
+                        "description": "Payment data",
+                        "name": "payment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdatePaymentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.PaymentJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payments/{order_id}": {
+            "get": {
+                "description": "Get a payment given order ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Get a payment given order ID (Reference TC-2 1.a.ii)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.PaymentJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payments/{order_id}/checkout": {
+            "post": {
+                "description": "Creates a new payment (Checkout)\nThe status of the payment will be set to PROCESSING",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Create a payment (Checkout) (Reference TC-1 2.b.v; TC-2 1.a.i, 1.a.v)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.PaymentJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/products": {
+            "get": {
+                "description": "List all products\nResponse can return JSON or XML format (Accept header: application/json or text/xml)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "List products (Reference TC-1 2.b.iv)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by category ID",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.ProductJsonPaginatedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new product\nResponse can return JSON or XML format (Accept header: application/json or text/xml)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Create product (Reference TC-1 2.b.iii)",
+                "parameters": [
+                    {
+                        "description": "Product data",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateProductBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.ProductJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}": {
+            "get": {
+                "description": "Search for a product by ID\nResponse can return JSON or XML format (Accept header: application/json or text/xml)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Get product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.ProductJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing product\nResponse can return JSON or XML format (Accept header: application/json or text/xml)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Update product (Reference TC-1 2.b.iii)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Product data",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateProductBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.ProductJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a product by ID\nResponse can return JSON or XML format (Accept header: application/json or text/xml)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Delete product (Reference TC-1 2.b.iii)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.ProductJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/staffs": {
+            "get": {
+                "description": "List all staffs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staffs"
+                ],
+                "summary": "List staffs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by role. Available options: COOK, ATTENDANT, MANAGER",
+                        "name": "role",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.StaffJsonPaginatedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new staff",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staffs"
+                ],
+                "summary": "Create staff",
+                "parameters": [
+                    {
+                        "description": "Staff data",
+                        "name": "staff",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateStaffBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.StaffJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/staffs/{id}": {
+            "get": {
+                "description": "Search for a staff by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staffs"
+                ],
+                "summary": "Get staff",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Staff ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.StaffJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing staff",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staffs"
+                ],
+                "summary": "Update staff",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Staff ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Staff data",
+                        "name": "staff",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateStaffBodyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.StaffJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a staff by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staffs"
+                ],
+                "summary": "Delete staff",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Staff ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.StaffJsonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "middleware.ErrorJsonResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Bad Request"
+                }
+            }
+        },
+        "presenter.AuthenticationResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+            }
+        },
+        "presenter.CategoryJsonPaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.CategoryJsonResponse"
+                    }
+                },
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "presenter.CategoryJsonResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                }
+            }
+        },
+        "presenter.CustomerJsonPaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "customers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.CustomerJsonResponse"
+                    }
+                },
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "presenter.CustomerJsonResponse": {
+            "type": "object",
+            "properties": {
+                "cpf": {
+                    "type": "string",
+                    "example": "123.456.789-00"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@email.com"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                }
+            }
+        },
+        "presenter.OrderHistoryJsonPaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "order_histories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.OrderHistoryJsonResponse"
+                    }
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "presenter.OrderHistoryJsonResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "order_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "staff_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OPEN, CANCELLED, PENDING, RECEIVED, PREPARING, READY, COMPLETED"
+                }
+            }
+        },
+        "presenter.OrderJsonPaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "orders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.OrderJsonResponse"
+                    }
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "presenter.OrderJsonResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                },
+                "customer": {
+                    "$ref": "#/definitions/presenter.CustomerJsonResponse"
+                },
+                "customer_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.ProductsJsonResponse"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "PENDING"
+                },
+                "total_bill": {
+                    "type": "string",
+                    "example": "100.00"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                }
+            }
+        },
+        "presenter.OrderProductJsonPaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "order_products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.OrderProductJsonResponse"
+                    }
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "presenter.OrderProductJsonResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                },
+                "order": {
+                    "$ref": "#/definitions/presenter.OrderJsonResponse"
+                },
+                "order_id": {
+                    "type": "integer"
+                },
+                "product": {
+                    "$ref": "#/definitions/presenter.ProductJsonResponse"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                }
+            }
+        },
+        "presenter.PaymentJsonResponse": {
+            "type": "object",
+            "properties": {
+                "external_payment_id": {
+                    "type": "string",
+                    "example": "a0aa0f26-6e0a-4b90-8c49-9f1a9c03ebcc"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "order_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "qr_data": {
+                    "type": "string",
+                    "example": "qr_data_a0aa0f26-6e0a-4b90-8c49-9f1a9c03ebcc"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/valueobject.PaymentStatus"
+                        }
+                    ],
+                    "example": "pending"
+                }
+            }
+        },
+        "presenter.ProductJsonPaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.ProductJsonResponse"
+                    }
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "presenter.ProductJsonResponse": {
+            "type": "object",
+            "properties": {
+                "category_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Description of product A"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Product A"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 99.99
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                }
+            }
+        },
+        "presenter.ProductsJsonResponse": {
+            "type": "object",
+            "properties": {
+                "category_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Description of product A"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Product A"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 99.99
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                }
+            }
+        },
+        "presenter.StaffJsonPaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "staffs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.StaffJsonResponse"
+                    }
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "presenter.StaffJsonResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "COOK, ATTENDANT or MANAGER"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-02-09T10:00:00Z"
+                }
+            }
+        },
+        "request.AuthenticateBodyRequest": {
+            "type": "object",
+            "required": [
+                "cpf"
+            ],
+            "properties": {
+                "cpf": {
+                    "type": "string",
+                    "example": "000.000.000-00"
+                }
+            }
+        },
+        "request.CreateCategoryBodyRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3,
+                    "example": "Foods"
+                }
+            }
+        },
+        "request.CreateCustomerBodyRequest": {
+            "type": "object",
+            "required": [
+                "cpf",
+                "email",
+                "name"
+            ],
+            "properties": {
+                "cpf": {
+                    "type": "string",
+                    "example": "123.456.789-00"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@email.com"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3,
+                    "example": "John Doe"
+                }
+            }
+        },
+        "request.CreateOrderBodyRequest": {
+            "type": "object",
+            "required": [
+                "customer_id"
+            ],
+            "properties": {
+                "customer_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "request.CreateOrderProductBodyRequest": {
+            "type": "object",
+            "required": [
+                "quantity"
+            ],
+            "properties": {
+                "quantity": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "request.CreateProductBodyRequest": {
+            "type": "object",
+            "required": [
+                "category_id",
+                "name",
+                "price"
+            ],
+            "properties": {
+                "category_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "example": "Product A description"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3,
+                    "example": "Product A"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 99.99
+                }
+            }
+        },
+        "request.CreateStaffBodyRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "role"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3,
+                    "example": "John Doe"
+                },
+                "role": {
+                    "maxLength": 500,
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/valueobject.StaffRole"
+                        }
+                    ],
+                    "example": "COOK"
+                }
+            }
+        },
+        "request.UpdateCategoryBodyRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Beverages"
+                }
+            }
+        },
+        "request.UpdateCustomerBodyRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "test.customer.1@email.com"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3,
+                    "example": "Produto A"
+                }
+            }
+        },
+        "request.UpdateOrderBodyRequest": {
+            "type": "object",
+            "required": [
+                "customer_id",
+                "status"
+            ],
+            "properties": {
+                "customer_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "staff_id": {
+                    "description": "StaffID is only required when status is PREPARING, READY or COMPLETED",
+                    "type": "integer",
+                    "example": 1
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/valueobject.OrderStatus"
+                        }
+                    ],
+                    "example": "PENDING"
+                }
+            }
+        },
+        "request.UpdateOrderPartilRequest": {
+            "type": "object",
+            "properties": {
+                "staff_id": {
+                    "description": "StaffID is only required when status is PREPARING, READY or COMPLETED",
+                    "type": "integer",
+                    "example": 1
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/valueobject.OrderStatus"
+                        }
+                    ],
+                    "example": "PENDING"
+                }
+            }
+        },
+        "request.UpdateOrderProductBodyRequest": {
+            "type": "object",
+            "required": [
+                "quantity"
+            ],
+            "properties": {
+                "quantity": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "request.UpdatePaymentRequest": {
+            "type": "object",
+            "required": [
+                "resource",
+                "topic"
+            ],
+            "properties": {
+                "resource": {
+                    "type": "string"
+                },
+                "topic": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateProductBodyRequest": {
+            "type": "object",
+            "required": [
+                "category_id",
+                "name",
+                "price"
+            ],
+            "properties": {
+                "category_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "example": "Product A description"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3,
+                    "example": "Product A"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 99.99
+                }
+            }
+        },
+        "request.UpdateStaffBodyRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "role"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3,
+                    "example": "John Doe"
+                },
+                "role": {
+                    "maxLength": 500,
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/valueobject.StaffRole"
+                        }
+                    ],
+                    "example": "COOK"
+                }
+            }
+        },
+        "response.HealthCheckLivenessResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.HealthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "checks": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/response.HealthCheckVerifications"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/response.HealthCheckStatus"
+                }
+            }
+        },
+        "response.HealthCheckStatus": {
+            "type": "string",
+            "enum": [
+                "pass",
+                "warn",
+                "fail"
+            ],
+            "x-enum-varnames": [
+                "HealthCheckStatusPass",
+                "HealthCheckStatusWarn",
+                "HealthCheckStatusFail"
+            ]
+        },
+        "response.HealthCheckVerifications": {
+            "type": "object",
+            "properties": {
+                "componentId": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/response.HealthCheckStatus"
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "valueobject.OrderStatus": {
+            "type": "string",
+            "enum": [
+                "OPEN",
+                "CANCELLED",
+                "PENDING",
+                "RECEIVED",
+                "PREPARING",
+                "READY",
+                "COMPLETED",
+                "UNDEFINDED"
+            ],
+            "x-enum-varnames": [
+                "OPEN",
+                "CANCELLED",
+                "PENDING",
+                "RECEIVED",
+                "PREPARING",
+                "READY",
+                "COMPLETED",
+                "UNDEFINDED"
+            ]
+        },
+        "valueobject.PaymentStatus": {
+            "type": "string",
+            "enum": [
+                "PROCESSING",
+                "CONFIRMED",
+                "FAILED",
+                "ABORTED",
+                ""
+            ],
+            "x-enum-varnames": [
+                "PROCESSING",
+                "CONFIRMED",
+                "FAILED",
+                "ABORTED",
+                "UNDEFINDED_P"
+            ]
+        },
+        "valueobject.StaffRole": {
+            "type": "string",
+            "enum": [
+                "COOK",
+                "ATTENDANT",
+                "MANAGER",
+                ""
+            ],
+            "x-enum-varnames": [
+                "COOK",
+                "ATTENDANT",
+                "MANAGER",
+                "UNDEFINED"
+            ]
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and the access token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "tags": [
+        {
+            "description": "Regiter a new customer",
+            "name": "sign-up"
+        },
+        {
+            "description": "Sign in to the system",
+            "name": "sign-in"
+        },
+        {
+            "description": "List, create, update and delete customers",
+            "name": "customers"
+        },
+        {
+            "description": "List, create, update and delete products",
+            "name": "products"
+        },
+        {
+            "description": "List, create, update and delete orders",
+            "name": "orders"
+        },
+        {
+            "description": "Process payments",
+            "name": "payments"
+        },
+        {
+            "description": "List, create, update and delete staff",
+            "name": "staffs"
+        },
+        {
+            "description": "Health check",
+            "name": "health-check"
+        }
+    ],
+    "externalDocs": {
+        "description": "GitHub Repository",
+        "url": "https://github.com/FIAP-SOAT-G20/tc4-order-service"
+    }
+}

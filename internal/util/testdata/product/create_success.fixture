@@ -1,0 +1,7 @@
+{
+    "name": "Product X",
+    "description": "Product X description",
+    "price": 13,
+    "category_id": 1,
+    "active": true
+}

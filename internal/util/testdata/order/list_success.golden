@@ -1,0 +1,63 @@
+{
+  "total": 2,
+  "page": 1,
+  "limit": 10,
+  "orders": [
+    {
+      "id": 13,
+      "customer_id": 1,
+      "total_bill": "6.90",
+      "status": "READY",
+      "customer": {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john.doe@email.com",
+        "cpf": "123.456.789-00",
+        "created_at": "2025-02-28T16:28:18Z",
+        "updated_at": "2025-02-28T16:28:18Z"
+      },
+      "products": [
+        {
+          "id": 2,
+          "name": "Coca-Cola 350ml",
+          "description": "Refrigerante Coca-Cola lata",
+          "price": 6.9,
+          "category_id": 2,
+          "created_at": "2025-02-28T16:28:18Z",
+          "updated_at": "2025-02-28T16:28:18Z",
+          "quantity": 1
+        }
+      ],
+      "created_at": "2021-10-01T09:59:59Z",
+      "updated_at": "2025-02-28T16:28:18Z"
+    },
+    {
+      "id": 6,
+      "customer_id": 1,
+      "total_bill": "25.90",
+      "status": "READY",
+      "customer": {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john.doe@email.com",
+        "cpf": "123.456.789-00",
+        "created_at": "2025-02-28T16:28:18Z",
+        "updated_at": "2025-02-28T16:28:18Z"
+      },
+      "products": [
+        {
+          "id": 1,
+          "name": "X-Burger",
+          "description": "Hambúrguer com queijo, alface e tomate",
+          "price": 25.9,
+          "category_id": 1,
+          "created_at": "2025-02-28T16:28:18Z",
+          "updated_at": "2025-02-28T16:28:18Z",
+          "quantity": 1
+        }
+      ],
+      "created_at": "2021-10-01T10:00:00Z",
+      "updated_at": "2025-02-28T16:28:18Z"
+    }
+  ]
+}

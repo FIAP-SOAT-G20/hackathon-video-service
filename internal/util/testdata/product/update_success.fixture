@@ -1,0 +1,7 @@
+{
+    "name": "Product X UPDATED",
+    "description": "Product X description UPDATED",
+    "price": 12.11,
+    "category_id": 1,
+    "active": true
+}

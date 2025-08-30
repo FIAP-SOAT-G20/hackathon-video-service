@@ -30,3 +30,16 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Log
+*.log
+
+# keep folders with gitkeep
+!**/.gitkeep
+
+bin/
+
+coverage.out
+
+.DS_Store
+.qodo

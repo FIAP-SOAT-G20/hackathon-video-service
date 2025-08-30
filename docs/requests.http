@@ -1,0 +1,246 @@
+# Test with HTTP Rest extension for VS Code 
+# https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+
+@version = v1
+@contentType = application/json
+# @contentType = text/xml
+
+# Local API
+@host = http://localhost:8080
+
+# Local K8s API
+# @host = http://localhost
+
+@num = 6
+@name = John Doe {{num}}
+@email = john.doe.{{num}}@email.com
+@cpf = 123.456.789-0{{num}}
+
+
+# @name healthCheck
+GET {{host}}/api/{{version}}/health HTTP/1.1
+
+@healthStatus = {{healthCheck.response.body.status}}
+
+###
+
+
+# @name createCustomer
+POST {{host}}/api/{{version}}/customers/ HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+    "name": "{{name}}",
+    "email": "{{email}}",
+    "cpf": "{{cpf}}"
+}
+
+@customerId = {{createCustomer.response.body.id}}
+
+###
+
+# @name getCustomer
+GET {{host}}/api/{{version}}/customers/{{customerId}} HTTP/1.1
+
+###
+
+# @name signIn
+POST {{host}}/api/{{version}}/auth HTTP/1.1
+
+{
+    "cpf": "{{cpf}}"
+}
+
+###
+
+# @name getProducts
+GET {{host}}/api/{{version}}/products HTTP/1.1
+Accept: {{contentType}}
+
+###
+
+# @name createProduct
+POST {{host}}/api/{{version}}/products HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+    "name": "Product X",
+    "description": "Product X description",
+    "price": 13,
+    "category_id": 1,
+		"active": true
+}
+
+@productId = {{createProduct.response.body.id}}
+
+###
+
+# @name getProduct
+GET {{host}}/api/{{version}}/products/{{productId}} HTTP/1.1
+
+###
+
+# @name updateProduct
+PUT {{host}}/api/{{version}}/products/{{productId}} HTTP/1.1
+
+{
+    "name": "Product X UPDATED",
+    "description": "Product X description UPDATED",
+    "price": 13,
+    "category_id": 1,
+    "active": false
+}
+
+###
+
+# @name getProduct
+GET {{host}}/api/{{version}}/products/{{productId}} HTTP/1.1
+
+###
+
+# @name getProducts
+GET {{host}}/api/{{version}}/products HTTP/1.1
+
+###
+
+# @name deleteProduct
+DELETE {{host}}/api/{{version}}/products/{{productId}} HTTP/1.1
+
+###
+
+# @name getProducts
+GET {{host}}/api/{{version}}/products HTTP/1.1
+
+###
+
+# @name getProductsByCategory
+GET {{host}}/api/{{version}}/products?category_id=1 HTTP/1.1
+
+###
+
+# @name getOrders
+GET {{host}}/api/{{version}}/orders HTTP/1.1
+
+###
+
+# @name createOrder
+POST {{host}}/api/{{version}}/orders HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+    "customer_id": {{customerId}}
+}
+
+@orderId = {{createOrder.response.body.id}}
+
+###
+
+# @name getOrder
+GET {{host}}/api/{{version}}/orders/{{orderId}} HTTP/1.1
+
+### 
+
+# @name getOrders
+GET {{host}}/api/{{version}}/orders HTTP/1.1
+
+###
+
+# @name addProduct1ToOrder
+POST {{host}}/api/{{version}}/orders/products/{{orderId}}/1 HTTP/1.1
+
+{
+  "quantity": 2
+}
+
+###
+
+# @name getOrder
+GET {{host}}/api/{{version}}/orders/{{orderId}} HTTP/1.1
+
+
+###
+
+# @name checkout
+POST {{host}}/api/{{version}}/payments/{{orderId}}/checkout HTTP/1.1
+
+@paymentId = {{checkout.response.body.id}}
+@paymentResource = {{checkout.response.body.external_payment_id}}
+
+###
+
+# @name paymentStatus
+GET {{host}}/api/{{version}}/payments/{{orderId}} HTTP/1.1
+
+
+# ###
+
+# # @name confirmPayment
+# POST {{host}}/api/{{version}}/payments/callback HTTP/1.1
+
+# {
+#     "resource": "{{paymentResource}}",
+#     "topic": "payment"
+# }
+
+###
+
+# @name orderHistory
+GET {{host}}/api/{{version}}/orders/histories/?order_id={{orderId}} HTTP/1.1
+
+
+### 
+
+# @name getOrderReceived
+GET {{host}}/api/{{version}}/orders/{{orderId}} HTTP/1.1
+
+###
+
+# @name updateOrderStatusWithStaffToPreparing
+PATCH {{host}}/api/{{version}}/orders/{{orderId}} HTTP/1.1
+
+{
+    "staff_id": 1,
+    "status": "PREPARING"
+}
+
+### 
+
+# @name getOrderPreparing
+GET {{host}}/api/{{version}}/orders/{{orderId}} HTTP/1.1
+
+###
+
+# @name updateOrderStatusWithStaffToReady
+PATCH {{host}}/api/{{version}}/orders/{{orderId}} HTTP/1.1
+
+{
+    "staff_id": 1,
+    "status": "READY"
+}
+
+### 
+
+# @name getOrderReady
+GET {{host}}/api/{{version}}/orders/{{orderId}} HTTP/1.1
+
+###
+
+# @name updateOrderStatusWithStaffToCompleted
+PATCH {{host}}/api/{{version}}/orders/{{orderId}} HTTP/1.1
+
+{
+    "staff_id": 1,
+    "status": "COMPLETED"
+}
+
+### 
+
+# @name getOrderCompleted
+GET {{host}}/api/{{version}}/orders/{{orderId}} HTTP/1.1
+
+### 
+
+# @name getOrders
+GET {{host}}/api/{{version}}/orders?page=1 HTTP/1.1
+
+

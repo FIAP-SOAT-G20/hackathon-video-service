@@ -1,0 +1,38 @@
+{
+    "id": 5,
+    "customer_id": 1,
+    "total_bill": "32.80",
+    "status": "OPEN",
+    "customer": {
+        "id": 5,
+        "name": "Test Customer 1",
+        "email": "test.customer.1@email.com",
+        "cpf": "321.654.987-00",
+        "created_at": "2025-02-28T16:28:18Z",
+        "updated_at": "2025-02-28T16:28:18Z"
+    },
+    "products": [
+        {
+            "id": 1,
+            "name": "X-Burger",
+            "description": "Hambúrguer com queijo, alface e tomate",
+            "price": 25.9,
+            "category_id": 1,
+            "created_at": "2025-02-27T12:41:16Z",
+            "updated_at": "2025-02-27T12:41:16Z",
+            "quantity": 1
+        },
+        {
+            "id": 2,
+            "name": "Coca-Cola 350ml",
+            "description": "Refrigerante Coca-Cola lata",
+            "price": 6.9,
+            "category_id": 2,
+            "created_at": "2025-02-27T12:41:16Z",
+            "updated_at": "2025-02-27T12:41:16Z",
+            "quantity": 1
+        }
+    ],
+    "created_at": "2025-02-27T12:41:16Z",
+    "updated_at": "2025-02-27T12:41:16Z"
+}
