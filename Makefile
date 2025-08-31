@@ -198,3 +198,57 @@ bdd-tests: ## Run BDD tests
 	@echo "🟢 Running BDD tests..."
 	go test -test.v -test.run ^TestFeatures$$ ./tests
 
+# DocumentDB Integration Targets
+
+.PHONY: documentdb-up
+documentdb-up: ## Start DocumentDB/MongoDB development environment
+	@echo "🟢 Starting DocumentDB/MongoDB environment..."
+	docker-compose -f docker-compose.documentdb.yml up -d mongodb
+
+.PHONY: documentdb-down
+documentdb-down: ## Stop DocumentDB/MongoDB development environment
+	@echo "🔴 Stopping DocumentDB/MongoDB environment..."
+	docker-compose -f docker-compose.documentdb.yml down
+
+.PHONY: documentdb-test
+documentdb-test: ## Test DocumentDB integration
+	@echo "🟢 Testing DocumentDB integration..."
+	./scripts/test-documentdb.sh
+
+.PHONY: documentdb-clean
+documentdb-clean: ## Clean DocumentDB/MongoDB environment and volumes
+	@echo "🔴 Cleaning DocumentDB/MongoDB environment..."
+	docker-compose -f docker-compose.documentdb.yml down --volumes --rmi all
+
+.PHONY: run-documentdb
+run-documentdb: documentdb-up ## Run the application with DocumentDB
+	@echo "🟢 Running application with DocumentDB..."
+	@export DOCUMENTDB_URI="mongodb://admin:password@localhost:27017/video_service?authSource=admin" && \
+	export DOCUMENTDB_NAME="video_service" && \
+	export ENVIRONMENT="mongodb" && \
+	export SERVER_PORT="8082" && \
+	export JWT_SECRET="test-secret-key" && \
+	./bin/$(APP_NAME)
+
+.PHONY: run-postgres
+run-postgres: run-db ## Run the application with PostgreSQL (default)
+	@echo "🟢 Running application with PostgreSQL..."
+	@export ENVIRONMENT="postgres" && \
+	./bin/$(APP_NAME)
+
+.PHONY: test-integration
+test-integration: ## Run integration tests for both databases
+	@echo "🟢 Running integration tests..."
+	@echo "Testing PostgreSQL integration..."
+	make run-db
+	sleep 5
+	go test ./internal/infrastructure/datasource/ -tags=integration -v
+	@echo "Testing DocumentDB integration..."
+	make documentdb-up
+	sleep 10
+	DOCUMENTDB_URI="mongodb://admin:password@localhost:27017/video_service?authSource=admin" \
+	DOCUMENTDB_NAME="video_service" \
+	go test ./internal/infrastructure/datasource/ -run TestVideoDocumentDataSource -v
+	make documentdb-down
+	make compose-down
+
