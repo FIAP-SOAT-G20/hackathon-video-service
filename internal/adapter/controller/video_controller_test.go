@@ -15,23 +15,23 @@ import (
 )
 
 // TODO: Add more test cenarios
-func TestOrderController_ListOrders(t *testing.T) {
+func TestVideoController_ListVideos(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mokOrdercUseCase := mockport.NewMockOrderUseCase(ctrl)
+	mokVideocUseCase := mockport.NewMockVideoUseCase(ctrl)
 	mockPresenter := mockport.NewMockPresenter(ctrl)
-	controller := controller.NewOrderController(mokOrdercUseCase)
+	controller := controller.NewVideoController(mokVideocUseCase)
 
 	ctx := context.Background()
-	input := dto.ListOrdersInput{
+	input := dto.ListVideosInput{
 		CustomerID: 1,
-		Status:     []valueobject.OrderStatus{"PENDING"},
+		Status:     []valueobject.VideoStatus{"PENDING"},
 		Page:       1,
 		Limit:      10,
 	}
 
-	mockOrders := []*entity.Order{
+	mockVideos := []*entity.Video{
 		{
 			ID:         1,
 			CustomerID: 1,
@@ -44,13 +44,13 @@ func TestOrderController_ListOrders(t *testing.T) {
 		},
 	}
 
-	mokOrdercUseCase.EXPECT().
+	mokVideocUseCase.EXPECT().
 		List(ctx, input).
-		Return(mockOrders, int64(2), nil)
+		Return(mockVideos, int64(2), nil)
 
 	mockPresenter.EXPECT().
 		Present(dto.PresenterInput{
-			Result: mockOrders,
+			Result: mockVideos,
 			Total:  int64(2),
 			Page:   1,
 			Limit:  10,
@@ -62,31 +62,31 @@ func TestOrderController_ListOrders(t *testing.T) {
 	assert.NotNil(t, output)
 }
 
-func TestOrderController_CreateOrder(t *testing.T) {
+func TestVideoController_CreateVideo(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mokOrdercUseCase := mockport.NewMockOrderUseCase(ctrl)
+	mokVideocUseCase := mockport.NewMockVideoUseCase(ctrl)
 	mockPresenter := mockport.NewMockPresenter(ctrl)
-	controller := controller.NewOrderController(mokOrdercUseCase)
+	controller := controller.NewVideoController(mokVideocUseCase)
 
 	ctx := context.Background()
-	input := dto.CreateOrderInput{
+	input := dto.CreateVideoInput{
 		CustomerID: 1,
 	}
 
-	mockOrder := &entity.Order{
+	mockVideo := &entity.Video{
 		ID:         1,
 		CustomerID: 1,
 		Status:     "OPEN",
 	}
 
-	mokOrdercUseCase.EXPECT().
+	mokVideocUseCase.EXPECT().
 		Create(ctx, input).
-		Return(mockOrder, nil)
+		Return(mockVideo, nil)
 
 	mockPresenter.EXPECT().
-		Present(dto.PresenterInput{Result: mockOrder}).
+		Present(dto.PresenterInput{Result: mockVideo}).
 		Return([]byte{}, nil)
 
 	output, err := controller.Create(ctx, mockPresenter, input)
@@ -94,31 +94,31 @@ func TestOrderController_CreateOrder(t *testing.T) {
 	assert.NotNil(t, output)
 }
 
-func TestOrderController_GetOrder(t *testing.T) {
+func TestVideoController_GetVideo(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mokOrdercUseCase := mockport.NewMockOrderUseCase(ctrl)
+	mokVideocUseCase := mockport.NewMockVideoUseCase(ctrl)
 	mockPresenter := mockport.NewMockPresenter(ctrl)
-	controller := controller.NewOrderController(mokOrdercUseCase)
+	controller := controller.NewVideoController(mokVideocUseCase)
 
 	ctx := context.Background()
-	input := dto.GetOrderInput{
+	input := dto.GetVideoInput{
 		ID: uint64(1),
 	}
 
-	mockOrder := &entity.Order{
+	mockVideo := &entity.Video{
 		ID:         1,
 		CustomerID: 1,
 		Status:     "PENDING",
 	}
 
-	mokOrdercUseCase.EXPECT().
+	mokVideocUseCase.EXPECT().
 		Get(ctx, input).
-		Return(mockOrder, nil)
+		Return(mockVideo, nil)
 
 	mockPresenter.EXPECT().
-		Present(dto.PresenterInput{Result: mockOrder}).
+		Present(dto.PresenterInput{Result: mockVideo}).
 		Return([]byte{}, nil)
 
 	output, err := controller.Get(ctx, mockPresenter, input)
@@ -126,33 +126,33 @@ func TestOrderController_GetOrder(t *testing.T) {
 	assert.NotNil(t, output)
 }
 
-func TestOrderController_UpdateOrder(t *testing.T) {
+func TestVideoController_UpdateVideo(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mokOrdercUseCase := mockport.NewMockOrderUseCase(ctrl)
+	mokVideocUseCase := mockport.NewMockVideoUseCase(ctrl)
 	mockPresenter := mockport.NewMockPresenter(ctrl)
-	controller := controller.NewOrderController(mokOrdercUseCase)
+	controller := controller.NewVideoController(mokVideocUseCase)
 
 	ctx := context.Background()
-	input := dto.UpdateOrderInput{
+	input := dto.UpdateVideoInput{
 		ID:         uint64(1),
 		CustomerID: 1,
 		Status:     "OPEN",
 	}
 
-	mockOrder := &entity.Order{
+	mockVideo := &entity.Video{
 		ID:         1,
 		CustomerID: 1,
 		Status:     "PENDING",
 	}
 
-	mokOrdercUseCase.EXPECT().
+	mokVideocUseCase.EXPECT().
 		Update(ctx, input).
-		Return(mockOrder, nil)
+		Return(mockVideo, nil)
 
 	mockPresenter.EXPECT().
-		Present(dto.PresenterInput{Result: mockOrder}).
+		Present(dto.PresenterInput{Result: mockVideo}).
 		Return([]byte{}, nil)
 
 	output, err := controller.Update(ctx, mockPresenter, input)
@@ -160,31 +160,31 @@ func TestOrderController_UpdateOrder(t *testing.T) {
 	assert.NotNil(t, output)
 }
 
-func TestOrderController_DeleteOrder(t *testing.T) {
+func TestVideoController_DeleteVideo(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mokOrdercUseCase := mockport.NewMockOrderUseCase(ctrl)
+	mockVideocUseCase := mockport.NewMockVideoUseCase(ctrl)
 	mockPresenter := mockport.NewMockPresenter(ctrl)
-	controller := controller.NewOrderController(mokOrdercUseCase)
+	controller := controller.NewVideoController(mockVideocUseCase)
 
 	ctx := context.Background()
-	input := dto.DeleteOrderInput{
+	input := dto.DeleteVideoInput{
 		ID: uint64(1),
 	}
 
-	mockOrder := &entity.Order{
+	mockVideo := &entity.Video{
 		ID:         1,
 		CustomerID: 1,
 		Status:     "PENDING",
 	}
 
-	mokOrdercUseCase.EXPECT().
+	mockVideocUseCase.EXPECT().
 		Delete(ctx, input).
-		Return(mockOrder, nil)
+		Return(mockVideo, nil)
 
 	mockPresenter.EXPECT().
-		Present(dto.PresenterInput{Result: mockOrder}).
+		Present(dto.PresenterInput{Result: mockVideo}).
 		Return([]byte{}, nil)
 
 	output, err := controller.Delete(ctx, mockPresenter, input)

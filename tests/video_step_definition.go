@@ -82,8 +82,8 @@ func startContainer(ctx context.Context) (testcontainers.Container, error) {
 
 type apiFeature struct {
 	router        *gin.Engine
-	deletedOrders map[string]bool
-	orderStatus   map[string]valueobject.OrderStatus // Track order statuses
+	deletedVideos map[string]bool
+	videoStatus   map[string]valueobject.VideoStatus // Track video statuses
 }
 
 type response struct {
@@ -98,50 +98,50 @@ func (a *apiFeature) resetResponse(*godog.Scenario) {
 	// Create a new Gin router
 	a.router = gin.New()
 
-	// Initialize deleted orders tracking
-	a.deletedOrders = make(map[string]bool)
-	// Initialize order status tracking
-	a.orderStatus = make(map[string]valueobject.OrderStatus)
+	// Initialize deleted videos tracking
+	a.deletedVideos = make(map[string]bool)
+	// Initialize video status tracking
+	a.videoStatus = make(map[string]valueobject.VideoStatus)
 
 	// Set up mock routes for testing
 	api := a.router.Group("/api/v1")
 	{
-		// Mock order routes
-		api.POST("/orders", func(c *gin.Context) {
-			var order entity.Order
-			if err := c.ShouldBindJSON(&order); err != nil {
+		// Mock video routes
+		api.POST("/videos", func(c *gin.Context) {
+			var video entity.Video
+			if err := c.ShouldBindJSON(&video); err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
 			}
 
-			// Mock successful order creation
-			order.ID = 12345
-			if order.Status == "" {
-				order.Status = "OPEN"
+			// Mock successful video creation
+			video.ID = 12345
+			if video.Status == "" {
+				video.Status = "OPEN"
 			}
-			order.CreatedAt = time.Now()
-			order.UpdatedAt = time.Now()
+			video.CreatedAt = time.Now()
+			video.UpdatedAt = time.Now()
 
-			c.JSON(http.StatusCreated, order)
+			c.JSON(http.StatusCreated, video)
 		})
 
-		api.GET("/orders/:id", func(c *gin.Context) {
+		api.GET("/videos/:id", func(c *gin.Context) {
 			id := c.Param("id")
 
-			// Check if order was deleted
-			if a.deletedOrders[id] {
-				c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
+			// Check if video was deleted
+			if a.deletedVideos[id] {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Video not found"})
 				return
 			}
 
 			// Get the expected status from our tracking map, default to "OPEN"
 			expectedStatus := valueobject.OPEN
-			if status, exists := a.orderStatus[id]; exists {
+			if status, exists := a.videoStatus[id]; exists {
 				expectedStatus = status
 			}
 
-			// Mock order response
-			order := entity.Order{
+			// Mock video response
+			video := entity.Video{
 				ID:        12345,
 				Status:    expectedStatus,
 				CreatedAt: time.Now(),
@@ -150,15 +150,15 @@ func (a *apiFeature) resetResponse(*godog.Scenario) {
 
 			// If a specific ID is requested, mock it
 			if id != "" {
-				c.JSON(http.StatusOK, order)
+				c.JSON(http.StatusOK, video)
 				return
 			}
 
-			c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "Video not found"})
 		})
 
-		// Mock order status update route
-		api.PATCH("/orders/:id", func(c *gin.Context) {
+		// Mock video status update route
+		api.PATCH("/videos/:id", func(c *gin.Context) {
 			// Read the raw body first
 			bodyBytes, err := c.GetRawData()
 			if err != nil {
@@ -172,23 +172,23 @@ func (a *apiFeature) resetResponse(*godog.Scenario) {
 				// Handle JSON payload
 				if status, ok := statusUpdate["status"]; ok {
 					statusStr := status.(string)
-					// Use ToOrderStatus to properly convert and validate the status
-					if orderStatus, isValid := valueobject.ToOrderStatus(statusStr); isValid {
-						// Update the order status in our tracking map
+					// Use ToVideoStatus to properly convert and validate the status
+					if videoStatus, isValid := valueobject.ToVideoStatus(statusStr); isValid {
+						// Update the video status in our tracking map
 						id := c.Param("id")
-						a.orderStatus[id] = orderStatus
+						a.videoStatus[id] = videoStatus
 
-						order := entity.Order{
+						video := entity.Video{
 							ID:        12345,
-							Status:    orderStatus,
+							Status:    videoStatus,
 							CreatedAt: time.Now(),
 							UpdatedAt: time.Now(),
 						}
-						c.JSON(http.StatusOK, order)
+						c.JSON(http.StatusOK, video)
 						return
 					}
 					// If status is not valid, return error
-					c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order status"})
+					c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid video status"})
 					return
 				}
 				// If no status provided, return error
@@ -204,78 +204,78 @@ func (a *apiFeature) resetResponse(*godog.Scenario) {
 			// Debug: print the received status
 			fmt.Printf("DEBUG: Received status string: '%s'\n", newStatus)
 
-			// Use ToOrderStatus to properly convert and validate the status
-			if orderStatus, ok := valueobject.ToOrderStatus(newStatus); ok {
-				// Update the order status in our tracking map
+			// Use ToVideoStatus to properly convert and validate the status
+			if videoStatus, ok := valueobject.ToVideoStatus(newStatus); ok {
+				// Update the video status in our tracking map
 				id := c.Param("id")
-				a.orderStatus[id] = orderStatus
+				a.videoStatus[id] = videoStatus
 
-				order := entity.Order{
+				video := entity.Video{
 					ID:        12345,
-					Status:    orderStatus,
+					Status:    videoStatus,
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				}
-				c.JSON(http.StatusOK, order)
+				c.JSON(http.StatusOK, video)
 				return
 			}
 
 			// If status is not valid, return error
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order status"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid video status"})
 		})
 
-		// Mock order deletion route
-		api.DELETE("/orders/:id", func(c *gin.Context) {
+		// Mock videos deletion route
+		api.DELETE("/videos/:id", func(c *gin.Context) {
 			id := c.Param("id")
 
-			// Check if order already deleted
-			if a.deletedOrders[id] {
-				c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
+			// Check if video already deleted
+			if a.deletedVideos[id] {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Video not found"})
 				return
 			}
 
-			// Mock successful deletion for existing order
+			// Mock successful deletion for existing video
 			if id == "12345" {
-				a.deletedOrders[id] = true
-				c.JSON(http.StatusOK, gin.H{"message": "Order deleted successfully"})
+				a.deletedVideos[id] = true
+				c.JSON(http.StatusOK, gin.H{"message": "Video deleted successfully"})
 				return
 			}
 
-			c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "Video not found"})
 		})
 	}
 }
 
-func (a *apiFeature) iHaveAValidOrderRequest(ctx context.Context) error {
-	order := entity.Order{
+func (a *apiFeature) iHaveAValidVideoRequest(ctx context.Context) error {
+	video := entity.Video{
 		ID:     12345,
 		Status: "created",
 	}
-	// Store the order in context for later steps
-	ctx = context.WithValue(ctx, godogsRequestCtxKey{}, order) //nolint
+	// Store the video in context for later steps
+	ctx = context.WithValue(ctx, godogsRequestCtxKey{}, video) //nolint
 	return nil
 }
 
-func (a *apiFeature) iHaveAnExistingOrderWithID(ctx context.Context, orderID string) error {
-	// Set the order status to PENDING for the retrieve scenario
-	a.orderStatus[orderID] = valueobject.PENDING
+func (a *apiFeature) iHaveAnExistingVideoWithID(ctx context.Context, videoID string) error {
+	// Set the video status to PENDING for the retrieve scenario
+	a.videoStatus[videoID] = valueobject.PENDING
 
-	order := entity.Order{
+	video := entity.Video{
 		ID:     12345,
 		Status: valueobject.PENDING,
 	}
-	ctx = context.WithValue(ctx, godogsRequestCtxKey{}, order) //nolint
+	ctx = context.WithValue(ctx, godogsRequestCtxKey{}, video) //nolint
 
-	// Mock the existence of an order with the given ID
-	if orderID != "12345" {
-		return fmt.Errorf("order with ID %s does not exist", orderID)
+	// Mock the existence of a video with the given ID
+	if videoID != "12345" {
+		return fmt.Errorf("video with ID %s does not exist", videoID)
 	}
 
 	return nil
 }
 
-func (a *apiFeature) iRequestTheOrderDetailsForID(ctx context.Context, orderID string) (context.Context, error) {
-	req := httptest.NewRequest("GET", fmt.Sprintf("/api/v1/orders/%s", orderID), nil)
+func (a *apiFeature) iRequestTheVideoDetailsForID(ctx context.Context, videoID string) (context.Context, error) {
+	req := httptest.NewRequest("GET", fmt.Sprintf("/api/v1/videos/%s", videoID), nil)
 	w := httptest.NewRecorder()
 	a.router.ServeHTTP(w, req)
 
@@ -283,30 +283,30 @@ func (a *apiFeature) iRequestTheOrderDetailsForID(ctx context.Context, orderID s
 		return ctx, fmt.Errorf("expected status code 200, got %d", w.Code)
 	}
 
-	var order entity.Order
-	if err := json.NewDecoder(w.Body).Decode(&order); err != nil {
+	var video entity.Video
+	if err := json.NewDecoder(w.Body).Decode(&video); err != nil {
 		return ctx, fmt.Errorf("failed to decode response body: %w", err)
 	}
 
 	// Store response in context for confirmation step
 	actual := response{
 		status: w.Code,
-		body:   order,
+		body:   video,
 	}
 
 	return context.WithValue(ctx, godogsResponseCtxKey{}, actual), nil
 }
 
-func (a *apiFeature) iSendTheOrderRequestToTheOrderService(ctx context.Context) (context.Context, error) {
-	orderRequest := entity.Order{
+func (a *apiFeature) iSendTheVideoRequestToTheVideoService(ctx context.Context) (context.Context, error) {
+	videoRequest := entity.Video{
 		ID:     12345,
 		Status: "created",
 	}
-	reqBody, err := json.Marshal(orderRequest)
+	reqBody, err := json.Marshal(videoRequest)
 	if err != nil {
-		return ctx, fmt.Errorf("failed to marshal order request: %w", err)
+		return ctx, fmt.Errorf("failed to marshal video request: %w", err)
 	}
-	req := httptest.NewRequest("POST", "/api/v1/orders", bytes.NewReader(reqBody))
+	req := httptest.NewRequest("POST", "/api/v1/videos", bytes.NewReader(reqBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	a.router.ServeHTTP(w, req)
@@ -314,24 +314,24 @@ func (a *apiFeature) iSendTheOrderRequestToTheOrderService(ctx context.Context) 
 	if w.Code != 201 {
 		return ctx, fmt.Errorf("expected status code 201, got %d", w.Code)
 	}
-	var createdOrder entity.Order
-	if err := json.NewDecoder(w.Body).Decode(&createdOrder); err != nil {
+	var createdVideo entity.Video
+	if err := json.NewDecoder(w.Body).Decode(&createdVideo); err != nil {
 		return ctx, fmt.Errorf("failed to decode response body: %w", err)
 	}
-	if createdOrder.ID != orderRequest.ID || createdOrder.Status != orderRequest.Status {
-		return ctx, fmt.Errorf("expected order ID %d and status %s, got ID %d and status %s", orderRequest.ID, orderRequest.Status, createdOrder.ID, createdOrder.Status)
+	if createdVideo.ID != videoRequest.ID || createdVideo.Status != videoRequest.Status {
+		return ctx, fmt.Errorf("expected video ID %d and status %s, got ID %d and status %s", videoRequest.ID, videoRequest.Status, createdVideo.ID, createdVideo.Status)
 	}
 
 	// Store response in context for confirmation step
 	actual := response{
 		status: w.Code,
-		body:   createdOrder,
+		body:   createdVideo,
 	}
 
 	return context.WithValue(ctx, godogsResponseCtxKey{}, actual), nil
 }
 
-func (a *apiFeature) iShouldReceiveAConfirmationOfTheOrderCreation(ctx context.Context) error {
+func (a *apiFeature) iShouldReceiveAConfirmationOfTheVideoCreation(ctx context.Context) error {
 	resp, ok := ctx.Value(godogsResponseCtxKey{}).(response)
 	if !ok {
 		return errors.New("there are no godogs available")
@@ -341,20 +341,20 @@ func (a *apiFeature) iShouldReceiveAConfirmationOfTheOrderCreation(ctx context.C
 		return fmt.Errorf("expected response code to be 201, but got %d", resp.status)
 	}
 
-	// The body should already be an entity.Order object
-	createdOrder, ok := resp.body.(entity.Order)
+	// The body should already be an entity.Video object
+	createdVideo, ok := resp.body.(entity.Video)
 	if !ok {
-		return errors.New("response body is not a valid order")
+		return errors.New("response body is not a valid video")
 	}
 
-	if createdOrder.ID == 0 || createdOrder.Status == "" {
-		return errors.New("order creation confirmation is invalid")
+	if createdVideo.ID == 0 || createdVideo.Status == "" {
+		return errors.New("video creation confirmation is invalid")
 	}
 
 	return nil
 }
 
-func (a *apiFeature) iShouldReceiveTheOrderDetailsWithStatus(ctx context.Context, expectedStatus string) error {
+func (a *apiFeature) iShouldReceiveTheVideoDetailsWithStatus(ctx context.Context, expectedStatus string) error {
 	resp, ok := ctx.Value(godogsResponseCtxKey{}).(response)
 	if !ok {
 		return errors.New("there are no godogs available")
@@ -364,20 +364,20 @@ func (a *apiFeature) iShouldReceiveTheOrderDetailsWithStatus(ctx context.Context
 		return fmt.Errorf("expected response code to be 200, but got %d", resp.status)
 	}
 
-	order, ok := resp.body.(entity.Order)
+	video, ok := resp.body.(entity.Video)
 	if !ok {
-		return errors.New("response body is not a valid order")
+		return errors.New("response body is not a valid video")
 	}
 
-	if order.Status != valueobject.OrderStatus(expectedStatus) {
-		return fmt.Errorf("expected order status to be %s, but got %s", expectedStatus, order.Status)
+	if video.Status != valueobject.VideoStatus(expectedStatus) {
+		return fmt.Errorf("expected video status to be %s, but got %s", expectedStatus, video.Status)
 	}
 
 	return nil
 }
 
-func (a *apiFeature) iDeleteTheOrderWithID(ctx context.Context, orderID string) (context.Context, error) {
-	req := httptest.NewRequest("DELETE", fmt.Sprintf("/api/v1/orders/%s", orderID), nil)
+func (a *apiFeature) iDeleteTheVideoWithID(ctx context.Context, videoID string) (context.Context, error) {
+	req := httptest.NewRequest("DELETE", fmt.Sprintf("/api/v1/videos/%s", videoID), nil)
 	w := httptest.NewRecorder()
 	a.router.ServeHTTP(w, req)
 
@@ -394,7 +394,7 @@ func (a *apiFeature) iDeleteTheOrderWithID(ctx context.Context, orderID string) 
 	return context.WithValue(ctx, godogsResponseCtxKey{}, actual), nil
 }
 
-func (a *apiFeature) iShouldReceiveAConfirmationThatTheOrderHasBeenDeleted(ctx context.Context) error {
+func (a *apiFeature) iShouldReceiveAConfirmationThatTheVideoHasBeenDeleted(ctx context.Context) error {
 	resp, ok := ctx.Value(godogsResponseCtxKey{}).(response)
 	if !ok {
 		return errors.New("there are no godogs available")
@@ -407,7 +407,7 @@ func (a *apiFeature) iShouldReceiveAConfirmationThatTheOrderHasBeenDeleted(ctx c
 	return nil
 }
 
-func (a *apiFeature) iShouldReceiveAConfirmationThatTheOrderStatusHasBeenUpdated(ctx context.Context) error {
+func (a *apiFeature) iShouldReceiveAConfirmationThatTheVideoStatusHasBeenUpdated(ctx context.Context) error {
 	resp, ok := ctx.Value(godogsResponseCtxKey{}).(response)
 	if !ok {
 		return errors.New("there are no godogs available")
@@ -420,8 +420,8 @@ func (a *apiFeature) iShouldReceiveAConfirmationThatTheOrderStatusHasBeenUpdated
 	return nil
 }
 
-func (a *apiFeature) iUpdateTheOrderStatusTo(ctx context.Context, newStatus string) (context.Context, error) {
-	req := httptest.NewRequest("PATCH", "/api/v1/orders/12345", bytes.NewBufferString(newStatus))
+func (a *apiFeature) iUpdateTheVideoStatusTo(ctx context.Context, newStatus string) (context.Context, error) {
+	req := httptest.NewRequest("PATCH", "/api/v1/videos/12345", bytes.NewBufferString(newStatus))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	a.router.ServeHTTP(w, req)
@@ -430,26 +430,26 @@ func (a *apiFeature) iUpdateTheOrderStatusTo(ctx context.Context, newStatus stri
 		return ctx, fmt.Errorf("expected status code 200, got %d", w.Code)
 	}
 
-	var updatedOrder entity.Order
-	if err := json.NewDecoder(w.Body).Decode(&updatedOrder); err != nil {
+	var updatedVideo entity.Video
+	if err := json.NewDecoder(w.Body).Decode(&updatedVideo); err != nil {
 		return ctx, fmt.Errorf("failed to decode response body: %w", err)
 	}
 
-	if updatedOrder.Status != valueobject.OrderStatus(newStatus) {
-		return ctx, fmt.Errorf("expected order status to be %s, got %s", newStatus, updatedOrder.Status)
+	if updatedVideo.Status != valueobject.VideoStatus(newStatus) {
+		return ctx, fmt.Errorf("expected video status to be %s, got %s", newStatus, updatedVideo.Status)
 	}
 
 	// Store response in context for confirmation step
 	actual := response{
 		status: w.Code,
-		body:   updatedOrder,
+		body:   updatedVideo,
 	}
 
 	return context.WithValue(ctx, godogsResponseCtxKey{}, actual), nil
 }
 
-func (a *apiFeature) theOrderShouldNoLongerExistInTheSystem(ctx context.Context) error {
-	req := httptest.NewRequest("GET", "/api/v1/orders/12345", nil)
+func (a *apiFeature) theVideoShouldNoLongerExistInTheSystem(ctx context.Context) error {
+	req := httptest.NewRequest("GET", "/api/v1/videos/12345", nil)
 	w := httptest.NewRecorder()
 	a.router.ServeHTTP(w, req)
 
@@ -468,15 +468,15 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 		return ctx, nil
 	})
 
-	ctx.Step(`^I have a valid order request$`, api.iHaveAValidOrderRequest)
-	ctx.Step(`^I have an existing order with ID "([^"]*)"$`, api.iHaveAnExistingOrderWithID)
-	ctx.Step(`^I request the order details for ID "([^"]*)"$`, api.iRequestTheOrderDetailsForID)
-	ctx.Step(`^I send the order request to the order service$`, api.iSendTheOrderRequestToTheOrderService)
-	ctx.Step(`^I should receive a confirmation of the order creation$`, api.iShouldReceiveAConfirmationOfTheOrderCreation)
-	ctx.Step(`^I should receive the order details with status "([^"]*)"$`, api.iShouldReceiveTheOrderDetailsWithStatus)
-	ctx.Step(`^I delete the order with ID "([^"]*)"$`, api.iDeleteTheOrderWithID)
-	ctx.Step(`^I should receive a confirmation that the order has been deleted$`, api.iShouldReceiveAConfirmationThatTheOrderHasBeenDeleted)
-	ctx.Step(`^I should receive a confirmation that the order status has been updated$`, api.iShouldReceiveAConfirmationThatTheOrderStatusHasBeenUpdated)
-	ctx.Step(`^I update the order status to "([^"]*)"$`, api.iUpdateTheOrderStatusTo)
-	ctx.Step(`^the order should no longer exist in the system$`, api.theOrderShouldNoLongerExistInTheSystem)
+	ctx.Step(`^I have a valid video request$`, api.iHaveAValidVideoRequest)
+	ctx.Step(`^I have an existing video with ID "([^"]*)"$`, api.iHaveAnExistingVideoWithID)
+	ctx.Step(`^I request the video details for ID "([^"]*)"$`, api.iRequestTheVideoDetailsForID)
+	ctx.Step(`^I send the video request to the video service$`, api.iSendTheVideoRequestToTheVideoService)
+	ctx.Step(`^I should receive a confirmation of the video creation$`, api.iShouldReceiveAConfirmationOfTheVideoCreation)
+	ctx.Step(`^I should receive the video details with status "([^"]*)"$`, api.iShouldReceiveTheVideoDetailsWithStatus)
+	ctx.Step(`^I delete the video with ID "([^"]*)"$`, api.iDeleteTheVideoWithID)
+	ctx.Step(`^I should receive a confirmation that the video has been deleted$`, api.iShouldReceiveAConfirmationThatTheVideoHasBeenDeleted)
+	ctx.Step(`^I should receive a confirmation that the video status has been updated$`, api.iShouldReceiveAConfirmationThatTheVideoStatusHasBeenUpdated)
+	ctx.Step(`^I update the video status to "([^"]*)"$`, api.iUpdateTheVideoStatusTo)
+	ctx.Step(`^the video should no longer exist in the system$`, api.theVideoShouldNoLongerExistInTheSystem)
 }

@@ -13,33 +13,33 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/dto"
 )
 
-func (s *OrderUsecaseSuiteTest) TestOrdersUseCase_List() {
+func (s *VideoUsecaseSuiteTest) TestVideosUseCase_List() {
 	tests := []struct {
 		name        string
-		input       dto.ListOrdersInput
+		input       dto.ListVideosInput
 		setupMocks  func()
-		checkResult func(*testing.T, []*entity.Order, int64, error)
+		checkResult func(*testing.T, []*entity.Video, int64, error)
 	}{
 		{
-			name: "should list orders successfully",
-			input: dto.ListOrdersInput{
+			name: "should list videos successfully",
+			input: dto.ListVideosInput{
 				Page:  1,
 				Limit: 10,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindAll(s.ctx, uint64(0), nil, nil, 1, 10, "").
-					Return(s.mockOrders, int64(2), nil)
+					Return(s.mockVideos, int64(2), nil)
 			},
-			checkResult: func(t *testing.T, orders []*entity.Order, total int64, err error) {
+			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, s.mockOrders, orders)
+				assert.Equal(t, s.mockVideos, videos)
 				assert.Equal(t, int64(2), total)
 			},
 		},
 		{
 			name: "should return error when repository fails",
-			input: dto.ListOrdersInput{
+			input: dto.ListVideosInput{
 				Page:  1,
 				Limit: 10,
 			},
@@ -48,33 +48,33 @@ func (s *OrderUsecaseSuiteTest) TestOrdersUseCase_List() {
 					FindAll(s.ctx, uint64(0), nil, nil, 1, 10, "").
 					Return(nil, int64(0), assert.AnError)
 			},
-			checkResult: func(t *testing.T, orders []*entity.Order, total int64, err error) {
+			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, orders)
+				assert.Nil(t, videos)
 				assert.Equal(t, int64(0), total)
 			},
 		},
 		{
 			name: "should filter by status",
-			input: dto.ListOrdersInput{
-				Status: []valueobject.OrderStatus{"PENDING"},
+			input: dto.ListVideosInput{
+				Status: []valueobject.VideoStatus{"PENDING"},
 				Page:   1,
 				Limit:  10,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindAll(s.ctx, uint64(0), []valueobject.OrderStatus{"PENDING"}, nil, 1, 10, "").
-					Return(s.mockOrders, int64(2), nil)
+					FindAll(s.ctx, uint64(0), []valueobject.VideoStatus{"PENDING"}, nil, 1, 10, "").
+					Return(s.mockVideos, int64(2), nil)
 			},
-			checkResult: func(t *testing.T, orders []*entity.Order, total int64, err error) {
+			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, s.mockOrders, orders)
+				assert.Equal(t, s.mockVideos, videos)
 				assert.Equal(t, int64(2), total)
 			},
 		},
 		{
 			name: "should filter by customer",
-			input: dto.ListOrdersInput{
+			input: dto.ListVideosInput{
 				CustomerID: 1,
 				Page:       1,
 				Limit:      10,
@@ -82,11 +82,11 @@ func (s *OrderUsecaseSuiteTest) TestOrdersUseCase_List() {
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindAll(s.ctx, uint64(1), nil, nil, 1, 10, "").
-					Return(s.mockOrders, int64(2), nil)
+					Return(s.mockVideos, int64(2), nil)
 			},
-			checkResult: func(t *testing.T, orders []*entity.Order, total int64, err error) {
+			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, s.mockOrders, orders)
+				assert.Equal(t, s.mockVideos, videos)
 				assert.Equal(t, int64(2), total)
 			},
 		},
@@ -98,24 +98,24 @@ func (s *OrderUsecaseSuiteTest) TestOrdersUseCase_List() {
 			tt.setupMocks()
 
 			// Act
-			orders, total, err := s.useCase.List(s.ctx, tt.input)
+			videos, total, err := s.useCase.List(s.ctx, tt.input)
 
 			// Assert
-			tt.checkResult(t, orders, total, err)
+			tt.checkResult(t, videos, total, err)
 		})
 	}
 }
 
-func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Create() {
+func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Create() {
 	tests := []struct {
 		name        string
-		input       dto.CreateOrderInput
+		input       dto.CreateVideoInput
 		setupMocks  func()
-		checkResult func(*testing.T, *entity.Order, error)
+		checkResult func(*testing.T, *entity.Video, error)
 	}{
 		{
-			name: "should create order successfully",
-			input: dto.CreateOrderInput{
+			name: "should create video successfully",
+			input: dto.CreateVideoInput{
 				CustomerID: 1,
 			},
 			setupMocks: func() {
@@ -123,15 +123,15 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Create() {
 					Create(s.ctx, gomock.Any()).
 					Return(nil)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.NoError(t, err)
-				assert.NotNil(t, order)
-				assert.Equal(t, uint64(1), order.CustomerID)
+				assert.NotNil(t, video)
+				assert.Equal(t, uint64(1), video.CustomerID)
 			},
 		},
 		{
 			name: "should return error when gateway create fails",
-			input: dto.CreateOrderInput{
+			input: dto.CreateVideoInput{
 				CustomerID: 1,
 			},
 			setupMocks: func() {
@@ -139,15 +139,15 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Create() {
 					Create(s.ctx, gomock.Any()).
 					Return(assert.AnError)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.InternalError{}, err)
 			},
 		},
 		{
-			name: "should return error when order history use case create fails",
-			input: dto.CreateOrderInput{
+			name: "should return error when video history use case create fails",
+			input: dto.CreateVideoInput{
 				CustomerID: 1,
 			},
 			setupMocks: func() {
@@ -155,9 +155,9 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Create() {
 					Create(s.ctx, gomock.Any()).
 					Return(nil)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.InternalError{}, err)
 			},
 		},
@@ -169,60 +169,60 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Create() {
 			tt.setupMocks()
 
 			// Act
-			order, err := s.useCase.Create(s.ctx, tt.input)
+			video, err := s.useCase.Create(s.ctx, tt.input)
 
 			// Assert
-			tt.checkResult(t, order, err)
+			tt.checkResult(t, video, err)
 		})
 	}
 }
 
-func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Get() {
+func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Get() {
 	tests := []struct {
 		name        string
-		input       dto.GetOrderInput
+		input       dto.GetVideoInput
 		setupMocks  func()
-		checkResult func(*testing.T, *entity.Order, error)
+		checkResult func(*testing.T, *entity.Video, error)
 	}{
 		{
-			name:  "should get order successfully",
-			input: dto.GetOrderInput{ID: 1},
+			name:  "should get video successfully",
+			input: dto.GetVideoInput{ID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
-					Return(s.mockOrders[0], nil)
+					Return(s.mockVideos[0], nil)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.NoError(t, err)
-				assert.NotNil(t, order)
-				assert.Equal(t, uint64(1), order.ID)
+				assert.NotNil(t, video)
+				assert.Equal(t, uint64(1), video.ID)
 			},
 		},
 		{
-			name:  "should return not found error when order doesn't exist",
-			input: dto.GetOrderInput{ID: 1},
+			name:  "should return not found error when video doesn't exist",
+			input: dto.GetVideoInput{ID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
 					Return(nil, nil)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.NotFoundError{}, err)
 			},
 		},
 		{
 			name:  "should return internal error when gateway fails",
-			input: dto.GetOrderInput{ID: 1},
+			input: dto.GetVideoInput{ID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
 					Return(nil, assert.AnError)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.InternalError{}, err)
 			},
 		},
@@ -234,24 +234,24 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Get() {
 			tt.setupMocks()
 
 			// Act
-			order, err := s.useCase.Get(s.ctx, tt.input)
+			video, err := s.useCase.Get(s.ctx, tt.input)
 
 			// Assert
-			tt.checkResult(t, order, err)
+			tt.checkResult(t, video, err)
 		})
 	}
 }
 
-func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Update() {
+func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 	tests := []struct {
 		name        string
-		input       dto.UpdateOrderInput
+		input       dto.UpdateVideoInput
 		setupMocks  func()
-		checkResult func(*testing.T, *entity.Order, error)
+		checkResult func(*testing.T, *entity.Video, error)
 	}{
 		{
-			name: "should update order successfully",
-			input: dto.UpdateOrderInput{
+			name: "should update video successfully",
+			input: dto.UpdateVideoInput{
 				ID:         1,
 				CustomerID: 1,
 				Status:     valueobject.RECEIVED,
@@ -259,24 +259,24 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Update() {
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
-					Return(s.mockOrders[0], nil)
+					Return(s.mockVideos[0], nil)
 
 				s.mockGateway.EXPECT().
 					Update(s.ctx, gomock.Any()).
-					DoAndReturn(func(_ context.Context, p *entity.Order) error {
+					DoAndReturn(func(_ context.Context, p *entity.Video) error {
 						assert.Equal(s.T(), uint64(1), p.ID)
 						return nil
 					})
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.NoError(t, err)
-				assert.NotNil(t, order)
-				assert.Equal(t, valueobject.RECEIVED, order.Status)
+				assert.NotNil(t, video)
+				assert.Equal(t, valueobject.RECEIVED, video.Status)
 			},
 		},
 		{
 			name: "should return error when gateway find fails",
-			input: dto.UpdateOrderInput{
+			input: dto.UpdateVideoInput{
 				ID:         1,
 				CustomerID: 1,
 				Status:     valueobject.RECEIVED,
@@ -286,15 +286,15 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Update() {
 					FindByID(s.ctx, uint64(1)).
 					Return(nil, assert.AnError)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.InternalError{}, err)
 			},
 		},
 		{
-			name: "should return error when order not found",
-			input: dto.UpdateOrderInput{
+			name: "should return error when video not found",
+			input: dto.UpdateVideoInput{
 				ID:         1,
 				CustomerID: 1,
 				Status:     valueobject.RECEIVED,
@@ -304,15 +304,15 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Update() {
 					FindByID(s.ctx, uint64(1)).
 					Return(nil, nil)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.NotFoundError{}, err)
 			},
 		},
 		{
 			name: "should return error when customer id is different",
-			input: dto.UpdateOrderInput{
+			input: dto.UpdateVideoInput{
 				ID:         1,
 				CustomerID: 2,
 				Status:     valueobject.RECEIVED,
@@ -320,17 +320,17 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Update() {
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
-					Return(s.mockOrders[0], nil)
+					Return(s.mockVideos[0], nil)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.InvalidInputError{}, err)
 			},
 		},
 		{
 			name: "should return error when status is different and can't transition",
-			input: dto.UpdateOrderInput{
+			input: dto.UpdateVideoInput{
 				ID:         1,
 				CustomerID: 1,
 				Status:     valueobject.READY,
@@ -338,17 +338,17 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Update() {
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
-					Return(s.mockOrders[0], nil)
+					Return(s.mockVideos[0], nil)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.InvalidInputError{}, err)
 			},
 		},
 		{
 			name: "should return error when status is different and need staff id",
-			input: dto.UpdateOrderInput{
+			input: dto.UpdateVideoInput{
 				ID:         1,
 				CustomerID: 1,
 				Status:     valueobject.PREPARING,
@@ -356,17 +356,17 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Update() {
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
-					Return(s.mockOrders[0], nil)
+					Return(s.mockVideos[0], nil)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.InvalidInputError{}, err)
 			},
 		},
 		{
 			name: "should return error when gateway update fails",
-			input: dto.UpdateOrderInput{
+			input: dto.UpdateVideoInput{
 				ID:         1,
 				CustomerID: 1,
 				Status:     valueobject.RECEIVED,
@@ -374,21 +374,21 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Update() {
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
-					Return(s.mockOrders[0], nil)
+					Return(s.mockVideos[0], nil)
 
 				s.mockGateway.EXPECT().
 					Update(s.ctx, gomock.Any()).
 					Return(assert.AnError)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.InternalError{}, err)
 			},
 		},
 		{
-			name: "should return error when status is different and order history use case create fails",
-			input: dto.UpdateOrderInput{
+			name: "should return error when status is different and video history use case create fails",
+			input: dto.UpdateVideoInput{
 				ID:         1,
 				CustomerID: 1,
 				Status:     valueobject.CANCELLED,
@@ -396,15 +396,15 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Update() {
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
-					Return(s.mockOrders[0], nil)
+					Return(s.mockVideos[0], nil)
 
 				s.mockGateway.EXPECT().
 					Update(s.ctx, gomock.Any()).
 					Return(nil)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.InternalError{}, err)
 			},
 		},
@@ -416,81 +416,81 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Update() {
 			tt.setupMocks()
 
 			// Act
-			order, err := s.useCase.Update(s.ctx, tt.input)
+			video, err := s.useCase.Update(s.ctx, tt.input)
 
 			// Assert
-			tt.checkResult(t, order, err)
+			tt.checkResult(t, video, err)
 		})
 	}
 }
 
-func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Delete() {
+func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Delete() {
 	tests := []struct {
 		name        string
-		input       dto.DeleteOrderInput
+		input       dto.DeleteVideoInput
 		setupMocks  func()
-		checkResult func(*testing.T, *entity.Order, error)
+		checkResult func(*testing.T, *entity.Video, error)
 	}{
 		{
-			name:  "should delete order successfully",
-			input: dto.DeleteOrderInput{ID: 1},
+			name:  "should delete video successfully",
+			input: dto.DeleteVideoInput{ID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
-					Return(&entity.Order{ID: 1}, nil)
+					Return(&entity.Video{ID: 1}, nil)
 
 				s.mockGateway.EXPECT().
 					Delete(s.ctx, uint64(1)).
 					Return(nil)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.NoError(t, err)
-				assert.NotNil(t, order)
-				assert.Equal(t, uint64(1), order.ID)
+				assert.NotNil(t, video)
+				assert.Equal(t, uint64(1), video.ID)
 			},
 		},
 		{
-			name:  "should return not found error when order doesn't exist",
-			input: dto.DeleteOrderInput{ID: 1},
+			name:  "should return not found error when video doesn't exist",
+			input: dto.DeleteVideoInput{ID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
 					Return(nil, nil)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 			},
 		},
 		{
 			name:  "should return error when gateway fails on find",
-			input: dto.DeleteOrderInput{ID: 1},
+			input: dto.DeleteVideoInput{ID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
 					Return(nil, assert.AnError)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.InternalError{}, err)
 			},
 		},
 		{
 			name:  "should return error when gateway fails on delete",
-			input: dto.DeleteOrderInput{ID: 1},
+			input: dto.DeleteVideoInput{ID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
 					FindByID(s.ctx, uint64(1)).
-					Return(&entity.Order{}, nil)
+					Return(&entity.Video{}, nil)
 
 				s.mockGateway.EXPECT().
 					Delete(s.ctx, uint64(1)).
 					Return(assert.AnError)
 			},
-			checkResult: func(t *testing.T, order *entity.Order, err error) {
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
-				assert.Nil(t, order)
+				assert.Nil(t, video)
 				assert.IsType(t, &domain.InternalError{}, err)
 			},
 		},
@@ -502,10 +502,10 @@ func (s *OrderUsecaseSuiteTest) TestOrderUseCase_Delete() {
 			tt.setupMocks()
 
 			// Act
-			order, err := s.useCase.Delete(s.ctx, tt.input)
+			video, err := s.useCase.Delete(s.ctx, tt.input)
 
 			// Assert
-			tt.checkResult(t, order, err)
+			tt.checkResult(t, video, err)
 		})
 	}
 }

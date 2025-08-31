@@ -22,20 +22,8 @@ import (
 // @description				### FIAP Tech Challenge Phase 3 - 10SOAT - G22
 // @servers					[ { "url": "http://localhost:8080" }, { "url": "http://localhost:30001" } ]
 // @BasePath					/api/v1
-// @tag.name					sign-up
-// @tag.description			Regiter a new customer
-// @tag.name					sign-in
-// @tag.description			Sign in to the system
-// @tag.name					customers
-// @tag.description			List, create, update and delete customers
-// @tag.name					products
-// @tag.description			List, create, update and delete products
-// @tag.name					orders
-// @tag.description			List, create, update and delete orders
-// @tag.name					payments
-// @tag.description			Process payments
-// @tag.name					staffs
-// @tag.description			List, create, update and delete staff
+// @tag.name					videos
+// @tag.description			List, create, update and delete videos
 // @tag.name					health-check
 // @tag.description			Health check
 //
@@ -73,26 +61,26 @@ func main() {
 
 func setupHandlers(db *database.Database, cfg *config.Config) *route.Handlers {
 	// Datasources
-	orderDS := datasource.NewOrderDataSource(db.DB)
+	videoDS := datasource.NewVideoDataSource(db.DB)
 	// Services
 	jwtService := service.NewJWTService(cfg)
 
 	// Gateways
-	orderGateway := gateway.NewOrderGateway(orderDS)
+	videoGateway := gateway.NewVideoGateway(videoDS)
 
 	// Use cases
-	orderUC := usecase.NewOrderUseCase(orderGateway)
+	videoUC := usecase.NewVideoUseCase(videoGateway)
 
 	// Controllers
-	orderController := controller.NewOrderController(orderUC)
+	videoController := controller.NewVideoController(videoUC)
 
 	// Handlers
-	orderHandler := handler.NewOrderHandler(orderController, jwtService)
+	videoHandler := handler.NewVideoHandler(videoController, jwtService)
 	healthCheckHandler := handler.NewHealthCheckHandler()
 	redocHandler := handler.NewRedocHandler()
 
 	handlers := &route.Handlers{
-		Order:       orderHandler,
+		Video:       videoHandler,
 		HealthCheck: healthCheckHandler,
 		Redoc:       redocHandler,
 	}

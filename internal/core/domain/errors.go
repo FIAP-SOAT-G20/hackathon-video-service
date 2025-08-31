@@ -12,12 +12,10 @@ var (
 	ErrMissingAuthHeader = "authorization header is required"
 	ErrInvalidAuthHeader = "invalid authorization header format"
 
-	ErrOrderInvalidStatusTransition = "invalid status transition"
-	ErrOrderWithoutProducts         = "order without products"
-	ErrProductIsMandatory           = "product is mandatory"
+	ErrVideoInvalidStatusTransition = "invalid status transition"
 	ErrStaffIdIsMandatory           = "staff is mandatory"
-	ErrOrderIsMandatory             = "order is mandatory"
-	ErrOrderIsNotOpen               = "order is not on status open"
+	ErrVideoIsMandatory             = "video is mandatory"
+	ErrVideoIsNotOpen               = "video is not on status open"
 	ErrRoleInvalid                  = "invalid role"
 	ErrStatusIsMandatory            = "status is mandatory"
 

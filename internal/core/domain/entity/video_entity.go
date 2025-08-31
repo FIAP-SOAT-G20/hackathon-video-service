@@ -6,15 +6,15 @@ import (
 	valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
 )
 
-type Order struct {
+type Video struct {
 	ID         uint64
 	CustomerID uint64
-	Status     valueobject.OrderStatus
+	Status     valueobject.VideoStatus
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
 
-func (p *Order) Update(customerID uint64, status valueobject.OrderStatus) {
+func (p *Video) Update(customerID uint64, status valueobject.VideoStatus) {
 	if customerID != 0 {
 		p.CustomerID = customerID
 	}

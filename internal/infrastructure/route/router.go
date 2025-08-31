@@ -48,7 +48,7 @@ func (r *Router) RegisterRoutes(handlers *Handlers) {
 	// API v1
 	v1 := r.engine.Group("/api/v1")
 	{
-		handlers.Order.Register(v1.Group("/orders"))
+		handlers.Video.Register(v1.Group("/videos"))
 		handlers.HealthCheck.Register(v1.Group("/health"))
 	}
 }
@@ -60,7 +60,7 @@ func (r *Router) Engine() *gin.Engine {
 
 // Handlers contains all handlers of the application
 type Handlers struct {
-	Order       *handler.OrderHandler
+	Video       *handler.VideoHandler
 	HealthCheck *handler.HealthCheckHandler
 	Redoc       *handler.RedocHandler
 }

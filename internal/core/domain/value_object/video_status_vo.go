@@ -5,26 +5,26 @@ import (
 	"strings"
 )
 
-type OrderStatus string
+type VideoStatus string
 
 const (
-	OPEN       OrderStatus = "OPEN"
-	CANCELLED  OrderStatus = "CANCELLED"
-	PENDING    OrderStatus = "PENDING"
-	RECEIVED   OrderStatus = "RECEIVED"
-	PREPARING  OrderStatus = "PREPARING"
-	READY      OrderStatus = "READY"
-	COMPLETED  OrderStatus = "COMPLETED"
-	UNDEFINDED OrderStatus = "UNDEFINDED"
+	OPEN       VideoStatus = "OPEN"
+	CANCELLED  VideoStatus = "CANCELLED"
+	PENDING    VideoStatus = "PENDING"
+	RECEIVED   VideoStatus = "RECEIVED"
+	PREPARING  VideoStatus = "PREPARING"
+	READY      VideoStatus = "READY"
+	COMPLETED  VideoStatus = "COMPLETED"
+	UNDEFINDED VideoStatus = "UNDEFINDED"
 )
 
-func IsValidOrderStatus(status string) bool {
-	_, ok := ToOrderStatus(status)
+func IsValidVideoStatus(status string) bool {
+	_, ok := ToVideoStatus(status)
 	return ok
 }
 
-// String returns the string representation of the OrderStatus
-func (o OrderStatus) String() string {
+// String returns the string representation of the VideoStatus
+func (o VideoStatus) String() string {
 	switch o {
 	case OPEN:
 		return "OPEN"
@@ -45,8 +45,8 @@ func (o OrderStatus) String() string {
 	}
 }
 
-// ToOrderStatus converts a string to an OrderStatus
-func ToOrderStatus(status string) (OrderStatus, bool) {
+// ToVideoStatus converts a string to a VideoStatus
+func ToVideoStatus(status string) (VideoStatus, bool) {
 	switch strings.ToUpper(status) {
 	case "OPEN":
 		return OPEN, true
@@ -67,8 +67,8 @@ func ToOrderStatus(status string) (OrderStatus, bool) {
 	}
 }
 
-// OrderStatusTransitions defines the allowed transitions between OrderStatuses
-var OrderStatusTransitions = map[OrderStatus][]OrderStatus{
+// VideoStatusTransitions defines the allowed transitions between VideoStatuses
+var VideoStatusTransitions = map[VideoStatus][]VideoStatus{
 	OPEN:      {CANCELLED, PENDING, RECEIVED},
 	CANCELLED: {},
 	PENDING:   {OPEN, RECEIVED, CANCELLED},
@@ -79,13 +79,13 @@ var OrderStatusTransitions = map[OrderStatus][]OrderStatus{
 }
 
 // StatusCanTransitionTo returns true if the transition from oldStatus to newStatus is allowed
-func StatusCanTransitionTo(oldStatus, newStatus OrderStatus) bool {
-	allowedStatuses := OrderStatusTransitions[oldStatus]
+func StatusCanTransitionTo(oldStatus, newStatus VideoStatus) bool {
+	allowedStatuses := VideoStatusTransitions[oldStatus]
 	return slices.Contains(allowedStatuses, newStatus)
 }
 
 // StatusTransitionNeedsStaffID returns true if the new status requires a staff ID
-func StatusTransitionNeedsStaffID(newStatus OrderStatus) bool {
+func StatusTransitionNeedsStaffID(newStatus VideoStatus) bool {
 	switch newStatus {
 	case OPEN, CANCELLED, PENDING, RECEIVED:
 		return false

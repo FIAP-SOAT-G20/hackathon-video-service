@@ -35,9 +35,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	orderDS := datasource.NewOrderDataSource(db.DB)
-	orderGateway := gateway.NewOrderGateway(orderDS)
-	orderUC := usecase.NewOrderUseCase(orderGateway)
+	videoDS := datasource.NewVideoDataSource(db.DB)
+	videoGateway := gateway.NewVideoGateway(videoDS)
+	videoUC := usecase.NewVideoUseCase(videoGateway)
 
 	if appCfg.AWS_SQS_OrderStatusUpdatedURL == "" {
 		loggerInstance.Error("AWS SQS Order Status Updated URL is not configured")
@@ -65,7 +65,7 @@ func main() {
 		err = sqsHandler.ReceiveMessages(ctx, func(message types.Message) (bool, error) {
 			loggerInstance.Info("Processing message", "message", message)
 
-			reprocess, err := processedMessage(ctx, message, loggerInstance, orderUC)
+			reprocess, err := processedMessage(ctx, message, loggerInstance, videoUC)
 			if err != nil {
 				loggerInstance.Error("Failed to process message", "error", err.Error(), "messageID", *message.MessageId)
 				return reprocess, err
@@ -79,28 +79,28 @@ func main() {
 	}
 }
 
-func processedMessage(ctx context.Context, message types.Message, logger *logger.Logger, uc port.OrderUseCase) (reprocess bool, err error) {
+func processedMessage(ctx context.Context, message types.Message, logger *logger.Logger, uc port.VideoUseCase) (reprocess bool, err error) {
 	// Here you can implement the logic to process the message
 	// For example, you can unmarshal the message body and update the order status in your database
 	logger.Info("Processing message", "messageID", *message.MessageId, "body", *message.Body)
 
 	// Unmarshal the message body to your entity
-	var updatedOrderStatus entity.OrderStatusUpdated
-	err = json.Unmarshal([]byte(*message.Body), &updatedOrderStatus)
+	var updatedVideoStatus entity.VideoStatusUpdated
+	err = json.Unmarshal([]byte(*message.Body), &updatedVideoStatus)
 	if err != nil {
 		return false, err
 	}
 
-	if updatedOrderStatus.OrderID == 0 {
-		return false, domain.NewValidationError(errors.New(domain.ErrOrderIsMandatory))
+	if updatedVideoStatus.VideoID == 0 {
+		return false, domain.NewValidationError(errors.New(domain.ErrVideoIsMandatory))
 	}
 
-	if updatedOrderStatus.Status == "" {
+	if updatedVideoStatus.Status == "" {
 		return false, domain.NewValidationError(errors.New(domain.ErrStatusIsMandatory))
 	}
 
-	// Get Order by ID
-	_, err = uc.Get(ctx, dto.GetOrderInput{ID: updatedOrderStatus.OrderID})
+	// Get Video by ID
+	_, err = uc.Get(ctx, dto.GetVideoInput{ID: updatedVideoStatus.VideoID})
 	if err != nil {
 		if err.Error() == domain.ErrInternalError {
 			return true, err
@@ -108,13 +108,13 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 		return false, err
 	}
 
-	// Update the order status in the database
-	uoi := dto.UpdateOrderInput{
-		ID:     updatedOrderStatus.OrderID,
-		Status: updatedOrderStatus.Status,
+	// Update the video status in the database
+	uoi := dto.UpdateVideoInput{
+		ID:     updatedVideoStatus.VideoID,
+		Status: updatedVideoStatus.Status,
 	}
-	if updatedOrderStatus.StaffID != nil {
-		uoi.StaffID = *updatedOrderStatus.StaffID
+	if updatedVideoStatus.StaffID != nil {
+		uoi.StaffID = *updatedVideoStatus.StaffID
 	}
 	_, err = uc.Update(ctx, uoi)
 	if err != nil {
@@ -124,7 +124,7 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 		return false, err
 	}
 
-	logger.Info("Message processed successfully", "orderID", updatedOrderStatus.OrderID, "status", updatedOrderStatus.Status, "staffID", updatedOrderStatus.StaffID)
+	logger.Info("Message processed successfully", "videoID", updatedVideoStatus.VideoID, "status", updatedVideoStatus.Status, "staffID", updatedVideoStatus.StaffID)
 
 	return false, nil
 }

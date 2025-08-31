@@ -84,7 +84,7 @@ func gracefullyShutdown(server *http.Server, s *Server) {
 
 func RegisterCustomValidation() {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		err := v.RegisterValidation("order_status_exists", handler.OrderStatusValidator)
+		err := v.RegisterValidation("video_status_exists", handler.VideoStatusValidator)
 		if err != nil {
 			panic(err)
 		}

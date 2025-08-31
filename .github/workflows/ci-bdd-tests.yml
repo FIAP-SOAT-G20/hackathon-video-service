@@ -68,14 +68,14 @@ jobs:
         **Status:** $TEST_STATUS
         
         ### 📁 Feature Files Tested:
-        - **Order Management** (\`order.feature\`)
+        - **Video Management** (\`video.feature\`)
         
         ### 🎯 Test Scenarios:
-        - $STATUS_ICON **Create a new order** - Tests order creation functionality
-        - $STATUS_ICON **Retrieve an existing order** - Tests order retrieval by ID  
-        - $STATUS_ICON **Update an existing order** - Tests order status updates
-        - $STATUS_ICON **Delete an existing order** - Tests order deletion functionality
-        
+        - $STATUS_ICON **Create a new video** - Tests video creation functionality
+        - $STATUS_ICON **Retrieve an existing video** - Tests video retrieval by ID
+        - $STATUS_ICON **Update an existing video** - Tests video status updates
+        - $STATUS_ICON **Delete an existing video** - Tests video deletion functionality
+
         ### 🔧 Test Framework:
         - **BDD Framework:** Gherkin + Godog
         - **Database:** PostgreSQL (via Testcontainers)

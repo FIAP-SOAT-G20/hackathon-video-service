@@ -9,27 +9,27 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
 )
 
-type orderGateway struct {
-	dataSource port.OrderDataSource
+type videoGateway struct {
+	dataSource port.VideoDataSource
 }
 
-func NewOrderGateway(dataSource port.OrderDataSource) port.OrderGateway {
-	return &orderGateway{dataSource}
+func NewVideoGateway(dataSource port.VideoDataSource) port.VideoGateway {
+	return &videoGateway{dataSource}
 }
 
-func (g *orderGateway) FindByID(ctx context.Context, id uint64) (*entity.Order, error) {
+func (g *videoGateway) FindByID(ctx context.Context, id uint64) (*entity.Video, error) {
 	return g.dataSource.FindByID(ctx, id)
 }
 
-func (g *orderGateway) FindAll(
+func (g *videoGateway) FindAll(
 	ctx context.Context,
 	customerId uint64,
-	status []valueobject.OrderStatus,
-	statusExclude []valueobject.OrderStatus,
+	status []valueobject.VideoStatus,
+	statusExclude []valueobject.VideoStatus,
 	page,
 	limit int,
 	sort string,
-) ([]*entity.Order, int64, error) {
+) ([]*entity.Video, int64, error) {
 
 	// Create filters
 	filters := make(map[string]interface{})
@@ -49,14 +49,14 @@ func (g *orderGateway) FindAll(
 	return g.dataSource.FindAll(ctx, filters, sortFormatted, page, limit)
 }
 
-func (g *orderGateway) Create(ctx context.Context, order *entity.Order) error {
-	return g.dataSource.Create(ctx, order)
+func (g *videoGateway) Create(ctx context.Context, video *entity.Video) error {
+	return g.dataSource.Create(ctx, video)
 }
 
-func (g *orderGateway) Update(ctx context.Context, order *entity.Order) error {
-	return g.dataSource.Update(ctx, order)
+func (g *videoGateway) Update(ctx context.Context, video *entity.Video) error {
+	return g.dataSource.Update(ctx, video)
 }
 
-func (g *orderGateway) Delete(ctx context.Context, id uint64) error {
+func (g *videoGateway) Delete(ctx context.Context, id uint64) error {
 	return g.dataSource.Delete(ctx, id)
 }

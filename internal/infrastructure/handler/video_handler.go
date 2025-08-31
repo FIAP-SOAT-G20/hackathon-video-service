@@ -15,16 +15,16 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler/request"
 )
 
-type OrderHandler struct {
-	controller port.OrderController
+type VideoHandler struct {
+	controller port.VideoController
 	jwtService port.JWTService
 }
 
-func NewOrderHandler(controller port.OrderController, jwtService port.JWTService) *OrderHandler {
-	return &OrderHandler{controller: controller, jwtService: jwtService}
+func NewVideoHandler(controller port.VideoController, jwtService port.JWTService) *VideoHandler {
+	return &VideoHandler{controller: controller, jwtService: jwtService}
 }
 
-func (h *OrderHandler) Register(router *gin.RouterGroup) {
+func (h *VideoHandler) Register(router *gin.RouterGroup) {
 	//router.Use(middleware.JWTAuthMiddleware(h.jwtService))
 	router.GET("", h.List)
 	router.POST("", h.Create)
@@ -36,13 +36,13 @@ func (h *OrderHandler) Register(router *gin.RouterGroup) {
 
 // List godoc
 //
-//	@Summary		List orders (Reference TC-1 2.b.vi; TC-2 1.a.iv)
-//	@Description	List all orders
-//	@Description	## Order list is sorted by:
+//	@Summary		List videos (Reference TC-1 2.b.vi; TC-2 1.a.iv)
+//	@Description	List all videos
+//	@Description	## Video list is sorted by:
 //	@Description	- **Status** in **descending** order (`READY` > `PREPARING` > `RECEIVED` > `PENDING` > `OPEN`)
 //	@Description	- **Created date** (CreatedAt) in **ascending** order (oldest first)
 //	@Description	Obs: Status CANCELLED and COMPLETED are not included in the list by default
-//	@Tags			orders
+//	@Tags			videos
 //	@Accept			json
 //	@Produce		json
 //	@Param			customer_id		query		int										false	"Filter by customer ID"
@@ -51,12 +51,12 @@ func (h *OrderHandler) Register(router *gin.RouterGroup) {
 //	@Param			sort			query		string									false	"Sort by field (Accept many). Use `<field_name>:d` for descending, and the default order is ascending"																								default(status:d,created_at)
 //	@Param			page			query		int										false	"Page number"																																														default(1)
 //	@Param			limit			query		int										false	"Items per page"																																													default(10)
-//	@Success		200				{object}	presenter.OrderJsonPaginatedResponse	"OK"
+//	@Success		200				{object}	presenter.VideoJsonPaginatedResponse	"OK"
 //	@Failure		400				{object}	middleware.ErrorJsonResponse			"Bad Request"
 //	@Failure		500				{object}	middleware.ErrorJsonResponse			"Internal Server Error"
-//	@Router			/orders [get]
-func (h *OrderHandler) List(c *gin.Context) {
-	var query request.ListOrdersQueryRequest
+//	@Router			/videos [get]
+func (h *VideoHandler) List(c *gin.Context) {
+	var query request.ListVideosQueryRequest
 	if err := c.ShouldBindQuery(&query); err != nil {
 		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidParam))
 		return
@@ -68,7 +68,7 @@ func (h *OrderHandler) List(c *gin.Context) {
 	}
 
 	// Default status_exclude
-	var statusExclude []valueobject.OrderStatus
+	var statusExclude []valueobject.VideoStatus
 	if query.StatusExclude == "" {
 		query.StatusExclude = "CANCELLED,COMPLETED"
 	}
@@ -76,24 +76,24 @@ func (h *OrderHandler) List(c *gin.Context) {
 	// Convert status_exclude
 	if strings.ToUpper(query.StatusExclude) != "NONE" {
 		for _, s := range strings.Split(query.StatusExclude, ",") {
-			statusExclude = append(statusExclude, valueobject.OrderStatus(strings.TrimSpace(s)))
+			statusExclude = append(statusExclude, valueobject.VideoStatus(strings.TrimSpace(s)))
 		}
 	}
 
 	// Convert status
-	var status []valueobject.OrderStatus
+	var status []valueobject.VideoStatus
 	if query.Status != "" {
 		for _, s := range strings.Split(query.Status, ",") {
-			orderStatus, ok := valueobject.ToOrderStatus(strings.TrimSpace(s))
+			videoStatus, ok := valueobject.ToVideoStatus(strings.TrimSpace(s))
 			if !ok {
 				_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidParam))
 				return
 			}
-			status = append(status, orderStatus)
+			status = append(status, videoStatus)
 		}
 	}
 
-	input := dto.ListOrdersInput{
+	input := dto.ListVideosInput{
 		CustomerID:    query.CustomerID,
 		Status:        status,
 		StatusExclude: statusExclude,
@@ -104,7 +104,7 @@ func (h *OrderHandler) List(c *gin.Context) {
 
 	output, err := h.controller.List(
 		c.Request.Context(),
-		presenter.NewOrderJsonPresenter(),
+		presenter.NewVideoJsonPresenter(),
 		input,
 	)
 	if err != nil {
@@ -117,30 +117,30 @@ func (h *OrderHandler) List(c *gin.Context) {
 
 // Create godoc
 //
-//	@Summary		Create order
-//	@Description	Creates a new order
-//	@Tags			orders
+//	@Summary		Create video
+//	@Description	Creates a new video
+//	@Tags			videos
 //	@Accept			json
 //	@Produce		json
-//	@Param			order	body		request.CreateOrderBodyRequest	true	"Order data"
-//	@Success		201		{object}	presenter.OrderJsonResponse		"Created"
+//	@Param			video	body		request.CreateVideoBodyRequest	true	"Video data"
+//	@Success		201		{object}	presenter.VideoJsonResponse		"Created"
 //	@Failure		400		{object}	middleware.ErrorJsonResponse	"Bad Request"
 //	@Failure		500		{object}	middleware.ErrorJsonResponse	"Internal Server Error"
-//	@Router			/orders [post]
-func (h *OrderHandler) Create(c *gin.Context) {
-	var body request.CreateOrderBodyRequest
+//	@Router			/videos [post]
+func (h *VideoHandler) Create(c *gin.Context) {
+	var body request.CreateVideoBodyRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
 		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidBody))
 		return
 	}
 
-	input := dto.CreateOrderInput{
+	input := dto.CreateVideoInput{
 		CustomerID: body.CustomerID,
 	}
 
 	output, err := h.controller.Create(
 		c.Request.Context(),
-		presenter.NewOrderJsonPresenter(),
+		presenter.NewVideoJsonPresenter(),
 		input,
 	)
 	if err != nil {
@@ -153,31 +153,31 @@ func (h *OrderHandler) Create(c *gin.Context) {
 
 // Get godoc
 //
-//	@Summary		Get order
-//	@Description	Search for a order by ID
-//	@Tags			orders
+//	@Summary		Get video
+//	@Description	Search for a video by ID
+//	@Tags			videos
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		int								true	"Order ID"
-//	@Success		200	{object}	presenter.OrderJsonResponse		"OK"
+//	@Param			id	path		int								true	"Video ID"
+//	@Success		200	{object}	presenter.VideoJsonResponse		"OK"
 //	@Failure		400	{object}	middleware.ErrorJsonResponse	"Bad Request"
 //	@Failure		404	{object}	middleware.ErrorJsonResponse	"Not Found"
 //	@Failure		500	{object}	middleware.ErrorJsonResponse	"Internal Server Error"
-//	@Router			/orders/{id} [get]
-func (h *OrderHandler) Get(c *gin.Context) {
-	var uri request.GetOrderUriRequest
+//	@Router			/videos/{id} [get]
+func (h *VideoHandler) Get(c *gin.Context) {
+	var uri request.GetVideoUriRequest
 	if err := c.ShouldBindUri(&uri); err != nil {
 		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidParam))
 		return
 	}
 
-	input := dto.GetOrderInput{
+	input := dto.GetVideoInput{
 		ID: uri.ID,
 	}
 
 	output, err := h.controller.Get(
 		c.Request.Context(),
-		presenter.NewOrderJsonPresenter(),
+		presenter.NewVideoJsonPresenter(),
 		input,
 	)
 	if err != nil {
@@ -190,8 +190,8 @@ func (h *OrderHandler) Get(c *gin.Context) {
 
 // Update godoc
 //
-//	@Summary		Update order
-//	@Description	Update an existing order
+//	@Summary		Update video
+//	@Description	Update an existing video
 //	@Description	The status are: **OPEN**, **CANCELLED**, **PENDING**, **RECEIVED**, **PREPARING**, **READY**, **COMPLETED**
 //	@Description	## Transition of status:
 //	@Description	- OPEN      -> CANCELLED || PENDING
@@ -201,30 +201,30 @@ func (h *OrderHandler) Get(c *gin.Context) {
 //	@Description	- PREPARING -> READY
 //	@Description	- READY     -> COMPLETED
 //	@Description	- COMPLETED -> {}
-//	@Tags			orders
+//	@Tags			videos
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		int								true	"Order ID"
-//	@Param			order	body		request.UpdateOrderBodyRequest	true	"Order data"
-//	@Success		200		{object}	presenter.OrderJsonResponse		"OK"
+//	@Param			id		path		int								true	"Video ID"
+//	@Param			video	body		request.UpdateVideoBodyRequest	true	"Video data"
+//	@Success		200		{object}	presenter.VideoJsonResponse		"OK"
 //	@Failure		400		{object}	middleware.ErrorJsonResponse	"Bad Request"
 //	@Failure		404		{object}	middleware.ErrorJsonResponse	"Not Found"
 //	@Failure		500		{object}	middleware.ErrorJsonResponse	"Internal Server Error"
-//	@Router			/orders/{id} [put]
-func (h *OrderHandler) Update(c *gin.Context) {
-	var uri request.UpdateOrderUriRequest
+//	@Router			/videos/{id} [put]
+func (h *VideoHandler) Update(c *gin.Context) {
+	var uri request.UpdateVideoUriRequest
 	if err := c.ShouldBindUri(&uri); err != nil {
 		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidParam))
 		return
 	}
 
-	var body request.UpdateOrderBodyRequest
+	var body request.UpdateVideoBodyRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
 		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidBody))
 		return
 	}
 
-	input := dto.UpdateOrderInput{
+	input := dto.UpdateVideoInput{
 		ID:         uri.ID,
 		CustomerID: body.CustomerID,
 		Status:     body.Status,
@@ -233,7 +233,7 @@ func (h *OrderHandler) Update(c *gin.Context) {
 
 	output, err := h.controller.Update(
 		c.Request.Context(),
-		presenter.NewOrderJsonPresenter(),
+		presenter.NewVideoJsonPresenter(),
 		input,
 	)
 	if err != nil {
@@ -246,8 +246,8 @@ func (h *OrderHandler) Update(c *gin.Context) {
 
 // UpdatePartial godoc
 //
-//	@Summary		Partial update order (Reference TC-2 1.a.v)
-//	@Description	Partially updates an existing order
+//	@Summary		Partial update video (Reference TC-2 1.a.v)
+//	@Description	Partially updates an existing video
 //	@Description	The status are: **OPEN**, **CANCELLED**, **PENDING**, **RECEIVED**, **PREPARING**, **READY**, **COMPLETED**
 //	@Description	## Transition of status:
 //	@Description	- OPEN      -> CANCELLED || PENDING
@@ -257,35 +257,31 @@ func (h *OrderHandler) Update(c *gin.Context) {
 //	@Description	- PREPARING -> READY
 //	@Description	- READY     -> COMPLETED
 //	@Description	- COMPLETED -> {}
-//	@Tags			orders
+//	@Tags			videos
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		int									true	"Order ID"
-//	@Param			order	body		request.UpdateOrderPartilRequest	true	"Order data"
-//	@Success		200		{object}	presenter.OrderJsonResponse			"OK"
+//	@Param			id		path		int									true	"Video ID"
+//	@Param			video	body		request.UpdateVideoPartilRequest	true	"Video data"
+//	@Success		200		{object}	presenter.VideoJsonResponse			"OK"
 //	@Failure		400		{object}	middleware.ErrorJsonResponse		"Bad Request"
 //	@Failure		404		{object}	middleware.ErrorJsonResponse		"Not Found"
 //	@Failure		500		{object}	middleware.ErrorJsonResponse		"Internal Server Error"
-//	@Router			/orders/{id} [patch]
-func (h *OrderHandler) UpdatePartial(c *gin.Context) {
-	var uri request.UpdateOrderUriRequest
+//	@Router			/videos/{id} [patch]
+func (h *VideoHandler) UpdatePartial(c *gin.Context) {
+	var uri request.UpdateVideoUriRequest
 	if err := c.ShouldBindUri(&uri); err != nil {
 		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidParam))
 		return
 	}
 
-	fmt.Println("URI ID:", uri.ID)
-
-	var body request.UpdateOrderPartilBodyRequest
+	var body request.UpdateVideoPartilBodyRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
 		fmt.Println(err)
 		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidBody))
 		return
 	}
 
-	fmt.Println("Body:", body)
-
-	input := dto.UpdateOrderInput{
+	input := dto.UpdateVideoInput{
 		ID:         uri.ID,
 		CustomerID: body.CustomerID,
 		Status:     body.Status,
@@ -294,7 +290,7 @@ func (h *OrderHandler) UpdatePartial(c *gin.Context) {
 
 	output, err := h.controller.Update(
 		c.Request.Context(),
-		presenter.NewOrderJsonPresenter(),
+		presenter.NewVideoJsonPresenter(),
 		input,
 	)
 	if err != nil {
@@ -307,30 +303,30 @@ func (h *OrderHandler) UpdatePartial(c *gin.Context) {
 
 // Delete godoc
 //
-//	@Summary		Delete order
-//	@Description	Deletes a order by ID
-//	@Tags			orders
+//	@Summary		Delete video
+//	@Description	Deletes a video by ID
+//	@Tags			videos
 //	@Produce		json
-//	@Param			id	path		int								true	"Order ID"
-//	@Success		200	{object}	presenter.OrderJsonResponse		"OK"
+//	@Param			id	path		int								true	"Video ID"
+//	@Success		200	{object}	presenter.VideoJsonResponse		"OK"
 //	@Failure		400	{object}	middleware.ErrorJsonResponse	"Bad Request"
 //	@Failure		404	{object}	middleware.ErrorJsonResponse	"Not Found"
 //	@Failure		500	{object}	middleware.ErrorJsonResponse	"Internal Server Error"
-//	@Router			/orders/{id} [delete]
-func (h *OrderHandler) Delete(c *gin.Context) {
-	var uri request.DeleteOrderUriRequest
+//	@Router			/videos/{id} [delete]
+func (h *VideoHandler) Delete(c *gin.Context) {
+	var uri request.DeleteVideoUriRequest
 	if err := c.ShouldBindUri(&uri); err != nil {
 		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidParam))
 		return
 	}
 
-	input := dto.DeleteOrderInput{
+	input := dto.DeleteVideoInput{
 		ID: uri.ID,
 	}
 
 	output, err := h.controller.Delete(
 		c.Request.Context(),
-		presenter.NewOrderJsonPresenter(),
+		presenter.NewVideoJsonPresenter(),
 		input,
 	)
 	if err != nil {

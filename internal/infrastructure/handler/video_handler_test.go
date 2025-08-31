@@ -14,7 +14,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func (s *OrderHandlerSuiteTest) TestOrderHandler_List() {
+func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 	tests := []struct {
 		name        string
 		url         string
@@ -23,10 +23,10 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_List() {
 	}{
 		{
 			name: "success",
-			url:  "/orders",
+			url:  "/videos",
 			setupMocks: func() {
-				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListOrdersInput{
-					StatusExclude: []valueobject.OrderStatus{valueobject.CANCELLED, valueobject.COMPLETED},
+				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListVideosInput{
+					StatusExclude: []valueobject.VideoStatus{valueobject.CANCELLED, valueobject.COMPLETED},
 					Page:          1,
 					Limit:         10,
 					Sort:          "status:d,created_at",
@@ -39,12 +39,12 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_List() {
 		},
 		{
 			name: "success - with query",
-			url:  "/orders?customer_id=1&status=OPEN,PENDING",
+			url:  "/videos?customer_id=1&status=OPEN,PENDING",
 			setupMocks: func() {
-				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListOrdersInput{
+				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListVideosInput{
 					CustomerID:    1,
-					Status:        []valueobject.OrderStatus{valueobject.OPEN, valueobject.PENDING},
-					StatusExclude: []valueobject.OrderStatus{valueobject.CANCELLED, valueobject.COMPLETED},
+					Status:        []valueobject.VideoStatus{valueobject.OPEN, valueobject.PENDING},
+					StatusExclude: []valueobject.VideoStatus{valueobject.CANCELLED, valueobject.COMPLETED},
 					Page:          1,
 					Limit:         10,
 					Sort:          "status:d,created_at",
@@ -57,7 +57,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_List() {
 		},
 		{
 			name:       "invalid query - customer_id",
-			url:        "/orders?customer_id=invalid",
+			url:        "/videos?customer_id=invalid",
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
@@ -66,7 +66,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_List() {
 		},
 		{
 			name:       "invalid query - status",
-			url:        "/orders?status=invalid",
+			url:        "/videos?status=invalid",
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
@@ -75,10 +75,10 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_List() {
 		},
 		{
 			name: "controller error",
-			url:  "/orders",
+			url:  "/videos",
 			setupMocks: func() {
-				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListOrdersInput{
-					StatusExclude: []valueobject.OrderStatus{valueobject.CANCELLED, valueobject.COMPLETED},
+				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListVideosInput{
+					StatusExclude: []valueobject.VideoStatus{valueobject.CANCELLED, valueobject.COMPLETED},
 					Page:          1,
 					Limit:         10,
 					Sort:          "status:d,created_at",
@@ -107,7 +107,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_List() {
 	}
 }
 
-func (s *OrderHandlerSuiteTest) TestOrderHandler_Create() {
+func (s *VideoHandlerSuiteTest) TestVideoHandler_Create() {
 	tests := []struct {
 		name        string
 		url         string
@@ -117,11 +117,11 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Create() {
 	}{
 		{
 			name: "success",
-			url:  "/orders",
+			url:  "/videos",
 			body: strings.NewReader(s.requests["create_success"]),
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Create(gomock.Any(), gomock.Any(), dto.CreateOrderInput{CustomerID: 1}).
+					Create(gomock.Any(), gomock.Any(), dto.CreateVideoInput{CustomerID: 1}).
 					Return([]byte(s.responses["create_success"]), nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -131,7 +131,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Create() {
 		},
 		{
 			name:       "invalid request - body is not a valid json",
-			url:        "/orders",
+			url:        "/videos",
 			body:       strings.NewReader("invalid"),
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -140,7 +140,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Create() {
 		},
 		{
 			name:       "invalid request - customer_id is not a number",
-			url:        "/orders",
+			url:        "/videos",
 			body:       strings.NewReader(s.requests["create_invalid_body"]),
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -149,11 +149,11 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Create() {
 		},
 		{
 			name: "controller error",
-			url:  "/orders",
+			url:  "/videos",
 			body: strings.NewReader(s.requests["create_success"]),
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Create(gomock.Any(), gomock.Any(), dto.CreateOrderInput{CustomerID: 1}).
+					Create(gomock.Any(), gomock.Any(), dto.CreateVideoInput{CustomerID: 1}).
 					Return(nil, domain.NewInternalError(nil))
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -179,7 +179,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Create() {
 	}
 }
 
-func (s *OrderHandlerSuiteTest) TestOrderHandler_Get() {
+func (s *VideoHandlerSuiteTest) TestOrderHandler_Get() {
 	tests := []struct {
 		name        string
 		url         string
@@ -188,10 +188,10 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Get() {
 	}{
 		{
 			name: "success",
-			url:  "/orders/5",
+			url:  "/videos/5",
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Get(gomock.Any(), gomock.Any(), dto.GetOrderInput{ID: 5}).
+					Get(gomock.Any(), gomock.Any(), dto.GetVideoInput{ID: 5}).
 					Return([]byte(s.responses["get_success"]), nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -201,10 +201,10 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Get() {
 		},
 		{
 			name: "not found",
-			url:  "/orders/5",
+			url:  "/videos/5",
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Get(gomock.Any(), gomock.Any(), dto.GetOrderInput{ID: 5}).
+					Get(gomock.Any(), gomock.Any(), dto.GetVideoInput{ID: 5}).
 					Return(nil, domain.NewNotFoundError(domain.ErrNotFound))
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -214,7 +214,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Get() {
 		},
 		{
 			name:       "invalid request - id is not a number",
-			url:        "/orders/invalid",
+			url:        "/videos/invalid",
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
@@ -239,7 +239,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Get() {
 	}
 }
 
-func (s *OrderHandlerSuiteTest) TestOrderHandler_Update() {
+func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 	tests := []struct {
 		name        string
 		url         string
@@ -248,12 +248,12 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Update() {
 		checkResult func(*testing.T, *httptest.ResponseRecorder)
 	}{
 		{
-			name: "success - update order status",
-			url:  "/orders/15",
+			name: "success - update video status",
+			url:  "/videos/15",
 			body: strings.NewReader(s.requests["update_success"]),
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Update(gomock.Any(), gomock.Any(), dto.UpdateOrderInput{
+					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:         15,
 						CustomerID: 5,
 						Status:     valueobject.PENDING,
@@ -267,7 +267,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Update() {
 		},
 		{
 			name:       "invalid request - body is not a valid json",
-			url:        "/orders/5",
+			url:        "/videos/5",
 			body:       strings.NewReader("invalid"),
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -277,7 +277,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Update() {
 		},
 		{
 			name:       "invalid request - customer_id is not a number",
-			url:        "/orders/5",
+			url:        "/videos/5",
 			body:       strings.NewReader(s.requests["update_invalid_body"]),
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -287,7 +287,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Update() {
 		},
 		{
 			name:       "invalid request - id is not a number",
-			url:        "/orders/invalid",
+			url:        "/videos/invalid",
 			body:       strings.NewReader(s.requests["update_success"]),
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -297,11 +297,11 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Update() {
 		},
 		{
 			name: "controller error",
-			url:  "/orders/15",
+			url:  "/videos/15",
 			body: strings.NewReader(s.requests["update_success"]),
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Update(gomock.Any(), gomock.Any(), dto.UpdateOrderInput{
+					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:         15,
 						CustomerID: 5,
 						Status:     valueobject.PENDING,
@@ -331,7 +331,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Update() {
 	}
 }
 
-func (s *OrderHandlerSuiteTest) TestOrderHandler_UpdatePartial() {
+func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 	tests := []struct {
 		name        string
 		url         string
@@ -340,12 +340,12 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_UpdatePartial() {
 		checkResult func(*testing.T, *httptest.ResponseRecorder)
 	}{
 		{
-			name: "success - update order status",
-			url:  "/orders/15",
+			name: "success - update video status",
+			url:  "/videos/15",
 			body: strings.NewReader(s.requests["update_success"]),
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Update(gomock.Any(), gomock.Any(), dto.UpdateOrderInput{
+					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:         15,
 						CustomerID: 5,
 						Status:     valueobject.PENDING,
@@ -359,7 +359,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_UpdatePartial() {
 		},
 		{
 			name:       "invalid request - body is not a valid json",
-			url:        "/orders/5",
+			url:        "/videos/5",
 			body:       strings.NewReader("invalid"),
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -369,7 +369,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_UpdatePartial() {
 		},
 		{
 			name:       "invalid request - customer_id is not a number",
-			url:        "/orders/5",
+			url:        "/videos/5",
 			body:       strings.NewReader(s.requests["update_invalid_body"]),
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -379,7 +379,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_UpdatePartial() {
 		},
 		{
 			name:       "invalid request - id is not a number",
-			url:        "/orders/invalid",
+			url:        "/videos/invalid",
 			body:       strings.NewReader(s.requests["update_success"]),
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -389,11 +389,11 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_UpdatePartial() {
 		},
 		{
 			name: "controller error",
-			url:  "/orders/15",
+			url:  "/videos/15",
 			body: strings.NewReader(s.requests["update_success"]),
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Update(gomock.Any(), gomock.Any(), dto.UpdateOrderInput{
+					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:         15,
 						CustomerID: 5,
 						Status:     valueobject.PENDING,
@@ -423,7 +423,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_UpdatePartial() {
 	}
 }
 
-func (s *OrderHandlerSuiteTest) TestOrderHandler_Delete() {
+func (s *VideoHandlerSuiteTest) TestVideoHandler_Delete() {
 	tests := []struct {
 		name        string
 		url         string
@@ -432,10 +432,10 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Delete() {
 	}{
 		{
 			name: "success",
-			url:  "/orders/9",
+			url:  "/videos/9",
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Delete(gomock.Any(), gomock.Any(), dto.DeleteOrderInput{ID: 9}).
+					Delete(gomock.Any(), gomock.Any(), dto.DeleteVideoInput{ID: 9}).
 					Return([]byte(s.responses["delete_success"]), nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -445,10 +445,10 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Delete() {
 		},
 		{
 			name: "not found",
-			url:  "/orders/9",
+			url:  "/videos/9",
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Delete(gomock.Any(), gomock.Any(), dto.DeleteOrderInput{ID: 9}).
+					Delete(gomock.Any(), gomock.Any(), dto.DeleteVideoInput{ID: 9}).
 					Return(nil, domain.NewNotFoundError(domain.ErrNotFound))
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -458,7 +458,7 @@ func (s *OrderHandlerSuiteTest) TestOrderHandler_Delete() {
 		},
 		{
 			name:       "invalid request - id is not a number",
-			url:        "/orders/invalid",
+			url:        "/videos/invalid",
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)

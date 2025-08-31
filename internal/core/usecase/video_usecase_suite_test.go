@@ -14,22 +14,22 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-type OrderUsecaseSuiteTest struct {
+type VideoUsecaseSuiteTest struct {
 	suite.Suite
-	mockOrders  []*entity.Order
-	mockGateway *mockport.MockOrderGateway
-	useCase     port.OrderUseCase
+	mockVideos  []*entity.Video
+	mockGateway *mockport.MockVideoGateway
+	useCase     port.VideoUseCase
 	ctx         context.Context
 }
 
-func (s *OrderUsecaseSuiteTest) SetupTest() {
+func (s *VideoUsecaseSuiteTest) SetupTest() {
 	ctrl := gomock.NewController(s.T())
 	defer ctrl.Finish()
-	s.mockGateway = mockport.NewMockOrderGateway(ctrl)
-	s.useCase = usecase.NewOrderUseCase(s.mockGateway)
+	s.mockGateway = mockport.NewMockVideoGateway(ctrl)
+	s.useCase = usecase.NewVideoUseCase(s.mockGateway)
 	s.ctx = context.Background()
 	currentTime := time.Now()
-	s.mockOrders = []*entity.Order{
+	s.mockVideos = []*entity.Video{
 		{
 			ID:         1,
 			CustomerID: uint64(1),
@@ -47,6 +47,6 @@ func (s *OrderUsecaseSuiteTest) SetupTest() {
 	}
 }
 
-func TestOrderUsecaseSuiteTest(t *testing.T) {
-	suite.Run(t, new(OrderUsecaseSuiteTest))
+func TestVideoUsecaseSuiteTest(t *testing.T) {
+	suite.Run(t, new(VideoUsecaseSuiteTest))
 }

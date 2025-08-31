@@ -13,47 +13,47 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-type OrderHandlerSuiteTest struct {
+type VideoHandlerSuiteTest struct {
 	suite.Suite
-	handler        *handler.OrderHandler
+	handler        *handler.VideoHandler
 	router         *gin.Engine
-	mockController *mockport.MockOrderController
+	mockController *mockport.MockVideoController
 	mockJWTService *mockport.MockJWTService
 	ctx            context.Context
 	requests       map[string]string // Fixture files
 	responses      map[string]string // Golden files
 }
 
-func (s *OrderHandlerSuiteTest) SetupTest() {
+func (s *VideoHandlerSuiteTest) SetupTest() {
 	// Create a new router
 	s.router = newRouter()
 
 	// Create a new handler
 	ctrl := gomock.NewController(s.T())
 	defer ctrl.Finish()
-	s.mockController = mockport.NewMockOrderController(ctrl)
+	s.mockController = mockport.NewMockVideoController(ctrl)
 	s.mockJWTService = mockport.NewMockJWTService(ctrl)
-	s.handler = handler.NewOrderHandler(s.mockController, s.mockJWTService)
+	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService)
 	s.ctx = context.Background()
 
 	// Register routes
-	s.router.GET("/orders", s.handler.List)
-	s.router.POST("/orders", s.handler.Create)
-	s.router.PUT("/orders/:id", s.handler.Update)
-	s.router.PATCH("/orders/:id", s.handler.UpdatePartial)
-	s.router.GET("/orders/:id", s.handler.Get)
-	s.router.DELETE("/orders/:id", s.handler.Delete)
+	s.router.GET("/videos", s.handler.List)
+	s.router.POST("/videos", s.handler.Create)
+	s.router.PUT("/videos/:id", s.handler.Update)
+	s.router.PATCH("/videos/:id", s.handler.UpdatePartial)
+	s.router.GET("/videos/:id", s.handler.Get)
+	s.router.DELETE("/videos/:id", s.handler.Delete)
 
 	// Mock requests
 	var err error
-	s.requests, err = util.ReadFixtureFiles("order",
+	s.requests, err = util.ReadFixtureFiles("video",
 		"create_success", "create_invalid_body",
 		"update_success", "update_invalid_body",
 	)
 	assert.NoError(s.T(), err)
 
 	// Mock responses
-	s.responses, err = util.ReadGoldenFiles("order",
+	s.responses, err = util.ReadGoldenFiles("video",
 		"list_success", "list_success_with_query",
 		"create_success",
 		"update_success",
@@ -65,8 +65,8 @@ func (s *OrderHandlerSuiteTest) SetupTest() {
 	addCommonResponses(&s.responses)
 }
 
-// func (s *OrderHandlerSuiteTest) BeforeTest(_, _ string) {}
+// func (s *VideoHandlerSuiteTest) BeforeTest(_, _ string) {}
 
-func TestOrderHandlerSuiteTest(t *testing.T) {
-	suite.Run(t, new(OrderHandlerSuiteTest))
+func TestVideoHandlerSuiteTest(t *testing.T) {
+	suite.Run(t, new(VideoHandlerSuiteTest))
 }

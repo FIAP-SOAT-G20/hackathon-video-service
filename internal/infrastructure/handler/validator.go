@@ -5,7 +5,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func OrderStatusValidator(fl validator.FieldLevel) bool {
+func VideoStatusValidator(fl validator.FieldLevel) bool {
 	status := fl.Field().String()
-	return valueobject.IsValidOrderStatus(status)
+	return valueobject.IsValidVideoStatus(status)
 }
