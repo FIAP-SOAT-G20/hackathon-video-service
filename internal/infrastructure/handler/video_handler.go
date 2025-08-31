@@ -39,15 +39,14 @@ func (h *VideoHandler) Register(router *gin.RouterGroup) {
 //	@Summary		List videos (Reference TC-1 2.b.vi; TC-2 1.a.iv)
 //	@Description	List all videos
 //	@Description	## Video list is sorted by:
-//	@Description	- **Status** in **descending** order (`READY` > `PREPARING` > `RECEIVED` > `PENDING` > `OPEN`)
+//	@Description	- **Status** in **descending** order (CREATED > PROCESSING > FINISHED)
 //	@Description	- **Created date** (CreatedAt) in **ascending** order (oldest first)
-//	@Description	Obs: Status CANCELLED and COMPLETED are not included in the list by default
 //	@Tags			videos
 //	@Accept			json
 //	@Produce		json
-//	@Param			customer_id		query		int										false	"Filter by customer ID"
-//	@Param			status			query		string									false	"Filter by status (Accept many), options: <sub>OPEN, PENDING, RECEIVED, PREPARING, READY</sub>, ex: <sub>PENDING</sub> or <sub>OPEN,PENDING</sub>"
-//	@Param			status_exclude	query		string									false	"Exclude by status (Accept many), options: <sub>NONE, OPEN, PENDING, RECEIVED, PREPARING, READY, CANCELLED, COMPLETED</sub>, ex: <sub>CANCELLED</sub> or <sub>CANCELLED,COMPLETED</sub> (default)"	default(CANCELLED,COMPLETED)
+//	@Param			user_id		query		int										false	"Filter by user ID"
+//	@Param			status			query		string									false	"Filter by status (Accept many), options: <sub>CREATED, PROCESSING, FINISHED</sub>, ex: <sub>CREATED</sub> or <sub>CREATED,PROCESSING</sub>"
+//	@Param			status_exclude	query		string									false	"Exclude by status (Accept many), options: <sub>NONE, CREATED, PROCESSING, FINISHED, FAILED</sub>, ex: <sub>FAILED</sub> (default)"	default(FAILED)
 //	@Param			sort			query		string									false	"Sort by field (Accept many). Use `<field_name>:d` for descending, and the default order is ascending"																								default(status:d,created_at)
 //	@Param			page			query		int										false	"Page number"																																														default(1)
 //	@Param			limit			query		int										false	"Items per page"																																													default(10)
@@ -70,7 +69,7 @@ func (h *VideoHandler) List(c *gin.Context) {
 	// Default status_exclude
 	var statusExclude []valueobject.VideoStatus
 	if query.StatusExclude == "" {
-		query.StatusExclude = "CANCELLED,COMPLETED"
+		query.StatusExclude = "FAILED"
 	}
 
 	// Convert status_exclude
@@ -94,7 +93,7 @@ func (h *VideoHandler) List(c *gin.Context) {
 	}
 
 	input := dto.ListVideosInput{
-		CustomerID:    query.CustomerID,
+		UserID:        query.CustomerID,
 		Status:        status,
 		StatusExclude: statusExclude,
 		Page:          query.Page,
@@ -135,7 +134,7 @@ func (h *VideoHandler) Create(c *gin.Context) {
 	}
 
 	input := dto.CreateVideoInput{
-		CustomerID: body.CustomerID,
+		UserID: body.CustomerID,
 	}
 
 	output, err := h.controller.Create(
@@ -192,15 +191,12 @@ func (h *VideoHandler) Get(c *gin.Context) {
 //
 //	@Summary		Update video
 //	@Description	Update an existing video
-//	@Description	The status are: **OPEN**, **CANCELLED**, **PENDING**, **RECEIVED**, **PREPARING**, **READY**, **COMPLETED**
+//	@Description	The status are: **CREATED**, **FAILED**, **PROCESSING**, **FINISHED**
 //	@Description	## Transition of status:
-//	@Description	- OPEN      -> CANCELLED || PENDING
-//	@Description	- CANCELLED -> {},
-//	@Description	- PENDING   -> OPEN || RECEIVED
-//	@Description	- RECEIVED  -> PREPARING
-//	@Description	- PREPARING -> READY
-//	@Description	- READY     -> COMPLETED
-//	@Description	- COMPLETED -> {}
+//	@Description	- CREATED      -> FAILED || PROCESSING
+//	@Description	- FAILED       -> {},
+//	@Description	- PROCESSING   -> FINISHED
+//	@Description	- FINISHED     -> {}
 //	@Tags			videos
 //	@Accept			json
 //	@Produce		json
@@ -225,10 +221,10 @@ func (h *VideoHandler) Update(c *gin.Context) {
 	}
 
 	input := dto.UpdateVideoInput{
-		ID:         uri.ID,
-		CustomerID: body.CustomerID,
-		Status:     body.Status,
-		StaffID:    body.StaffID,
+		ID:      uri.ID,
+		UserID:  body.CustomerID,
+		Status:  body.Status,
+		StaffID: body.StaffID,
 	}
 
 	output, err := h.controller.Update(
@@ -248,15 +244,12 @@ func (h *VideoHandler) Update(c *gin.Context) {
 //
 //	@Summary		Partial update video (Reference TC-2 1.a.v)
 //	@Description	Partially updates an existing video
-//	@Description	The status are: **OPEN**, **CANCELLED**, **PENDING**, **RECEIVED**, **PREPARING**, **READY**, **COMPLETED**
+//	@Description	The status are: **CREATED**, **FAILED**, **PROCESSING**, **FINISHED**
 //	@Description	## Transition of status:
-//	@Description	- OPEN      -> CANCELLED || PENDING
-//	@Description	- CANCELLED -> {},
-//	@Description	- PENDING   -> OPEN || RECEIVED
-//	@Description	- RECEIVED  -> PREPARING
-//	@Description	- PREPARING -> READY
-//	@Description	- READY     -> COMPLETED
-//	@Description	- COMPLETED -> {}
+//	@Description	- CREATED      -> FAILED || PROCESSING
+//	@Description	- FAILED       -> {},
+//	@Description	- PROCESSING   -> FINISHED
+//	@Description	- FINISHED     -> {}
 //	@Tags			videos
 //	@Accept			json
 //	@Produce		json
@@ -282,10 +275,10 @@ func (h *VideoHandler) UpdatePartial(c *gin.Context) {
 	}
 
 	input := dto.UpdateVideoInput{
-		ID:         uri.ID,
-		CustomerID: body.CustomerID,
-		Status:     body.Status,
-		StaffID:    body.StaffID,
+		ID:      uri.ID,
+		UserID:  body.CustomerID,
+		Status:  body.Status,
+		StaffID: body.StaffID,
 	}
 
 	output, err := h.controller.Update(

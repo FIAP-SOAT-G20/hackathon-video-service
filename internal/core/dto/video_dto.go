@@ -5,14 +5,14 @@ import (
 )
 
 type CreateVideoInput struct {
-	CustomerID uint64
+	UserID uint64
 }
 
 type UpdateVideoInput struct {
-	ID         uint64
-	CustomerID uint64
-	Status     valueobject.VideoStatus
-	StaffID    uint64
+	ID      uint64
+	UserID  uint64
+	Status  valueobject.VideoStatus
+	StaffID uint64
 }
 
 type GetVideoInput struct {
@@ -24,7 +24,7 @@ type DeleteVideoInput struct {
 }
 
 type ListVideosInput struct {
-	CustomerID    uint64
+	UserID        uint64
 	Status        []valueobject.VideoStatus
 	StatusExclude []valueobject.VideoStatus
 	Page          int

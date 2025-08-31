@@ -8,14 +8,11 @@ import (
 type VideoStatus string
 
 const (
-	OPEN       VideoStatus = "OPEN"
-	CANCELLED  VideoStatus = "CANCELLED"
-	PENDING    VideoStatus = "PENDING"
-	RECEIVED   VideoStatus = "RECEIVED"
-	PREPARING  VideoStatus = "PREPARING"
-	READY      VideoStatus = "READY"
-	COMPLETED  VideoStatus = "COMPLETED"
-	UNDEFINDED VideoStatus = "UNDEFINDED"
+	CREATED    VideoStatus = "CREATED"
+	PROCESSING  VideoStatus = "PROCESSING"
+	FINISHED    VideoStatus = "FINISHED"
+	FAILED      VideoStatus = "FAILED"
+	UNDEFINDED  VideoStatus = "UNDEFINDED"
 )
 
 func IsValidVideoStatus(status string) bool {
@@ -26,20 +23,14 @@ func IsValidVideoStatus(status string) bool {
 // String returns the string representation of the VideoStatus
 func (o VideoStatus) String() string {
 	switch o {
-	case OPEN:
-		return "OPEN"
-	case CANCELLED:
-		return "CANCELLED"
-	case PENDING:
-		return "PENDING"
-	case RECEIVED:
-		return "RECEIVED"
-	case PREPARING:
-		return "PREPARING"
-	case READY:
-		return "READY"
-	case COMPLETED:
-		return "COMPLETED"
+	case CREATED:
+		return "CREATED"
+	case PROCESSING:
+		return "PROCESSING"
+	case FINISHED:
+		return "FINISHED"
+	case FAILED:
+		return "FAILED"
 	default:
 		return "UNDEFINDED"
 	}
@@ -48,20 +39,14 @@ func (o VideoStatus) String() string {
 // ToVideoStatus converts a string to a VideoStatus
 func ToVideoStatus(status string) (VideoStatus, bool) {
 	switch strings.ToUpper(status) {
-	case "OPEN":
-		return OPEN, true
-	case "CANCELLED":
-		return CANCELLED, true
-	case "PENDING":
-		return PENDING, true
-	case "RECEIVED":
-		return RECEIVED, true
-	case "PREPARING":
-		return PREPARING, true
-	case "READY":
-		return READY, true
-	case "COMPLETED":
-		return COMPLETED, true
+	case "CREATED":
+		return CREATED, true
+	case "PROCESSING":
+		return PROCESSING, true
+	case "FINISHED":
+		return FINISHED, true
+	case "FAILED":
+		return FAILED, true
 	default:
 		return UNDEFINDED, false
 	}
@@ -69,29 +54,14 @@ func ToVideoStatus(status string) (VideoStatus, bool) {
 
 // VideoStatusTransitions defines the allowed transitions between VideoStatuses
 var VideoStatusTransitions = map[VideoStatus][]VideoStatus{
-	OPEN:      {CANCELLED, PENDING, RECEIVED},
-	CANCELLED: {},
-	PENDING:   {OPEN, RECEIVED, CANCELLED},
-	RECEIVED:  {PREPARING, CANCELLED},
-	PREPARING: {READY, CANCELLED},
-	READY:     {COMPLETED},
-	COMPLETED: {},
+	CREATED:    {FAILED, PROCESSING},
+	PROCESSING: {FAILED, FINISHED},
+	FINISHED:   {},
+	FAILED:     {},
 }
 
 // StatusCanTransitionTo returns true if the transition from oldStatus to newStatus is allowed
 func StatusCanTransitionTo(oldStatus, newStatus VideoStatus) bool {
 	allowedStatuses := VideoStatusTransitions[oldStatus]
 	return slices.Contains(allowedStatuses, newStatus)
-}
-
-// StatusTransitionNeedsStaffID returns true if the new status requires a staff ID
-func StatusTransitionNeedsStaffID(newStatus VideoStatus) bool {
-	switch newStatus {
-	case OPEN, CANCELLED, PENDING, RECEIVED:
-		return false
-	case PREPARING, READY, COMPLETED:
-		return true
-	default:
-		return false
-	}
 }

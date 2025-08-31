@@ -7,16 +7,16 @@ import (
 )
 
 type Video struct {
-	ID         uint64
-	CustomerID uint64
-	Status     valueobject.VideoStatus
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ID        uint64
+	UserID    uint64
+	Status    valueobject.VideoStatus
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (p *Video) Update(customerID uint64, status valueobject.VideoStatus) {
 	if customerID != 0 {
-		p.CustomerID = customerID
+		p.UserID = customerID
 	}
 	if status != valueobject.UNDEFINDED {
 		p.Status = status

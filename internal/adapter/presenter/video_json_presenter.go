@@ -47,7 +47,7 @@ func (p *videoJsonPresenter) Present(pp dto.PresenterInput) ([]byte, error) {
 func ToVideoJsonResponse(video *entity.Video) VideoJsonResponse {
 	return VideoJsonResponse{
 		ID:         video.ID,
-		CustomerID: video.CustomerID,
+		CustomerID: video.UserID,
 		Status:     string(video.Status),
 		CreatedAt:  video.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt:  video.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),

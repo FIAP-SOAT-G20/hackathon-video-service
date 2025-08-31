@@ -75,9 +75,9 @@ func (s *VideoUsecaseSuiteTest) TestVideosUseCase_List() {
 		{
 			name: "should filter by customer",
 			input: dto.ListVideosInput{
-				CustomerID: 1,
-				Page:       1,
-				Limit:      10,
+				UserID: 1,
+				Page:   1,
+				Limit:  10,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
@@ -116,7 +116,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Create() {
 		{
 			name: "should create video successfully",
 			input: dto.CreateVideoInput{
-				CustomerID: 1,
+				UserID: 1,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
@@ -126,13 +126,13 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Create() {
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.NoError(t, err)
 				assert.NotNil(t, video)
-				assert.Equal(t, uint64(1), video.CustomerID)
+				assert.Equal(t, uint64(1), video.UserID)
 			},
 		},
 		{
 			name: "should return error when gateway create fails",
 			input: dto.CreateVideoInput{
-				CustomerID: 1,
+				UserID: 1,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
@@ -148,7 +148,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Create() {
 		{
 			name: "should return error when video history use case create fails",
 			input: dto.CreateVideoInput{
-				CustomerID: 1,
+				UserID: 1,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
@@ -252,9 +252,9 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 		{
 			name: "should update video successfully",
 			input: dto.UpdateVideoInput{
-				ID:         1,
-				CustomerID: 1,
-				Status:     valueobject.RECEIVED,
+				ID:     1,
+				UserID: 1,
+				Status: valueobject.PROCESSING,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
@@ -271,15 +271,15 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.NoError(t, err)
 				assert.NotNil(t, video)
-				assert.Equal(t, valueobject.RECEIVED, video.Status)
+				assert.Equal(t, valueobject.PROCESSING, video.Status)
 			},
 		},
 		{
 			name: "should return error when gateway find fails",
 			input: dto.UpdateVideoInput{
-				ID:         1,
-				CustomerID: 1,
-				Status:     valueobject.RECEIVED,
+				ID:     1,
+				UserID: 1,
+				Status: valueobject.PROCESSING,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
@@ -295,9 +295,9 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 		{
 			name: "should return error when video not found",
 			input: dto.UpdateVideoInput{
-				ID:         1,
-				CustomerID: 1,
-				Status:     valueobject.RECEIVED,
+				ID:     1,
+				UserID: 1,
+				Status: valueobject.PROCESSING,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
@@ -313,9 +313,9 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 		{
 			name: "should return error when customer id is different",
 			input: dto.UpdateVideoInput{
-				ID:         1,
-				CustomerID: 2,
-				Status:     valueobject.RECEIVED,
+				ID:     1,
+				UserID: 2,
+				Status: valueobject.PROCESSING,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
@@ -331,27 +331,9 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 		{
 			name: "should return error when status is different and can't transition",
 			input: dto.UpdateVideoInput{
-				ID:         1,
-				CustomerID: 1,
-				Status:     valueobject.READY,
-			},
-			setupMocks: func() {
-				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
-					Return(s.mockVideos[0], nil)
-			},
-			checkResult: func(t *testing.T, video *entity.Video, err error) {
-				assert.Error(t, err)
-				assert.Nil(t, video)
-				assert.IsType(t, &domain.InvalidInputError{}, err)
-			},
-		},
-		{
-			name: "should return error when status is different and need staff id",
-			input: dto.UpdateVideoInput{
-				ID:         1,
-				CustomerID: 1,
-				Status:     valueobject.PREPARING,
+				ID:     1,
+				UserID: 1,
+				Status: valueobject.FINISHED,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
@@ -367,9 +349,9 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 		{
 			name: "should return error when gateway update fails",
 			input: dto.UpdateVideoInput{
-				ID:         1,
-				CustomerID: 1,
-				Status:     valueobject.RECEIVED,
+				ID:     1,
+				UserID: 1,
+				Status: valueobject.PROCESSING,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
@@ -389,9 +371,9 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 		{
 			name: "should return error when status is different and video history use case create fails",
 			input: dto.UpdateVideoInput{
-				ID:         1,
-				CustomerID: 1,
-				Status:     valueobject.CANCELLED,
+				ID:     1,
+				UserID: 1,
+				Status: valueobject.FAILED,
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().

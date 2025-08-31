@@ -26,7 +26,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 			url:  "/videos",
 			setupMocks: func() {
 				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListVideosInput{
-					StatusExclude: []valueobject.VideoStatus{valueobject.CANCELLED, valueobject.COMPLETED},
+					StatusExclude: []valueobject.VideoStatus{valueobject.FAILED, valueobject.FINISHED},
 					Page:          1,
 					Limit:         10,
 					Sort:          "status:d,created_at",
@@ -39,12 +39,12 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 		},
 		{
 			name: "success - with query",
-			url:  "/videos?customer_id=1&status=OPEN,PENDING",
+			url:  "/videos?user_id=1&status=CREATED,PROCESSING",
 			setupMocks: func() {
 				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListVideosInput{
-					CustomerID:    1,
-					Status:        []valueobject.VideoStatus{valueobject.OPEN, valueobject.PENDING},
-					StatusExclude: []valueobject.VideoStatus{valueobject.CANCELLED, valueobject.COMPLETED},
+					UserID:        1,
+					Status:        []valueobject.VideoStatus{valueobject.CREATED, valueobject.PROCESSING},
+					StatusExclude: []valueobject.VideoStatus{valueobject.FAILED, valueobject.FINISHED},
 					Page:          1,
 					Limit:         10,
 					Sort:          "status:d,created_at",
@@ -56,8 +56,8 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 			},
 		},
 		{
-			name:       "invalid query - customer_id",
-			url:        "/videos?customer_id=invalid",
+			name:       "invalid query - user_id",
+			url:        "/videos?user_id=invalid",
 			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
@@ -78,7 +78,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 			url:  "/videos",
 			setupMocks: func() {
 				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListVideosInput{
-					StatusExclude: []valueobject.VideoStatus{valueobject.CANCELLED, valueobject.COMPLETED},
+					StatusExclude: []valueobject.VideoStatus{valueobject.FAILED, valueobject.FINISHED},
 					Page:          1,
 					Limit:         10,
 					Sort:          "status:d,created_at",
@@ -121,7 +121,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Create() {
 			body: strings.NewReader(s.requests["create_success"]),
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Create(gomock.Any(), gomock.Any(), dto.CreateVideoInput{CustomerID: 1}).
+					Create(gomock.Any(), gomock.Any(), dto.CreateVideoInput{UserID: 1}).
 					Return([]byte(s.responses["create_success"]), nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -139,7 +139,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Create() {
 			},
 		},
 		{
-			name:       "invalid request - customer_id is not a number",
+			name:       "invalid request - user_id is not a number",
 			url:        "/videos",
 			body:       strings.NewReader(s.requests["create_invalid_body"]),
 			setupMocks: func() {},
@@ -153,7 +153,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Create() {
 			body: strings.NewReader(s.requests["create_success"]),
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Create(gomock.Any(), gomock.Any(), dto.CreateVideoInput{CustomerID: 1}).
+					Create(gomock.Any(), gomock.Any(), dto.CreateVideoInput{UserID: 1}).
 					Return(nil, domain.NewInternalError(nil))
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -254,9 +254,9 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 			setupMocks: func() {
 				s.mockController.EXPECT().
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
-						ID:         15,
-						CustomerID: 5,
-						Status:     valueobject.PENDING,
+						ID:     15,
+						UserID: 5,
+						Status: valueobject.PROCESSING,
 					}).
 					Return([]byte(s.responses["update_success"]), nil)
 			},
@@ -276,7 +276,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 			},
 		},
 		{
-			name:       "invalid request - customer_id is not a number",
+			name:       "invalid request - user_id is not a number",
 			url:        "/videos/5",
 			body:       strings.NewReader(s.requests["update_invalid_body"]),
 			setupMocks: func() {},
@@ -302,9 +302,9 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 			setupMocks: func() {
 				s.mockController.EXPECT().
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
-						ID:         15,
-						CustomerID: 5,
-						Status:     valueobject.PENDING,
+						ID:     15,
+						UserID: 5,
+						Status: valueobject.PROCESSING,
 					}).
 					Return(nil, domain.NewInternalError(nil))
 			},
@@ -346,9 +346,9 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 			setupMocks: func() {
 				s.mockController.EXPECT().
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
-						ID:         15,
-						CustomerID: 5,
-						Status:     valueobject.PENDING,
+						ID:     15,
+						UserID: 5,
+						Status: valueobject.PROCESSING,
 					}).
 					Return([]byte(s.responses["update_success"]), nil)
 			},
@@ -368,7 +368,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 			},
 		},
 		{
-			name:       "invalid request - customer_id is not a number",
+			name:       "invalid request - user_id is not a number",
 			url:        "/videos/5",
 			body:       strings.NewReader(s.requests["update_invalid_body"]),
 			setupMocks: func() {},
@@ -394,9 +394,9 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 			setupMocks: func() {
 				s.mockController.EXPECT().
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
-						ID:         15,
-						CustomerID: 5,
-						Status:     valueobject.PENDING,
+						ID:     15,
+						UserID: 5,
+						Status: valueobject.PROCESSING,
 					}).
 					Return(nil, domain.NewInternalError(nil))
 			},

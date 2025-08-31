@@ -25,22 +25,22 @@ func TestVideoController_ListVideos(t *testing.T) {
 
 	ctx := context.Background()
 	input := dto.ListVideosInput{
-		CustomerID: 1,
-		Status:     []valueobject.VideoStatus{"PENDING"},
-		Page:       1,
-		Limit:      10,
+		UserID: 1,
+		Status: []valueobject.VideoStatus{"PENDING"},
+		Page:   1,
+		Limit:  10,
 	}
 
 	mockVideos := []*entity.Video{
 		{
-			ID:         1,
-			CustomerID: 1,
-			Status:     "PENDING",
+			ID:     1,
+			UserID: 1,
+			Status: "PENDING",
 		},
 		{
-			ID:         2,
-			CustomerID: 1,
-			Status:     "PENDING",
+			ID:     2,
+			UserID: 1,
+			Status: "PENDING",
 		},
 	}
 
@@ -72,13 +72,13 @@ func TestVideoController_CreateVideo(t *testing.T) {
 
 	ctx := context.Background()
 	input := dto.CreateVideoInput{
-		CustomerID: 1,
+		UserID: 1,
 	}
 
 	mockVideo := &entity.Video{
-		ID:         1,
-		CustomerID: 1,
-		Status:     "OPEN",
+		ID:     1,
+		UserID: 1,
+		Status: "OPEN",
 	}
 
 	mokVideocUseCase.EXPECT().
@@ -108,9 +108,9 @@ func TestVideoController_GetVideo(t *testing.T) {
 	}
 
 	mockVideo := &entity.Video{
-		ID:         1,
-		CustomerID: 1,
-		Status:     "PENDING",
+		ID:     1,
+		UserID: 1,
+		Status: "PENDING",
 	}
 
 	mokVideocUseCase.EXPECT().
@@ -136,15 +136,15 @@ func TestVideoController_UpdateVideo(t *testing.T) {
 
 	ctx := context.Background()
 	input := dto.UpdateVideoInput{
-		ID:         uint64(1),
-		CustomerID: 1,
-		Status:     "OPEN",
+		ID:     uint64(1),
+		UserID: 1,
+		Status: "OPEN",
 	}
 
 	mockVideo := &entity.Video{
-		ID:         1,
-		CustomerID: 1,
-		Status:     "PENDING",
+		ID:     1,
+		UserID: 1,
+		Status: "PENDING",
 	}
 
 	mokVideocUseCase.EXPECT().
@@ -174,9 +174,9 @@ func TestVideoController_DeleteVideo(t *testing.T) {
 	}
 
 	mockVideo := &entity.Video{
-		ID:         1,
-		CustomerID: 1,
-		Status:     "PENDING",
+		ID:     1,
+		UserID: 1,
+		Status: "PENDING",
 	}
 
 	mockVideocUseCase.EXPECT().

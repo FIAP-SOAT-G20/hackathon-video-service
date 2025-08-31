@@ -21,7 +21,7 @@ func NewVideoUseCase(gateway port.VideoGateway) port.VideoUseCase {
 
 // List returns a list of Videos
 func (uc *VideoUseCase) List(ctx context.Context, i dto.ListVideosInput) ([]*entity.Video, int64, error) {
-	videos, total, err := uc.gateway.FindAll(ctx, i.CustomerID, i.Status, i.StatusExclude, i.Page, i.Limit, i.Sort)
+	videos, total, err := uc.gateway.FindAll(ctx, i.UserID, i.Status, i.StatusExclude, i.Page, i.Limit, i.Sort)
 	if err != nil {
 		return nil, 0, domain.NewInternalError(err)
 	}
@@ -31,7 +31,7 @@ func (uc *VideoUseCase) List(ctx context.Context, i dto.ListVideosInput) ([]*ent
 
 // Create creates a new Video
 func (uc *VideoUseCase) Create(ctx context.Context, i dto.CreateVideoInput) (*entity.Video, error) {
-	video := &entity.Video{CustomerID: i.CustomerID, Status: valueobject.OPEN}
+	video := &entity.Video{UserID: i.UserID, Status: valueobject.CREATED}
 
 	if err := uc.gateway.Create(ctx, video); err != nil {
 		return nil, domain.NewInternalError(err)
@@ -65,7 +65,7 @@ func (uc *VideoUseCase) Update(ctx context.Context, i dto.UpdateVideoInput) (*en
 		return nil, domain.NewNotFoundError(domain.ErrNotFound)
 	}
 
-	if i.CustomerID != 0 && video.CustomerID != i.CustomerID {
+	if i.UserID != 0 && video.UserID != i.UserID {
 		return nil, domain.NewInvalidInputError(domain.ErrInvalidBody)
 	}
 
@@ -74,13 +74,9 @@ func (uc *VideoUseCase) Update(ctx context.Context, i dto.UpdateVideoInput) (*en
 		if !valueobject.StatusCanTransitionTo(video.Status, i.Status) {
 			return nil, domain.NewInvalidInputError(domain.ErrVideoInvalidStatusTransition)
 		}
-
-		if valueobject.StatusTransitionNeedsStaffID(i.Status) && i.StaffID == 0 {
-			return nil, domain.NewInvalidInputError(domain.ErrStaffIdIsMandatory)
-		}
 	}
 
-	video.Update(i.CustomerID, i.Status)
+	video.Update(i.UserID, i.Status)
 
 	if err := uc.gateway.Update(ctx, video); err != nil {
 		return nil, domain.NewInternalError(err)

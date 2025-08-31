@@ -31,18 +31,18 @@ func (s *VideoUsecaseSuiteTest) SetupTest() {
 	currentTime := time.Now()
 	s.mockVideos = []*entity.Video{
 		{
-			ID:         1,
-			CustomerID: uint64(1),
-			Status:     valueobject.PENDING,
-			CreatedAt:  currentTime,
-			UpdatedAt:  currentTime,
+			ID:        1,
+			UserID:    uint64(1),
+			Status:    valueobject.CREATED,
+			CreatedAt: currentTime,
+			UpdatedAt: currentTime,
 		},
 		{
-			ID:         2,
-			CustomerID: uint64(2),
-			Status:     valueobject.RECEIVED,
-			CreatedAt:  currentTime,
-			UpdatedAt:  currentTime,
+			ID:        2,
+			UserID:    uint64(2),
+			Status:    valueobject.PROCESSING,
+			CreatedAt: currentTime,
+			UpdatedAt: currentTime,
 		},
 	}
 }
