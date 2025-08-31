@@ -21,6 +21,13 @@ type Config struct {
 	DBMaxIdleConns int
 	DBMaxLifetime  time.Duration
 
+	// DocumentDB settings
+	DocumentDBURI         string
+	DocumentDBName        string
+	DocumentDBTLSEnabled  bool
+	DocumentDBTLSCertPath string
+	DocumentDBTLSInsecure bool
+
 	// Server settings
 	ServerPort                    string
 	ServerReadTimeout             time.Duration
@@ -48,6 +55,10 @@ func LoadConfig() *Config {
 	dbMaxIdleConns, _ := strconv.Atoi(getEnv("DB_MAX_IDLE_CONNS", "25"))
 	dbMaxLifetime, _ := time.ParseDuration(getEnv("DB_CONN_MAX_LIFETIME", "5m"))
 
+	// Parse DocumentDB TLS settings
+	documentDBTLSEnabled, _ := strconv.ParseBool(getEnv("DOCUMENTDB_TLS_ENABLED", "false"))
+	documentDBTLSInsecure, _ := strconv.ParseBool(getEnv("DOCUMENTDB_TLS_INSECURE", "false"))
+
 	serverReadTimeout, _ := time.ParseDuration(getEnv("SERVER_READ_TIMEOUT", "10s"))
 	serverWriteTimeout, _ := time.ParseDuration(getEnv("SERVER_WRITE_TIMEOUT", "10s"))
 	serverIdleTimeout, _ := time.ParseDuration(getEnv("SERVER_IDLE_TIMEOUT", "60s"))
@@ -71,6 +82,13 @@ func LoadConfig() *Config {
 		DBMaxOpenConns: dbMaxOpenConns,
 		DBMaxIdleConns: dbMaxIdleConns,
 		DBMaxLifetime:  dbMaxLifetime,
+
+		// DocumentDB settings
+		DocumentDBURI:         getEnv("DOCUMENTDB_URI", "mongodb://localhost:27017"),
+		DocumentDBName:        getEnv("DOCUMENTDB_NAME", "video_service"),
+		DocumentDBTLSEnabled:  documentDBTLSEnabled,
+		DocumentDBTLSCertPath: getEnv("DOCUMENTDB_TLS_CERT_PATH", ""),
+		DocumentDBTLSInsecure: documentDBTLSInsecure,
 
 		// Server settings
 		ServerPort:                    getEnv("SERVER_PORT", "8080"),

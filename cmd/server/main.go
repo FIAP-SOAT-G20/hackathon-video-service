@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	_ "github.com/FIAP-SOAT-G20/hackathon-video-service/docs"
@@ -39,18 +40,14 @@ func main() {
 
 	loggerInstance := logger.NewLogger(cfg.Environment)
 
-	db, err := database.NewPostgresConnection(cfg, loggerInstance)
+	dbConfig, err := database.NewDatabase(cfg, loggerInstance)
 	if err != nil {
 		loggerInstance.Error("failed to connect to database", "error", err.Error())
 		os.Exit(1)
 	}
+	defer dbConfig.Close()
 
-	if err := db.Migrate(); err != nil {
-		loggerInstance.Error("failed to run migrations", "error", err.Error())
-		os.Exit(1)
-	}
-
-	handlers := setupHandlers(db, cfg)
+	handlers := setupHandlers(dbConfig, cfg)
 
 	srv := server.NewServer(cfg, loggerInstance, handlers)
 	if err := srv.Start(); err != nil {
@@ -59,9 +56,13 @@ func main() {
 	}
 }
 
-func setupHandlers(db *database.Database, cfg *config.Config) *route.Handlers {
-	// Datasources
-	videoDS := datasource.NewVideoDataSource(db.DB)
+func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config) *route.Handlers {
+	// Create video datasource using factory
+	videoDS, err := datasource.NewVideoDataSourceFactory(dbConfig)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create video datasource: %v", err))
+	}
+
 	// Services
 	jwtService := service.NewJWTService(cfg)
 

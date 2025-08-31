@@ -1,0 +1,82 @@
+# Docker Compose for DocumentDB/MongoDB Integration Testing
+version: '3.8'
+
+services:
+  # Existing PostgreSQL service
+  postgres:
+    image: postgres:15
+    container_name: video-service-postgres
+    environment:
+      POSTGRES_DB: video_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # MongoDB service (DocumentDB compatible)
+  mongodb:
+    image: mongo:7.0
+    container_name: video-service-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: video_service
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/init-mongodb.js:/docker-entrypoint-initdb.d/init-mongodb.js:ro
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Video Service with PostgreSQL
+  video-service-postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: video-service-postgres-app
+    environment:
+      - DB_DSN=host=postgres port=5432 user=postgres password=postgres dbname=video_service sslmode=disable
+      - ENVIRONMENT=postgres
+      - SERVER_PORT=8080
+      - JWT_SECRET=your-jwt-secret-key
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Video Service with MongoDB/DocumentDB
+  video-service-mongodb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: video-service-mongodb-app
+    environment:
+      - DOCUMENTDB_URI=mongodb://admin:password@mongodb:27017/video_service?authSource=admin
+      - DOCUMENTDB_NAME=video_service
+      - DOCUMENTDB_TLS_ENABLED=false
+      - ENVIRONMENT=mongodb
+      - SERVER_PORT=8081
+      - JWT_SECRET=your-jwt-secret-key
+    ports:
+      - "8081:8081"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  mongodb_data:
