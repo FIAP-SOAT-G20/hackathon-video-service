@@ -134,8 +134,8 @@ func (a *apiFeature) resetResponse(*godog.Scenario) {
 				return
 			}
 
-			// Get the expected status from our tracking map, default to "OPEN"
-			expectedStatus := valueobject.OPEN
+			// Get the expected status from our tracking map, default to "CREATED"
+			expectedStatus := valueobject.CREATED
 			if status, exists := a.videoStatus[id]; exists {
 				expectedStatus = status
 			}
@@ -257,12 +257,12 @@ func (a *apiFeature) iHaveAValidVideoRequest(ctx context.Context) error {
 }
 
 func (a *apiFeature) iHaveAnExistingVideoWithID(ctx context.Context, videoID string) error {
-	// Set the video status to PENDING for the retrieve scenario
-	a.videoStatus[videoID] = valueobject.PENDING
+	// Set the video status to PROCESSING for the retrieve scenario
+	a.videoStatus[videoID] = valueobject.PROCESSING
 
 	video := entity.Video{
 		ID:     12345,
-		Status: valueobject.PENDING,
+		Status: valueobject.PROCESSING,
 	}
 	ctx = context.WithValue(ctx, godogsRequestCtxKey{}, video) //nolint
 
