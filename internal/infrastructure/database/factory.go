@@ -81,7 +81,7 @@ func determineDatabaseType(cfg *config.Config) DatabaseType {
 	}
 
 	// Check environment variable for explicit database type
-	if dbType := cfg.Environment; dbType != "" {
+	if dbType := cfg.DBEngine; dbType != "" {
 		switch strings.ToLower(dbType) {
 		case "documentdb":
 			return DocumentDB

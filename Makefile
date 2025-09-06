@@ -12,7 +12,7 @@ NAMESPACE=tech-challenge-ns
 TEST_PATH=./internal/...
 TEST_COVERAGE_FILE_NAME=coverage.out
 MIGRATION_PATH = internal/infrastructure/database/migrations
-DB_URL = postgres://postgres:postgres@localhost:5432/fastfood_10soat_g19_tc4_order?sslmode=disable
+DB_URL = postgres://postgres:postgres@localhost:5432/fiapx?sslmode=disable
 
 # Go commands
 GOCMD=go

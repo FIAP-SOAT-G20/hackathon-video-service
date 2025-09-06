@@ -21,6 +21,8 @@ type Config struct {
 	DBMaxIdleConns int
 	DBMaxLifetime  time.Duration
 
+	DBEngine string
+
 	// DocumentDB settings
 	DocumentDBURI         string
 	DocumentDBName        string
@@ -78,7 +80,9 @@ func LoadConfig() *Config {
 		AWS_SQS_OrderStatusUpdatedWaitTimeSeconds: AWS_SQS_OrderStatusUpdatedWaitTimeSeconds,
 
 		// Database settings
-		DBDSN:          getEnv("DB_DSN", "host=localhost port=5432 user=postgres password=postgres dbname=fastfood_10soat_g19_tc4_order sslmode=disable"),
+		DBEngine: getEnv("DB_ENGINE", "mongodb"),
+
+		DBDSN:          getEnv("DB_DSN", "host=localhost port=5432 user=postgres password=postgres dbname=fiapx sslmode=disable"),
 		DBMaxOpenConns: dbMaxOpenConns,
 		DBMaxIdleConns: dbMaxIdleConns,
 		DBMaxLifetime:  dbMaxLifetime,
