@@ -37,10 +37,15 @@ make run-postgres
 # Start MongoDB for local development
 make documentdb-up
 
+# Start MongoDB with Mongo Express UI
+make documentdb-up-with-ui
+
 # Build and run with DocumentDB
 make build
 make run-documentdb
 ```
+
+**MongoDB Web UI**: When using `make documentdb-up-with-ui`, you can access the Mongo Express web interface at [http://localhost:8082](http://localhost:8082) to view and manage your MongoDB data.
 
 ## Configuration
 
@@ -78,13 +83,18 @@ See [DocumentDB Integration Guide](docs/documentdb-integration.md) for detailed 
 ### Available Commands
 
 ```bash
-make help                # Show all available commands
-make build              # Build the application
-make test               # Run tests
-make run-postgres       # Run with PostgreSQL
-make run-documentdb     # Run with DocumentDB/MongoDB
-make documentdb-test    # Test DocumentDB integration
-make test-integration   # Run integration tests for both databases
+make help                       # Show all available commands
+make build                      # Build the application
+make test                       # Run tests
+make run-postgres               # Run with PostgreSQL
+make run-documentdb             # Run with DocumentDB/MongoDB
+make documentdb-up              # Start MongoDB only
+make documentdb-up-with-ui      # Start MongoDB with Mongo Express UI
+make mongo-express-up           # Start Mongo Express UI (requires MongoDB)
+make mongo-express-down         # Stop Mongo Express UI
+make compose-up-with-ui         # Start full environment with UI
+make documentdb-test            # Test DocumentDB integration
+make test-integration           # Run integration tests for both databases
 ```
 
 ### Testing

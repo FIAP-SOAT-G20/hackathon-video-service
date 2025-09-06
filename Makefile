@@ -167,6 +167,14 @@ compose-up: ## Start development environment with Docker Compose
 	docker compose pull
 	docker-compose up -d --wait --build
 
+.PHONY: compose-up-with-ui
+compose-up-with-ui: ## Start full development environment including Mongo Express UI
+	@echo  "🟢 Starting full development environment with UI..."
+	docker compose pull
+	docker-compose up -d --wait --build documentdb mongo-express app
+	@echo "🌐 Application: http://localhost:8081"
+	@echo "🌐 Mongo Express UI: http://localhost:8082"
+
 .PHONY: compose-down
 compose-down: ## Stop development environment with Docker Compose
 	@echo  "🔴 Stopping development environment..."
@@ -204,6 +212,29 @@ bdd-tests: ## Run BDD tests
 documentdb-up: ## Start DocumentDB/MongoDB development environment
 	@echo "🟢 Starting DocumentDB/MongoDB environment..."
 	docker-compose -f compose.yml up -d documentdb
+
+.PHONY: documentdb-up-with-ui
+documentdb-up-with-ui: ## Start DocumentDB/MongoDB with Mongo Express UI
+	@echo "🟢 Starting DocumentDB/MongoDB with Mongo Express UI..."
+	docker-compose -f compose.yml up -d documentdb mongo-express
+	@echo "🌐 Mongo Express UI available at: http://localhost:8082"
+
+.PHONY: mongo-express-up
+mongo-express-up: documentdb-up ## Start Mongo Express UI (requires DocumentDB to be running)
+	@echo "🟢 Starting Mongo Express UI..."
+	docker-compose -f compose.yml up -d mongo-express
+	@echo "🌐 Mongo Express UI available at: http://localhost:8082"
+
+.PHONY: mongo-express-down
+mongo-express-down: ## Stop Mongo Express UI
+	@echo "🔴 Stopping Mongo Express UI..."
+	docker-compose -f compose.yml stop mongo-express
+	docker-compose -f compose.yml rm -f mongo-express
+
+.PHONY: mongo-express-logs
+mongo-express-logs: ## Show Mongo Express logs
+	@echo "🟢 Showing Mongo Express logs..."
+	docker-compose -f compose.yml logs -f mongo-express
 
 .PHONY: documentdb-down
 documentdb-down: ## Stop DocumentDB/MongoDB development environment

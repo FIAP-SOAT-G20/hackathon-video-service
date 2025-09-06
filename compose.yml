@@ -41,6 +41,26 @@ services:
     networks:
       - ff_video_network
 
+  # Mongo Express - MongoDB Web UI
+  mongo-express:
+    image: mongo-express:1.0.0
+    container_name: mongo-express.hackathon.dev
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_URL: mongodb://admin:password@documentdb:27017/?authSource=admin
+      ME_CONFIG_BASICAUTH: false
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: true
+      ME_CONFIG_SITE_BASEURL: /
+    ports:
+      - "8082:8081"
+    depends_on:
+      documentdb:
+        condition: service_healthy
+    networks:
+      - ff_video_network
+    restart: unless-stopped
+
   # Video Service with PostgreSQL
   # video-service-postgres:
   #   build:
