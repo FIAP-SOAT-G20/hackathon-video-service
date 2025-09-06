@@ -5,14 +5,18 @@ import (
 )
 
 type CreateVideoInput struct {
-	UserID uint64
+	UserID      uint64
+	Name        string
+	Description string
 }
 
 type UpdateVideoInput struct {
-	ID      uint64
-	UserID  uint64
-	Status  valueobject.VideoStatus
-	StaffID uint64
+	ID          uint64
+	UserID      uint64
+	Name        string
+	Description string
+	Status      valueobject.VideoStatus
+	StaffID     uint64
 }
 
 type GetVideoInput struct {

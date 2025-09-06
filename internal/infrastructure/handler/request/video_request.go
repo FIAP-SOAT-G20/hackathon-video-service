@@ -13,7 +13,9 @@ type ListVideosQueryRequest struct {
 }
 
 type CreateVideoBodyRequest struct {
-	UserID uint64 `json:"user_id" binding:"required" example:"1"`
+	UserID      uint64 `json:"user_id" binding:"required" example:"1"`
+	Name        string `json:"name" binding:"required" example:"My Video"`
+	Description string `json:"description" binding:"omitempty" example:"This is my video description"`
 }
 
 type GetVideoUriRequest struct {

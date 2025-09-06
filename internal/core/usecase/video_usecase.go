@@ -31,7 +31,7 @@ func (uc *VideoUseCase) List(ctx context.Context, i dto.ListVideosInput) ([]*ent
 
 // Create creates a new Video
 func (uc *VideoUseCase) Create(ctx context.Context, i dto.CreateVideoInput) (*entity.Video, error) {
-	video := &entity.Video{UserID: i.UserID, Status: valueobject.CREATED}
+	video := &entity.Video{UserID: i.UserID, Status: valueobject.CREATED, Name: i.Name, Description: i.Description}
 
 	if err := uc.gateway.Create(ctx, video); err != nil {
 		return nil, domain.NewInternalError(err)
@@ -76,7 +76,7 @@ func (uc *VideoUseCase) Update(ctx context.Context, i dto.UpdateVideoInput) (*en
 		}
 	}
 
-	video.Update(i.UserID, i.Status)
+	video.Update(i.UserID, i.Status, i.Name, i.Description)
 
 	if err := uc.gateway.Update(ctx, video); err != nil {
 		return nil, domain.NewInternalError(err)

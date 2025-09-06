@@ -7,19 +7,27 @@ import (
 )
 
 type Video struct {
-	ID        uint64
-	UserID    uint64
-	Status    valueobject.VideoStatus
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          uint64
+	UserID      uint64
+	Name        string
+	Description string
+	Status      valueobject.VideoStatus
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
-func (p *Video) Update(customerID uint64, status valueobject.VideoStatus) {
+func (p *Video) Update(customerID uint64, status valueobject.VideoStatus, name string, description string) {
 	if customerID != 0 {
 		p.UserID = customerID
 	}
 	if status != valueobject.UNDEFINDED {
 		p.Status = status
+	}
+	if name != "" {
+		p.Name = name
+	}
+	if description != "" {
+		p.Description = description
 	}
 	p.UpdatedAt = time.Now()
 }

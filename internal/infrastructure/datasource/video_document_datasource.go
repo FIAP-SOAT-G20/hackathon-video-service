@@ -23,12 +23,14 @@ type videoDocumentDataSource struct {
 
 // VideoDocument represents the MongoDB document structure for video
 type VideoDocument struct {
-	ID         primitive.ObjectID      `bson:"_id,omitempty"`
-	VideoID    uint64                  `bson:"video_id"`
-	CustomerID uint64                  `bson:"user_id"`
-	Status     valueobject.VideoStatus `bson:"status"`
-	CreatedAt  time.Time               `bson:"created_at"`
-	UpdatedAt  time.Time               `bson:"updated_at"`
+	ID          primitive.ObjectID      `bson:"_id,omitempty"`
+	VideoID     uint64                  `bson:"video_id"`
+	UserID      uint64                  `bson:"user_id"`
+	Name        string                  `bson:"name"`
+	Description string                  `bson:"description"`
+	Status      valueobject.VideoStatus `bson:"status"`
+	CreatedAt   time.Time               `bson:"created_at"`
+	UpdatedAt   time.Time               `bson:"updated_at"`
 }
 
 func NewVideoDocumentDataSource(db *database.DocumentDatabase) port.VideoDataSource {
@@ -174,9 +176,11 @@ func (ds *videoDocumentDataSource) Update(ctx context.Context, video *entity.Vid
 
 	update := bson.M{
 		"$set": bson.M{
-			"user_id":    video.UserID,
-			"status":     video.Status,
-			"updated_at": time.Now(),
+			"user_id":     video.UserID,
+			"status":      video.Status,
+			"name":        video.Name,
+			"description": video.Description,
+			"updated_at":  time.Now(),
 		},
 	}
 
@@ -231,21 +235,25 @@ func (ds *videoDocumentDataSource) Transaction(ctx context.Context, fn func(ctx 
 
 func (ds *videoDocumentDataSource) entityToDocument(video *entity.Video) *VideoDocument {
 	return &VideoDocument{
-		VideoID:    video.ID,
-		CustomerID: video.UserID,
-		Status:     video.Status,
-		CreatedAt:  video.CreatedAt,
-		UpdatedAt:  video.UpdatedAt,
+		VideoID:     video.ID,
+		UserID:      video.UserID,
+		Name:        video.Name,
+		Description: video.Description,
+		Status:      video.Status,
+		CreatedAt:   video.CreatedAt,
+		UpdatedAt:   video.UpdatedAt,
 	}
 }
 
 func (ds *videoDocumentDataSource) documentToEntity(doc *VideoDocument) *entity.Video {
 	return &entity.Video{
-		ID:        doc.VideoID,
-		UserID:    doc.CustomerID,
-		Status:    doc.Status,
-		CreatedAt: doc.CreatedAt,
-		UpdatedAt: doc.UpdatedAt,
+		ID:          doc.VideoID,
+		UserID:      doc.UserID,
+		Name:        doc.Name,
+		Description: doc.Description,
+		Status:      doc.Status,
+		CreatedAt:   doc.CreatedAt,
+		UpdatedAt:   doc.UpdatedAt,
 	}
 }
 

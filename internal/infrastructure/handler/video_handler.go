@@ -134,7 +134,9 @@ func (h *VideoHandler) Create(c *gin.Context) {
 	}
 
 	input := dto.CreateVideoInput{
-		UserID: body.UserID,
+		UserID:      body.UserID,
+		Name:        body.Name,
+		Description: body.Description,
 	}
 
 	output, err := h.controller.Create(
