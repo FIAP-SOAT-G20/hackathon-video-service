@@ -3,9 +3,9 @@ package request
 import valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
 
 type ListVideosQueryRequest struct {
-	CustomerID    uint64 `form:"user_id" example:"1" default:"0"`
-	Status        string `form:"status" binding:"omitempty" example:"PENDING"`
-	StatusExclude string `form:"status_exclude" binding:"omitempty" example:"CANCELLED,COMPLETED"`
+	UserID        uint64 `form:"user_id" example:"1" default:"0"`
+	Status        string `form:"status" binding:"omitempty" example:"PROCESSING"`
+	StatusExclude string `form:"status_exclude" binding:"omitempty" example:"FAILED,FINISHED"`
 	Page          int    `form:"page,default=1" example:"1"`
 	Limit         int    `form:"limit,default=10" example:"10"`
 	// Sort by default: status:d,created_at. Use <field_name>:d for descending, and the default order is ascending
@@ -13,7 +13,7 @@ type ListVideosQueryRequest struct {
 }
 
 type CreateVideoBodyRequest struct {
-	CustomerID uint64 `json:"user_id" binding:"required" example:"1"`
+	UserID uint64 `json:"user_id" binding:"required" example:"1"`
 }
 
 type GetVideoUriRequest struct {
@@ -25,23 +25,15 @@ type UpdateVideoUriRequest struct {
 }
 
 type UpdateVideoBodyRequest struct {
-	// StaffID is only required when status is PREPARING, READY or COMPLETED
-	StaffID    uint64                  `json:"staff_id" example:"1"`
-	CustomerID uint64                  `json:"user_id" binding:"required" example:"1"`
-	Status     valueobject.VideoStatus `json:"status" binding:"required,video_status_exists" example:"PENDING"`
+	Status valueobject.VideoStatus `json:"status" binding:"required,video_status_exists" example:"PROCESSING"`
 }
 
 type UpdateVideoPartilRequest struct {
-	// StaffID is only required when status is PREPARING, READY or COMPLETED
-	StaffID uint64                  `json:"staff_id" example:"1"`
-	Status  valueobject.VideoStatus `json:"status" example:"PENDING"`
+	Status valueobject.VideoStatus `json:"status" example:"PROCESSING"`
 }
 
 type UpdateVideoPartilBodyRequest struct {
-	CustomerID uint64 `json:"user_id" example:"1"`
-	// StaffID is only required when status is PREPARING, READY or COMPLETED
-	StaffID uint64                  `json:"staff_id" example:"1"`
-	Status  valueobject.VideoStatus `json:"status" binding:"omitempty,video_status_exists" example:"PENDING"`
+	Status valueobject.VideoStatus `json:"status" binding:"omitempty,video_status_exists" example:"PROCESSING"`
 }
 
 type DeleteVideoUriRequest struct {

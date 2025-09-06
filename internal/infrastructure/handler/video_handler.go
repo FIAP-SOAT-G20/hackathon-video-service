@@ -93,7 +93,7 @@ func (h *VideoHandler) List(c *gin.Context) {
 	}
 
 	input := dto.ListVideosInput{
-		UserID:        query.CustomerID,
+		UserID:        query.UserID,
 		Status:        status,
 		StatusExclude: statusExclude,
 		Page:          query.Page,
@@ -134,7 +134,7 @@ func (h *VideoHandler) Create(c *gin.Context) {
 	}
 
 	input := dto.CreateVideoInput{
-		UserID: body.CustomerID,
+		UserID: body.UserID,
 	}
 
 	output, err := h.controller.Create(
@@ -221,10 +221,8 @@ func (h *VideoHandler) Update(c *gin.Context) {
 	}
 
 	input := dto.UpdateVideoInput{
-		ID:      uri.ID,
-		UserID:  body.CustomerID,
-		Status:  body.Status,
-		StaffID: body.StaffID,
+		ID:     uri.ID,
+		Status: body.Status,
 	}
 
 	output, err := h.controller.Update(
@@ -275,10 +273,8 @@ func (h *VideoHandler) UpdatePartial(c *gin.Context) {
 	}
 
 	input := dto.UpdateVideoInput{
-		ID:      uri.ID,
-		UserID:  body.CustomerID,
-		Status:  body.Status,
-		StaffID: body.StaffID,
+		ID:     uri.ID,
+		Status: body.Status,
 	}
 
 	output, err := h.controller.Update(
