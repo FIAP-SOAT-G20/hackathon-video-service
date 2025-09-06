@@ -18,6 +18,42 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
 )
 
+// setupTestMongoDB creates a MongoDB container for testing with proper authentication
+func setupTestMongoDB(ctx context.Context, t *testing.T) (testcontainers.Container, string) {
+	// Try with authentication first
+	req := testcontainers.ContainerRequest{
+		Image:        "mongo:7.0",
+		ExposedPorts: []string{"27017/tcp"},
+		Env: map[string]string{
+			"MONGO_INITDB_ROOT_USERNAME": "admin",
+			"MONGO_INITDB_ROOT_PASSWORD": "password",
+			"MONGO_INITDB_DATABASE":      "test_video_service",
+		},
+		WaitingFor: wait.ForAll(
+			wait.ForListeningPort("27017/tcp"),
+		),
+	}
+	
+	mongoContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: req,
+		Started:          true,
+	})
+	if err != nil {
+		t.Fatalf("Failed to start MongoDB container: %v", err)
+	}
+
+	endpoint, err := mongoContainer.Endpoint(ctx, "")
+	if err != nil {
+		mongoContainer.Terminate(ctx)
+		t.Fatalf("Failed to get container endpoint: %v", err)
+	}
+
+	// Wait for MongoDB to be ready with authentication
+	time.Sleep(5 * time.Second)
+
+	return mongoContainer, endpoint
+}
+
 func TestVideoDocumentDataSource_Integration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test")
@@ -25,38 +61,30 @@ func TestVideoDocumentDataSource_Integration(t *testing.T) {
 
 	ctx := context.Background()
 
-	// Start MongoDB container
-	req := testcontainers.ContainerRequest{
-		Image:        "mongo:7.0",
-		ExposedPorts: []string{"27017/tcp"},
-		Env: map[string]string{
-			"MONGO_INITDB_ROOT_USERNAME": "admin",
-			"MONGO_INITDB_ROOT_PASSWORD": "password",
-		},
-		WaitingFor: wait.ForListeningPort("27017/tcp"),
-	}
-	mongoContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: req,
-		Started:          true,
-	})
-	require.NoError(t, err)
+	// Setup MongoDB container
+	mongoContainer, endpoint := setupTestMongoDB(ctx, t)
 	defer mongoContainer.Terminate(ctx)
-
-	// Get container endpoint
-	endpoint, err := mongoContainer.Endpoint(ctx, "")
-	require.NoError(t, err)
 
 	// Setup test configuration
 	cfg := &config.Config{
-		DocumentDBURI:  "mongodb://admin:password@" + endpoint + "/test_video_service?authSource=admin",
+		DocumentDBURI:  "mongodb://admin:password@" + endpoint + "/test_video_service?authSource=admin&directConnection=true",
 		DocumentDBName: "test_video_service",
 	}
 
 	logger := logger.NewLogger("test")
 
-	// Connect to DocumentDB
-	db, err := database.NewDocumentDBConnection(cfg, logger)
-	require.NoError(t, err)
+	// Connect to DocumentDB with retry logic
+	var db *database.DocumentDatabase
+	var err error
+	for i := 0; i < 5; i++ {
+		db, err = database.NewDocumentDBConnection(cfg, logger)
+		if err == nil {
+			break
+		}
+		t.Logf("Connection attempt %d failed: %v. Retrying...", i+1, err)
+		time.Sleep(2 * time.Second)
+	}
+	require.NoError(t, err, "Failed to connect to MongoDB after retries")
 	defer db.Close(ctx)
 
 	// Create indexes
@@ -200,4 +228,70 @@ func TestVideoDocumentDataSource_Integration(t *testing.T) {
 			}
 		}
 	})
+}
+
+// TestVideoDocumentDataSource_NoAuth provides a fallback test without authentication
+func TestVideoDocumentDataSource_NoAuth(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test")
+	}
+
+	ctx := context.Background()
+
+	// Start MongoDB container without authentication
+	req := testcontainers.ContainerRequest{
+		Image:        "mongo:7.0",
+		ExposedPorts: []string{"27017/tcp"},
+		WaitingFor:   wait.ForListeningPort("27017/tcp"),
+	}
+	
+	mongoContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: req,
+		Started:          true,
+	})
+	require.NoError(t, err)
+	defer mongoContainer.Terminate(ctx)
+
+	// Get container endpoint
+	endpoint, err := mongoContainer.Endpoint(ctx, "")
+	require.NoError(t, err)
+
+	// Wait for MongoDB to be ready
+	time.Sleep(2 * time.Second)
+
+	// Setup test configuration without authentication
+	cfg := &config.Config{
+		DocumentDBURI:  "mongodb://" + endpoint + "/test_video_service",
+		DocumentDBName: "test_video_service",
+	}
+
+	logger := logger.NewLogger("test")
+
+	// Connect to DocumentDB
+	db, err := database.NewDocumentDBConnection(cfg, logger)
+	require.NoError(t, err)
+	defer db.Close(ctx)
+
+	// Create datasource
+	videoDS := NewVideoDocumentDataSource(db)
+
+	// Basic test - create and find a video
+	video := &entity.Video{
+		ID:        1,
+		UserID:    100,
+		Status:    valueobject.CREATED,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	err = videoDS.Create(ctx, video)
+	assert.NoError(t, err)
+
+	// Find the video
+	found, err := videoDS.FindByID(ctx, 1)
+	assert.NoError(t, err)
+	assert.NotNil(t, found)
+	assert.Equal(t, uint64(1), found.ID)
+	assert.Equal(t, uint64(100), found.UserID)
+	assert.Equal(t, valueobject.CREATED, found.Status)
 }
