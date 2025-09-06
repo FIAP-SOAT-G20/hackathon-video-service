@@ -47,13 +47,13 @@ run-db: ## Run the database
 	docker-compose up -d db dbadmin
 
 .PHONY: run-api
-run-api: build run-db ## Run the API application
+run-api: build documentdb-up ## Run the API application
 	@echo  "🟢 Running the application..."
 	$(GORUN) $(MAIN_FILE) || true
 
 
 .PHONY: run-worker
-run-worker: build run-db ## Run the worker application 
+run-worker: build documentdb-up ## Run the worker application 
 	@echo  "🟢 Running the application..."
 	$(GORUN) $(WORKER_FILE) || true
 
@@ -203,7 +203,7 @@ bdd-tests: ## Run BDD tests
 .PHONY: documentdb-up
 documentdb-up: ## Start DocumentDB/MongoDB development environment
 	@echo "🟢 Starting DocumentDB/MongoDB environment..."
-	docker-compose -f compose.yml up -d mongodb
+	docker-compose -f compose.yml up -d documentdb
 
 .PHONY: documentdb-down
 documentdb-down: ## Stop DocumentDB/MongoDB development environment
@@ -225,7 +225,8 @@ run-documentdb: documentdb-up ## Run the application with DocumentDB
 	@echo "🟢 Running application with DocumentDB..."
 	@export DOCUMENTDB_URI="mongodb://admin:password@localhost:27017/video_service?authSource=admin" && \
 	export DOCUMENTDB_NAME="video_service" && \
-	export ENVIRONMENT="mongodb" && \
+	export ENVIRONMENT="development" && \
+	export DB_ENGINE="documentdb" && \
 	export SERVER_PORT="8082" && \
 	export JWT_SECRET="test-secret-key" && \
 	./bin/$(APP_NAME)
