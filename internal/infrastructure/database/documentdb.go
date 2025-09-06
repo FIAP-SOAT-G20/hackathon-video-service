@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -87,9 +88,18 @@ func (d *DocumentDatabase) Close(ctx context.Context) error {
 func (d *DocumentDatabase) CreateIndexes(ctx context.Context) error {
 	videoCollection := d.GetCollection("videos")
 
-	// Create index on customer_id
+	// Create unique index on video_id
 	_, err := videoCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: map[string]int{"customer_id": 1},
+		Keys:    bson.D{{Key: "video_id", Value: 1}},
+		Options: options.Index().SetUnique(true),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create video_id unique index: %w", err)
+	}
+
+	// Create index on customer_id
+	_, err = videoCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys: bson.D{{Key: "customer_id", Value: 1}},
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create customer_id index: %w", err)
@@ -97,7 +107,7 @@ func (d *DocumentDatabase) CreateIndexes(ctx context.Context) error {
 
 	// Create index on status
 	_, err = videoCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: map[string]int{"status": 1},
+		Keys: bson.D{{Key: "status", Value: 1}},
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create status index: %w", err)
@@ -105,7 +115,7 @@ func (d *DocumentDatabase) CreateIndexes(ctx context.Context) error {
 
 	// Create compound index on status and customer_id
 	_, err = videoCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: map[string]int{"status": 1, "customer_id": 1},
+		Keys: bson.D{{Key: "status", Value: 1}, {Key: "customer_id", Value: 1}},
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create compound index: %w", err)
@@ -113,10 +123,18 @@ func (d *DocumentDatabase) CreateIndexes(ctx context.Context) error {
 
 	// Create index on created_at for sorting
 	_, err = videoCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: map[string]int{"created_at": -1},
+		Keys: bson.D{{Key: "created_at", Value: -1}},
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create created_at index: %w", err)
+	}
+
+	// Create index on updated_at for sorting
+	_, err = videoCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys: bson.D{{Key: "updated_at", Value: -1}},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create updated_at index: %w", err)
 	}
 
 	d.logger.Info("DocumentDB indexes created successfully")
