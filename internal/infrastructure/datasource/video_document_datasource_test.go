@@ -33,7 +33,7 @@ func setupTestMongoDB(ctx context.Context, t *testing.T) (testcontainers.Contain
 			wait.ForListeningPort("27017/tcp"),
 		),
 	}
-	
+
 	mongoContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
 		Started:          true,
@@ -244,7 +244,7 @@ func TestVideoDocumentDataSource_NoAuth(t *testing.T) {
 		ExposedPorts: []string{"27017/tcp"},
 		WaitingFor:   wait.ForListeningPort("27017/tcp"),
 	}
-	
+
 	mongoContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
 		Started:          true,
