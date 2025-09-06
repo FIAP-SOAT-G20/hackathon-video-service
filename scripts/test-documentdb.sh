@@ -42,16 +42,16 @@ print_status "Starting DocumentDB integration test..."
 
 # Stop any existing containers
 print_status "Cleaning up existing containers..."
-docker-compose -f docker-compose.documentdb.yml down >/dev/null 2>&1 || true
+docker-compose -f compose.yml down >/dev/null 2>&1 || true
 
 # Start MongoDB for testing
 print_status "Starting MongoDB container..."
-docker-compose -f docker-compose.documentdb.yml up -d mongodb
+docker-compose -f compose.yml up -d documentdb
 
 # Wait for MongoDB to be ready
 print_status "Waiting for MongoDB to be ready..."
 for i in {1..30}; do
-    if docker-compose -f docker-compose.documentdb.yml exec -T mongodb mongosh --quiet --eval "db.adminCommand('ping')" >/dev/null 2>&1; then
+    if docker-compose -f compose.yml exec -T documentdb mongosh --quiet --eval "db.adminCommand('ping')" >/dev/null 2>&1; then
         print_success "MongoDB is ready!"
         break
     fi
@@ -71,7 +71,8 @@ go build -o bin/server ./cmd/server
 print_status "Testing with MongoDB configuration..."
 export DOCUMENTDB_URI="mongodb://admin:password@localhost:27017/video_service?authSource=admin"
 export DOCUMENTDB_NAME="video_service"
-export ENVIRONMENT="mongodb"
+export ENVIRONMENT="development"
+export DB_ENGINE="documentdb"
 export SERVER_PORT="8082"
 export JWT_SECRET="test-secret-key"
 
@@ -84,7 +85,7 @@ SERVER_PID=$!
 cleanup() {
     print_status "Cleaning up..."
     kill $SERVER_PID 2>/dev/null || true
-    docker-compose -f docker-compose.documentdb.yml down >/dev/null 2>&1 || true
+    docker-compose -f compose.yml down >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
 
@@ -137,7 +138,7 @@ fi
 
 # Test database connectivity directly
 print_status "Testing direct database connectivity..."
-docker-compose -f docker-compose.documentdb.yml exec -T mongodb mongosh --quiet --eval "
+docker-compose -f compose.yml exec -T documentdb mongosh --quiet --eval "
     db = db.getSiblingDB('video_service');
     db.videos.insertOne({
         video_id: 999,
@@ -164,7 +165,7 @@ echo ""
 echo "🔧 Manual Testing:"
 echo "   Server URL: http://localhost:8082"
 echo "   Health Check: curl http://localhost:8082/api/v1/health"
-echo "   MongoDB Shell: docker-compose -f docker-compose.documentdb.yml exec mongodb mongosh"
+echo "   MongoDB Shell: docker-compose -f compose.yml exec documentdb mongosh"
 echo ""
 echo "🧹 Cleanup:"
-echo "   Run: docker-compose -f docker-compose.documentdb.yml down"
+echo "   Run: docker-compose -f compose.yml down"

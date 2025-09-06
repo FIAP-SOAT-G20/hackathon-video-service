@@ -5,7 +5,7 @@ APP_NAME=app
 MAIN_FILE=cmd/server/main.go
 WORKER_FILE=cmd/worker/consumer/main.go
 DOCKER_REGISTRY=ghcr.io
-DOCKER_REGISTRY_APP=fiap-soat-g20/tc4-order-service
+DOCKER_REGISTRY_APP=fiap-soat-g20/fiapx-video-service
 DOCKER_REGISTRY_MOCK_SERVER_APP=fiap-soat-g20/mock-server
 VERSION=$(shell git describe --tags --always --dirty)
 NAMESPACE=tech-challenge-ns
@@ -203,12 +203,12 @@ bdd-tests: ## Run BDD tests
 .PHONY: documentdb-up
 documentdb-up: ## Start DocumentDB/MongoDB development environment
 	@echo "🟢 Starting DocumentDB/MongoDB environment..."
-	docker-compose -f docker-compose.documentdb.yml up -d mongodb
+	docker-compose -f compose.yml up -d mongodb
 
 .PHONY: documentdb-down
 documentdb-down: ## Stop DocumentDB/MongoDB development environment
 	@echo "🔴 Stopping DocumentDB/MongoDB environment..."
-	docker-compose -f docker-compose.documentdb.yml down
+	docker-compose -f compose.yml down
 
 .PHONY: documentdb-test
 documentdb-test: ## Test DocumentDB integration
@@ -218,7 +218,7 @@ documentdb-test: ## Test DocumentDB integration
 .PHONY: documentdb-clean
 documentdb-clean: ## Clean DocumentDB/MongoDB environment and volumes
 	@echo "🔴 Cleaning DocumentDB/MongoDB environment..."
-	docker-compose -f docker-compose.documentdb.yml down --volumes --rmi all
+	docker-compose -f compose.yml down --volumes --rmi all
 
 .PHONY: run-documentdb
 run-documentdb: documentdb-up ## Run the application with DocumentDB
