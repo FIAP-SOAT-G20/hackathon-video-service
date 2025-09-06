@@ -15,10 +15,10 @@ try {
       { _id: 0, host: "localhost:27017" }
     ]
   };
-  
+
   var result = rs.initiate(config);
   print("Replica set initialization result:", result);
-  
+
   // Wait for the replica set to become ready
   while (true) {
     try {
