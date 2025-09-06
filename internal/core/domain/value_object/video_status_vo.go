@@ -9,10 +9,10 @@ type VideoStatus string
 
 const (
 	CREATED    VideoStatus = "CREATED"
-	PROCESSING  VideoStatus = "PROCESSING"
-	FINISHED    VideoStatus = "FINISHED"
-	FAILED      VideoStatus = "FAILED"
-	UNDEFINDED  VideoStatus = "UNDEFINDED"
+	PROCESSING VideoStatus = "PROCESSING"
+	FINISHED   VideoStatus = "FINISHED"
+	FAILED     VideoStatus = "FAILED"
+	UNDEFINDED VideoStatus = "UNDEFINDED"
 )
 
 func IsValidVideoStatus(status string) bool {
