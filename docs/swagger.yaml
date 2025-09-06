@@ -140,7 +140,7 @@ definitions:
         type: string
       customer:
         $ref: "#/definitions/presenter.CustomerJsonResponse"
-      customer_id:
+      user_id:
         example: 1
         type: integer
       id:
@@ -351,11 +351,11 @@ definitions:
     type: object
   request.CreateOrderBodyRequest:
     properties:
-      customer_id:
+      user_id:
         example: 1
         type: integer
     required:
-      - customer_id
+      - user_id
     type: object
   request.CreateOrderProductBodyRequest:
     properties:
@@ -427,7 +427,7 @@ definitions:
     type: object
   request.UpdateOrderBodyRequest:
     properties:
-      customer_id:
+      user_id:
         example: 1
         type: integer
       staff_id:
@@ -439,7 +439,7 @@ definitions:
           - $ref: "#/definitions/valueobject.OrderStatus"
         example: PENDING
     required:
-      - customer_id
+      - user_id
       - status
     type: object
   request.UpdateOrderPartilRequest:
@@ -1036,7 +1036,7 @@ paths:
       parameters:
         - description: Filter by customer ID
           in: query
-          name: customer_id
+          name: user_id
           type: integer
         - description:
             "Filter by status (Accept many), options: <sub>OPEN, PENDING,

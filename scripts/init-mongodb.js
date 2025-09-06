@@ -24,9 +24,9 @@ db.createCollection('videos');
 
 // Create indexes for optimal performance
 db.videos.createIndex({ "video_id": 1 }, { unique: true });
-db.videos.createIndex({ "customer_id": 1 });
+db.videos.createIndex({ "user_id": 1 });
 db.videos.createIndex({ "status": 1 });
-db.videos.createIndex({ "status": 1, "customer_id": 1 });
+db.videos.createIndex({ "status": 1, "user_id": 1 });
 db.videos.createIndex({ "created_at": -1 });
 db.videos.createIndex({ "updated_at": -1 });
 
@@ -34,21 +34,21 @@ db.videos.createIndex({ "updated_at": -1 });
 db.videos.insertMany([
   {
     video_id: 1,
-    customer_id: 100,
+    user_id: 100,
     status: "OPEN",
     created_at: new Date(),
     updated_at: new Date()
   },
   {
     video_id: 2,
-    customer_id: 101,
+    user_id: 101,
     status: "PENDING",
     created_at: new Date(),
     updated_at: new Date()
   },
   {
     video_id: 3,
-    customer_id: 102,
+    user_id: 102,
     status: "COMPLETED",
     created_at: new Date(),
     updated_at: new Date()

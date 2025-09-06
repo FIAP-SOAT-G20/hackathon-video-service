@@ -5,7 +5,7 @@
   "orders": [
     {
       "id": 13,
-      "customer_id": 1,
+      "user_id": 1,
       "total_bill": "6.90",
       "status": "OPEN",
       "customer": {
@@ -33,7 +33,7 @@
     },
     {
       "id": 2,
-      "customer_id": 1,
+      "user_id": 1,
       "total_bill": "42.90",
       "status": "PENDING",
       "customer": {

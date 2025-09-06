@@ -119,7 +119,7 @@ fi
 
 # Test creating a video (this would need a JWT token in a real scenario)
 print_status "Testing video creation..."
-VIDEO_DATA='{"customer_id":100,"status":"OPEN"}'
+VIDEO_DATA='{"user_id":100,"status":"OPEN"}'
 CREATE_RESPONSE=$(curl -s -X POST \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" \
@@ -142,7 +142,7 @@ docker-compose -f compose.yml exec -T documentdb mongosh --quiet --eval "
     db = db.getSiblingDB('video_service');
     db.videos.insertOne({
         video_id: 999,
-        customer_id: 999,
+        user_id: 999,
         status: 'TEST',
         created_at: new Date(),
         updated_at: new Date()

@@ -34,7 +34,7 @@ func (g *videoGateway) FindAll(
 	// Create filters
 	filters := make(map[string]interface{})
 	if customerId != 0 {
-		filters["customer_id"] = customerId
+		filters["user_id"] = customerId
 	}
 	if status != nil {
 		filters["statuses"] = status

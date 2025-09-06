@@ -87,7 +87,7 @@ curl --location 'http://localhost:8080/api/v1/orders' \
 --header 'accept: application/json' \
 --header 'Content-Type: application/json' \
 --data '{
-  "customer_id": 6
+  "user_id": 6
 }'
 ```
 

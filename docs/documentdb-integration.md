@@ -89,7 +89,7 @@ export ENVIRONMENT="mongodb"
 {
   "_id": ObjectId("..."),
   "video_id": 123,
-  "customer_id": 456,
+  "user_id": 456,
   "status": "OPEN",
   "created_at": ISODate("2024-01-01T00:00:00Z"),
   "updated_at": ISODate("2024-01-01T00:00:00Z")
@@ -101,9 +101,9 @@ export ENVIRONMENT="mongodb"
 The following indexes are automatically created:
 
 - `video_id` (unique)
-- `customer_id`
+- `user_id`
 - `status`
-- `status + customer_id` (compound)
+- `status + user_id` (compound)
 - `created_at` (descending)
 - `updated_at` (descending)
 
@@ -126,7 +126,7 @@ The DocumentDB implementation supports the same filtering options as PostgreSQL:
 
 ```go
 filters := map[string]any{
-    "customer_id": uint64(123),
+    "user_id": uint64(123),
     "statuses": []valueobject.VideoStatus{valueobject.OPEN, valueobject.PENDING},
     "statuses_exclude": []valueobject.VideoStatus{valueobject.CANCELLED},
 }

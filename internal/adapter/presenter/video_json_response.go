@@ -2,7 +2,7 @@ package presenter
 
 type VideoJsonResponse struct {
 	ID         uint64 `json:"id"`
-	CustomerID uint64 `json:"customer_id" example:"1"`
+	CustomerID uint64 `json:"user_id" example:"1"`
 	TotalBill  string `json:"total_bill,omitempty" example:"100.00"`
 	Status     string `json:"status" example:"PENDING"`
 	CreatedAt  string `json:"created_at" example:"2024-02-09T10:00:00Z"`

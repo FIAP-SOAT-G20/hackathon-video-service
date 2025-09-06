@@ -63,7 +63,7 @@ type Video struct {
 type VideoDocument struct {
     ID         primitive.ObjectID      `bson:"_id,omitempty"`
     VideoID    uint64                  `bson:"video_id"`
-    CustomerID uint64                  `bson:"customer_id"`
+    CustomerID uint64                  `bson:"user_id"`
     Status     valueobject.VideoStatus `bson:"status"`
     CreatedAt  time.Time               `bson:"created_at"`
     UpdatedAt  time.Time               `bson:"updated_at"`
@@ -166,7 +166,7 @@ curl http://localhost:8080/api/v1/health
 curl -X POST http://localhost:8080/api/v1/videos \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer your-jwt-token" \
-  -d '{"customer_id": 123, "status": "OPEN"}'
+  -d '{"user_id": 123, "status": "OPEN"}'
 
 # List videos
 curl http://localhost:8080/api/v1/videos

@@ -668,7 +668,7 @@
                     {
                         "type": "integer",
                         "description": "Filter by customer ID",
-                        "name": "customer_id",
+                        "name": "user_id",
                         "in": "query"
                     },
                     {
@@ -2282,7 +2282,7 @@
                 "customer": {
                     "$ref": "#/definitions/presenter.CustomerJsonResponse"
                 },
-                "customer_id": {
+                "user_id": {
                     "type": "integer",
                     "example": 1
                 },
@@ -2582,10 +2582,10 @@
         "request.CreateOrderBodyRequest": {
             "type": "object",
             "required": [
-                "customer_id"
+                "user_id"
             ],
             "properties": {
-                "customer_id": {
+                "user_id": {
                     "type": "integer",
                     "example": 1
                 }
@@ -2690,11 +2690,11 @@
         "request.UpdateOrderBodyRequest": {
             "type": "object",
             "required": [
-                "customer_id",
+                "user_id",
                 "status"
             ],
             "properties": {
-                "customer_id": {
+                "user_id": {
                     "type": "integer",
                     "example": 1
                 },

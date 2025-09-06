@@ -25,7 +25,7 @@ type videoDocumentDataSource struct {
 type VideoDocument struct {
 	ID         primitive.ObjectID      `bson:"_id,omitempty"`
 	VideoID    uint64                  `bson:"video_id"`
-	CustomerID uint64                  `bson:"customer_id"`
+	CustomerID uint64                  `bson:"user_id"`
 	Status     valueobject.VideoStatus `bson:"status"`
 	CreatedAt  time.Time               `bson:"created_at"`
 	UpdatedAt  time.Time               `bson:"updated_at"`
@@ -68,9 +68,9 @@ func (ds *videoDocumentDataSource) FindAll(ctx context.Context, filters map[stri
 			if statuses, ok := value.([]valueobject.VideoStatus); ok && len(statuses) > 0 {
 				filter["status"] = bson.M{"$nin": statuses}
 			}
-		case "customer_id":
+		case "user_id":
 			if customerID, ok := value.(uint64); ok && customerID != 0 {
-				filter["customer_id"] = customerID
+				filter["user_id"] = customerID
 			}
 		}
 	}
@@ -174,9 +174,9 @@ func (ds *videoDocumentDataSource) Update(ctx context.Context, video *entity.Vid
 
 	update := bson.M{
 		"$set": bson.M{
-			"customer_id": video.UserID,
-			"status":      video.Status,
-			"updated_at":  time.Now(),
+			"user_id":    video.UserID,
+			"status":     video.Status,
+			"updated_at": time.Now(),
 		},
 	}
 

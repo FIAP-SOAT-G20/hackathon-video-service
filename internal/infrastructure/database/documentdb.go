@@ -97,12 +97,12 @@ func (d *DocumentDatabase) CreateIndexes(ctx context.Context) error {
 		return fmt.Errorf("failed to create video_id unique index: %w", err)
 	}
 
-	// Create index on customer_id
+	// Create index on user_id
 	_, err = videoCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: bson.D{{Key: "customer_id", Value: 1}},
+		Keys: bson.D{{Key: "user_id", Value: 1}},
 	})
 	if err != nil {
-		return fmt.Errorf("failed to create customer_id index: %w", err)
+		return fmt.Errorf("failed to create user_id index: %w", err)
 	}
 
 	// Create index on status
@@ -113,9 +113,9 @@ func (d *DocumentDatabase) CreateIndexes(ctx context.Context) error {
 		return fmt.Errorf("failed to create status index: %w", err)
 	}
 
-	// Create compound index on status and customer_id
+	// Create compound index on status and user_id
 	_, err = videoCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: bson.D{{Key: "status", Value: 1}, {Key: "customer_id", Value: 1}},
+		Keys: bson.D{{Key: "status", Value: 1}, {Key: "user_id", Value: 1}},
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create compound index: %w", err)

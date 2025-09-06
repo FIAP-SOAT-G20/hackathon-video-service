@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS videos
     updated_at  TIMESTAMP NOT NULL DEFAULT now()
 );
 
-INSERT INTO videos (id, customer_id, status, created_at)
+INSERT INTO videos (id, user_id, status, created_at)
 VALUES (1, 1, 'CREATED', now()),
        (2, 2, 'UPLOADED', now()),
        (3, 3, 'PROCESSING', '2021-10-01 10:00:00.467'),

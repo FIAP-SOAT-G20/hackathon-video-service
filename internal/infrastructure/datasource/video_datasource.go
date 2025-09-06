@@ -51,9 +51,9 @@ func (ds *videoDataSource) FindAll(ctx context.Context, filters map[string]any, 
 			if statuses, ok := value.([]valueobject.VideoStatus); ok && len(statuses) > 0 {
 				query = query.Where("status NOT IN ?", statuses)
 			}
-		case "customer_id":
+		case "user_id":
 			if customerID, ok := value.(uint64); ok && customerID != 0 {
-				query = query.Where("customer_id = ?", customerID)
+				query = query.Where("user_id = ?", customerID)
 			}
 		}
 	}

@@ -675,7 +675,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Filter by customer ID",
-                        "name": "customer_id",
+                        "name": "user_id",
                         "in": "query"
                     },
                     {
@@ -2289,7 +2289,7 @@ const docTemplate = `{
                 "customer": {
                     "$ref": "#/definitions/presenter.CustomerJsonResponse"
                 },
-                "customer_id": {
+                "user_id": {
                     "type": "integer",
                     "example": 1
                 },
@@ -2589,10 +2589,10 @@ const docTemplate = `{
         "request.CreateOrderBodyRequest": {
             "type": "object",
             "required": [
-                "customer_id"
+                "user_id"
             ],
             "properties": {
-                "customer_id": {
+                "user_id": {
                     "type": "integer",
                     "example": 1
                 }
@@ -2697,11 +2697,11 @@ const docTemplate = `{
         "request.UpdateOrderBodyRequest": {
             "type": "object",
             "required": [
-                "customer_id",
+                "user_id",
                 "status"
             ],
             "properties": {
-                "customer_id": {
+                "user_id": {
                     "type": "integer",
                     "example": 1
                 },

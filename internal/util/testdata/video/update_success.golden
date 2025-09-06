@@ -1,6 +1,6 @@
 {
     "id": 15,
-    "customer_id": 5,
+    "user_id": 5,
     "total_bill": "0.00",
     "status": "PENDING",
     "customer": {

@@ -3,7 +3,7 @@ package request
 import valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
 
 type ListVideosQueryRequest struct {
-	CustomerID    uint64 `form:"customer_id" example:"1" default:"0"`
+	CustomerID    uint64 `form:"user_id" example:"1" default:"0"`
 	Status        string `form:"status" binding:"omitempty" example:"PENDING"`
 	StatusExclude string `form:"status_exclude" binding:"omitempty" example:"CANCELLED,COMPLETED"`
 	Page          int    `form:"page,default=1" example:"1"`
@@ -13,7 +13,7 @@ type ListVideosQueryRequest struct {
 }
 
 type CreateVideoBodyRequest struct {
-	CustomerID uint64 `json:"customer_id" binding:"required" example:"1"`
+	CustomerID uint64 `json:"user_id" binding:"required" example:"1"`
 }
 
 type GetVideoUriRequest struct {
@@ -27,7 +27,7 @@ type UpdateVideoUriRequest struct {
 type UpdateVideoBodyRequest struct {
 	// StaffID is only required when status is PREPARING, READY or COMPLETED
 	StaffID    uint64                  `json:"staff_id" example:"1"`
-	CustomerID uint64                  `json:"customer_id" binding:"required" example:"1"`
+	CustomerID uint64                  `json:"user_id" binding:"required" example:"1"`
 	Status     valueobject.VideoStatus `json:"status" binding:"required,video_status_exists" example:"PENDING"`
 }
 
@@ -38,7 +38,7 @@ type UpdateVideoPartilRequest struct {
 }
 
 type UpdateVideoPartilBodyRequest struct {
-	CustomerID uint64 `json:"customer_id" example:"1"`
+	CustomerID uint64 `json:"user_id" example:"1"`
 	// StaffID is only required when status is PREPARING, READY or COMPLETED
 	StaffID uint64                  `json:"staff_id" example:"1"`
 	Status  valueobject.VideoStatus `json:"status" binding:"omitempty,video_status_exists" example:"PENDING"`
