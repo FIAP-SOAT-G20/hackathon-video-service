@@ -1,0 +1,64 @@
+# Docker Compose for DocumentDB/MongoDB with Replica Set Support
+# This configuration supports MongoDB transactions
+
+version: '3.8'
+
+services:
+  # MongoDB Primary (Replica Set)
+  documentdb:
+    image: mongo:7.0
+    container_name: db-video.hackathon.dev
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: video_service
+    ports:
+      - "27017:27017"
+    volumes:
+      - db:/data/db
+      - ./scripts/init-mongodb.js:/docker-entrypoint-initdb.d/init-mongodb.js:ro
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - ff_video_network
+
+  # MongoDB Replica Set Initialization
+  mongo-setup:
+    image: mongo:7.0
+    depends_on:
+      - documentdb
+    volumes:
+      - ./scripts/setup-replica-set.js:/setup-replica-set.js:ro
+    command: >
+      bash -c "
+        sleep 10 &&
+        mongosh --host documentdb:27017 -u admin -p password --authenticationDatabase admin --eval '
+          try {
+            var result = rs.status();
+            print(\"Replica set already initialized\");
+          } catch (e) {
+            print(\"Initializing replica set...\");
+            rs.initiate({
+              _id: \"rs0\",
+              members: [
+                { _id: 0, host: \"documentdb:27017\" }
+              ]
+            });
+            print(\"Replica set initialized\");
+          }
+        '
+      "
+    networks:
+      - ff_video_network
+
+volumes:
+  db:
+    driver: local
+
+networks:
+  ff_video_network:
+    driver: bridge

@@ -110,8 +110,9 @@ print_status "Testing API endpoints..."
 # Test health check
 print_status "Testing health check..."
 HEALTH_RESPONSE=$(curl -s http://localhost:8082/api/v1/health)
-if echo "$HEALTH_RESPONSE" | grep -q "OK"; then
-    print_success "Health check passed"
+if echo "$HEALTH_RESPONSE" | grep -q '"status":"pass"' && echo "$HEALTH_RESPONSE" | grep -q '"mongodb:status"' && echo "$HEALTH_RESPONSE" | grep -q '"componentId":"db:mongodb"'; then
+    print_success "Health check passed - MongoDB connection verified"
+    print_status "Health response: $HEALTH_RESPONSE"
 else
     print_error "Health check failed: $HEALTH_RESPONSE"
     exit 1
@@ -130,10 +131,17 @@ print_success "API endpoints tested (authentication errors expected without prop
 
 # Run unit tests
 print_status "Running unit tests..."
-if go test ./internal/infrastructure/datasource/ -v; then
+TEST_OUTPUT=$(go test ./internal/infrastructure/datasource/ -v 2>&1)
+TEST_EXIT_CODE=$?
+
+if [ $TEST_EXIT_CODE -eq 0 ]; then
     print_success "Unit tests passed"
+elif echo "$TEST_OUTPUT" | grep -q "SKIP"; then
+    print_warning "Unit tests completed with some skipped tests (expected for standalone MongoDB)"
+    echo "$TEST_OUTPUT" | grep -E "(PASS|SKIP|FAIL)"
 else
-    print_warning "Some unit tests failed (this is expected without proper test setup)"
+    print_warning "Some unit tests failed"
+    echo "$TEST_OUTPUT" | tail -10
 fi
 
 # Test database connectivity directly
@@ -161,6 +169,9 @@ echo "✅ Application built successfully"
 echo "✅ Server started with DocumentDB configuration"
 echo "✅ Health check endpoint working"
 echo "✅ Database connectivity verified"
+echo ""
+echo "⚠️  Note: Transaction tests may be skipped with standalone MongoDB"
+echo "   To test transactions, use: docker-compose -f compose-replica-set.yml up"
 echo ""
 echo "🔧 Manual Testing:"
 echo "   Server URL: http://localhost:8082"

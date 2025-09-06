@@ -2,6 +2,7 @@ package datasource
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -179,12 +180,24 @@ func TestVideoDocumentDataSource_Integration(t *testing.T) {
 
 			return videoDS.Create(txCtx, video)
 		})
+		
+		// Check if this is a standalone MongoDB (transactions not supported)
+		if err != nil && (strings.Contains(err.Error(), "replica set member") || 
+			strings.Contains(err.Error(), "Transaction numbers are only allowed")) {
+			t.Skip("Skipping transaction test: MongoDB transactions require a replica set or sharded cluster")
+			return
+		}
+		
 		assert.NoError(t, err)
 
-		// Verify the video was created
-		found, err := videoDS.FindByID(ctx, 20)
-		assert.NoError(t, err)
-		assert.NotNil(t, found)
-		assert.Equal(t, valueobject.PROCESSING, found.Status)
+		// Verify the video was created (only if transaction succeeded)
+		if err == nil {
+			found, err := videoDS.FindByID(ctx, 20)
+			assert.NoError(t, err)
+			assert.NotNil(t, found)
+			if found != nil {
+				assert.Equal(t, valueobject.PROCESSING, found.Status)
+			}
+		}
 	})
 }

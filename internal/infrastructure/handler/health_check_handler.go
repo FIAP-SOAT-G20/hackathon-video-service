@@ -1,14 +1,18 @@
 package handler
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
 	"time"
 
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/config"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler/response"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 )
 
 type HealthCheckHandler struct{}
@@ -39,38 +43,100 @@ func (h *HealthCheckHandler) HealthCheck(c *gin.Context) {
 	cfg := config.LoadConfig()
 	hc := &response.HealthCheckResponse{
 		Status: response.HealthCheckStatusPass,
-		Checks: map[string]response.HealthCheckVerifications{
-			"postgres:status": {
-				ComponentId: "db:postgres",
-				Status:      response.HealthCheckStatusPass,
-				Time:        time.Now(),
-			},
-		},
+		Checks: map[string]response.HealthCheckVerifications{},
 	}
 
-	db, err := sql.Open("postgres", cfg.DBDSN)
-	if err != nil {
-		_ = c.Error(err)
-		return
-	}
-	defer func() {
-		if closeErr := db.Close(); closeErr != nil {
-			_ = c.Error(closeErr)
+	// Check databases based on configuration
+	var hasFailures bool
+
+	// Check PostgreSQL if using postgres engine
+	if cfg.DBEngine == "postgres" {
+		postgresStatus := h.checkPostgreSQL(cfg)
+		hc.Checks["postgres:status"] = postgresStatus
+		if postgresStatus.Status == response.HealthCheckStatusFail {
+			hasFailures = true
 		}
-	}()
+	}
 
-	if db.Ping() != nil {
+	// Check MongoDB if using documentdb/mongodb engine or as secondary database
+	if cfg.DBEngine == "documentdb" || cfg.DBEngine == "mongodb" || cfg.DocumentDBURI != "" {
+		mongoStatus := h.checkMongoDB(cfg)
+		hc.Checks["mongodb:status"] = mongoStatus
+		if mongoStatus.Status == response.HealthCheckStatusFail {
+			hasFailures = true
+		}
+	}
+
+	// Determine overall status
+	if hasFailures {
 		hc.Status = response.HealthCheckStatusFail
-		hc.Checks["postgres:status"] = response.HealthCheckVerifications{
-			ComponentId: "db:postgres",
-			Status:      response.HealthCheckStatusFail,
-			Time:        time.Now(),
-		}
 		c.JSON(http.StatusServiceUnavailable, hc)
 		return
 	}
 
 	c.JSON(http.StatusOK, hc)
+}
+
+// checkPostgreSQL performs PostgreSQL health check
+func (h *HealthCheckHandler) checkPostgreSQL(cfg *config.Config) response.HealthCheckVerifications {
+	check := response.HealthCheckVerifications{
+		ComponentId: "db:postgres",
+		Status:      response.HealthCheckStatusPass,
+		Time:        time.Now(),
+	}
+
+	db, err := sql.Open("postgres", cfg.DBDSN)
+	if err != nil {
+		check.Status = response.HealthCheckStatusFail
+		return check
+	}
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			// Log error but don't change status since connection test was successful
+		}
+	}()
+
+	if err := db.Ping(); err != nil {
+		check.Status = response.HealthCheckStatusFail
+	}
+
+	return check
+}
+
+// checkMongoDB performs MongoDB health check
+func (h *HealthCheckHandler) checkMongoDB(cfg *config.Config) response.HealthCheckVerifications {
+	check := response.HealthCheckVerifications{
+		ComponentId: "db:mongodb",
+		Status:      response.HealthCheckStatusPass,
+		Time:        time.Now(),
+	}
+
+	// Set up MongoDB client options
+	clientOptions := options.Client().ApplyURI(cfg.DocumentDBURI)
+	clientOptions.SetConnectTimeout(10 * time.Second)
+	clientOptions.SetServerSelectionTimeout(10 * time.Second)
+
+	// Create MongoDB client
+	client, err := mongo.Connect(context.Background(), clientOptions)
+	if err != nil {
+		check.Status = response.HealthCheckStatusFail
+		return check
+	}
+	defer func() {
+		if err := client.Disconnect(context.Background()); err != nil {
+			// Log error but don't change status since connection test was successful
+		}
+	}()
+
+	// Ping MongoDB to verify connection
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := client.Ping(ctx, nil); err != nil {
+		check.Status = response.HealthCheckStatusFail
+	}
+
+	return check
 }
 
 // HealthCheckLiveness godoc
