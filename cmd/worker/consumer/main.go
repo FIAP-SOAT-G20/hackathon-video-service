@@ -113,9 +113,7 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 		ID:     updatedVideoStatus.ID,
 		Status: updatedVideoStatus.Status,
 	}
-	if updatedVideoStatus.StaffID != nil {
-		uoi.StaffID = *updatedVideoStatus.StaffID
-	}
+
 	_, err = uc.Update(ctx, uoi)
 	if err != nil {
 		if err.Error() == domain.ErrInternalError {
@@ -124,7 +122,7 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 		return false, err
 	}
 
-	logger.Info("Message processed successfully", "videoID", updatedVideoStatus.ID, "status", updatedVideoStatus.Status, "staffID", updatedVideoStatus.StaffID)
+	logger.Info("Message processed successfully", "videoID", updatedVideoStatus.ID, "status")
 
 	return false, nil
 }
