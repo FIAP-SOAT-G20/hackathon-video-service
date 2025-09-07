@@ -9,18 +9,8 @@ definitions:
         example: Bad Request
         type: string
     type: object
-  presenter.AuthenticationResponse:
+  presenter.VideoJsonPaginatedResponse:
     properties:
-      access_token:
-        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-        type: string
-    type: object
-  presenter.CategoryJsonPaginatedResponse:
-    properties:
-      categories:
-        items:
-          $ref: "#/definitions/presenter.CategoryJsonResponse"
-        type: array
       limit:
         example: 10
         type: integer
@@ -30,484 +20,73 @@ definitions:
       total:
         example: 100
         type: integer
+      videos:
+        items:
+          $ref: '#/definitions/presenter.VideoJsonResponse'
+        type: array
     type: object
-  presenter.CategoryJsonResponse:
+  presenter.VideoJsonResponse:
     properties:
       created_at:
         example: "2024-02-09T10:00:00Z"
         type: string
+      description:
+        example: This is a description
+        type: string
+      hash:
+        example: hash_value
+        type: string
       id:
-        example: 1
         type: integer
+      presigned_url:
+        example: https://example.com/video/1
+        type: string
       name:
-        example: John Doe
+        example: My Video
         type: string
-      updated_at:
-        example: "2024-02-09T10:00:00Z"
+      presigned_url:
+        example: https://s3.amazonaws.com/bucket/video.mp4?signature=...
         type: string
-    type: object
-  presenter.CustomerJsonPaginatedResponse:
-    properties:
-      customers:
-        items:
-          $ref: "#/definitions/presenter.CustomerJsonResponse"
-        type: array
-      limit:
-        example: 10
-        type: integer
-      page:
-        example: 1
-        type: integer
-      total:
-        example: 100
-        type: integer
-    type: object
-  presenter.CustomerJsonResponse:
-    properties:
-      cpf:
-        example: 123.456.789-00
-        type: string
-      created_at:
-        example: "2024-02-09T10:00:00Z"
-        type: string
-      email:
-        example: john.doe@email.com
-        type: string
-      id:
-        example: 1
-        type: integer
-      name:
-        example: John Doe
-        type: string
-      updated_at:
-        example: "2024-02-09T10:00:00Z"
-        type: string
-    type: object
-  presenter.OrderHistoryJsonPaginatedResponse:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      order_histories:
-        items:
-          $ref: "#/definitions/presenter.OrderHistoryJsonResponse"
-        type: array
-      page:
-        example: 1
-        type: integer
-      total:
-        example: 100
-        type: integer
-    type: object
-  presenter.OrderHistoryJsonResponse:
-    properties:
-      created_at:
-        example: "2024-02-09T10:00:00Z"
-        type: string
-      id:
-        example: 1
-        type: integer
-      order_id:
-        example: 1
-        type: integer
-      staff_id:
-        example: 1
-        type: integer
-      status:
-        example: OPEN, CANCELLED, PENDING, RECEIVED, PREPARING, READY, COMPLETED
-        type: string
-    type: object
-  presenter.OrderJsonPaginatedResponse:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      orders:
-        items:
-          $ref: "#/definitions/presenter.OrderJsonResponse"
-        type: array
-      page:
-        example: 1
-        type: integer
-      total:
-        example: 100
-        type: integer
-    type: object
-  presenter.OrderJsonResponse:
-    properties:
-      created_at:
-        example: "2024-02-09T10:00:00Z"
-        type: string
-      customer:
-        $ref: "#/definitions/presenter.CustomerJsonResponse"
-      user_id:
-        example: 1
-        type: integer
-      id:
-        type: integer
-      products:
-        items:
-          $ref: "#/definitions/presenter.ProductsJsonResponse"
-        type: array
       status:
         example: PENDING
         type: string
-      total_bill:
-        example: "100.00"
-        type: string
       updated_at:
         example: "2024-02-09T10:00:00Z"
         type: string
-    type: object
-  presenter.OrderProductJsonPaginatedResponse:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      order_products:
-        items:
-          $ref: "#/definitions/presenter.OrderProductJsonResponse"
-        type: array
-      page:
+      user_id:
         example: 1
         type: integer
-      total:
-        example: 100
-        type: integer
     type: object
-  presenter.OrderProductJsonResponse:
+  request.CreateVideoBodyRequest:
     properties:
-      created_at:
-        example: "2024-02-09T10:00:00Z"
-        type: string
-      order:
-        $ref: "#/definitions/presenter.OrderJsonResponse"
-      order_id:
-        type: integer
-      product:
-        $ref: "#/definitions/presenter.ProductJsonResponse"
-      product_id:
-        type: integer
-      quantity:
-        type: integer
-      updated_at:
-        example: "2024-02-09T10:00:00Z"
-        type: string
-    type: object
-  presenter.PaymentJsonResponse:
-    properties:
-      external_payment_id:
-        example: a0aa0f26-6e0a-4b90-8c49-9f1a9c03ebcc
-        type: string
-      id:
-        example: 1
-        type: integer
-      order_id:
-        example: 1
-        type: integer
-      qr_data:
-        example: qr_data_a0aa0f26-6e0a-4b90-8c49-9f1a9c03ebcc
-        type: string
-      status:
-        allOf:
-          - $ref: "#/definitions/valueobject.PaymentStatus"
-        example: pending
-    type: object
-  presenter.ProductJsonPaginatedResponse:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      page:
-        example: 1
-        type: integer
-      products:
-        items:
-          $ref: "#/definitions/presenter.ProductJsonResponse"
-        type: array
-      total:
-        example: 100
-        type: integer
-    type: object
-  presenter.ProductJsonResponse:
-    properties:
-      category_id:
-        example: 1
-        type: integer
-      created_at:
-        example: "2024-02-09T10:00:00Z"
-        type: string
       description:
-        example: Description of product A
-        type: string
-      id:
-        example: 1
-        type: integer
-      name:
-        example: Product A
-        type: string
-      price:
-        example: 99.99
-        type: number
-      updated_at:
-        example: "2024-02-09T10:00:00Z"
-        type: string
-    type: object
-  presenter.ProductsJsonResponse:
-    properties:
-      category_id:
-        example: 1
-        type: integer
-      created_at:
-        example: "2024-02-09T10:00:00Z"
-        type: string
-      description:
-        example: Description of product A
-        type: string
-      id:
-        example: 1
-        type: integer
-      name:
-        example: Product A
-        type: string
-      price:
-        example: 99.99
-        type: number
-      quantity:
-        type: integer
-      updated_at:
-        example: "2024-02-09T10:00:00Z"
-        type: string
-    type: object
-  presenter.StaffJsonPaginatedResponse:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      page:
-        example: 1
-        type: integer
-      staffs:
-        items:
-          $ref: "#/definitions/presenter.StaffJsonResponse"
-        type: array
-      total:
-        example: 100
-        type: integer
-    type: object
-  presenter.StaffJsonResponse:
-    properties:
-      created_at:
-        example: "2024-02-09T10:00:00Z"
-        type: string
-      id:
-        example: 1
-        type: integer
-      name:
-        example: John Doe
-        type: string
-      role:
-        example: COOK, ATTENDANT or MANAGER
-        type: string
-      updated_at:
-        example: "2024-02-09T10:00:00Z"
-        type: string
-    type: object
-  request.AuthenticateBodyRequest:
-    properties:
-      cpf:
-        example: 000.000.000-00
-        type: string
-    required:
-      - cpf
-    type: object
-  request.CreateCategoryBodyRequest:
-    properties:
-      name:
-        example: Foods
-        maxLength: 100
-        minLength: 3
-        type: string
-    required:
-      - name
-    type: object
-  request.CreateCustomerBodyRequest:
-    properties:
-      cpf:
-        example: 123.456.789-00
-        type: string
-      email:
-        example: john.doe@email.com
+        example: This is my video description
         type: string
       name:
-        example: John Doe
-        maxLength: 100
-        minLength: 3
+        example: My Video
         type: string
-    required:
-      - cpf
-      - email
-      - name
-    type: object
-  request.CreateOrderBodyRequest:
-    properties:
       user_id:
         example: 1
         type: integer
     required:
-      - user_id
+    - name
+    - user_id
     type: object
-  request.CreateOrderProductBodyRequest:
+  request.UpdateVideoBodyRequest:
     properties:
-      quantity:
-        example: 1
-        type: integer
-    required:
-      - quantity
-    type: object
-  request.CreateProductBodyRequest:
-    properties:
-      category_id:
-        example: 1
-        type: integer
-      description:
-        example: Product A description
-        maxLength: 500
-        type: string
-      name:
-        example: Product A
-        maxLength: 100
-        minLength: 3
-        type: string
-      price:
-        example: 99.99
-        type: number
-    required:
-      - category_id
-      - name
-      - price
-    type: object
-  request.CreateStaffBodyRequest:
-    properties:
-      name:
-        example: John Doe
-        maxLength: 100
-        minLength: 3
-        type: string
-      role:
-        allOf:
-          - $ref: "#/definitions/valueobject.StaffRole"
-        example: COOK
-        maxLength: 500
-    required:
-      - name
-      - role
-    type: object
-  request.UpdateCategoryBodyRequest:
-    properties:
-      name:
-        example: Beverages
-        type: string
-    required:
-      - name
-    type: object
-  request.UpdateCustomerBodyRequest:
-    properties:
-      email:
-        example: test.customer.1@email.com
-        type: string
-      name:
-        example: Produto A
-        maxLength: 100
-        minLength: 3
-        type: string
-    required:
-      - email
-      - name
-    type: object
-  request.UpdateOrderBodyRequest:
-    properties:
-      user_id:
-        example: 1
-        type: integer
-      staff_id:
-        description: StaffID is only required when status is PREPARING, READY or COMPLETED
-        example: 1
-        type: integer
       status:
         allOf:
-          - $ref: "#/definitions/valueobject.OrderStatus"
-        example: PENDING
+        - $ref: '#/definitions/valueobject.VideoStatus'
+        example: PROCESSING
     required:
-      - user_id
-      - status
+    - status
     type: object
-  request.UpdateOrderPartilRequest:
+  request.UpdateVideoPartilRequest:
     properties:
-      staff_id:
-        description: StaffID is only required when status is PREPARING, READY or COMPLETED
-        example: 1
-        type: integer
       status:
         allOf:
-          - $ref: "#/definitions/valueobject.OrderStatus"
-        example: PENDING
-    type: object
-  request.UpdateOrderProductBodyRequest:
-    properties:
-      quantity:
-        example: 1
-        type: integer
-    required:
-      - quantity
-    type: object
-  request.UpdatePaymentRequest:
-    properties:
-      resource:
-        type: string
-      topic:
-        type: string
-    required:
-      - resource
-      - topic
-    type: object
-  request.UpdateProductBodyRequest:
-    properties:
-      category_id:
-        example: 1
-        type: integer
-      description:
-        example: Product A description
-        maxLength: 500
-        type: string
-      name:
-        example: Product A
-        maxLength: 100
-        minLength: 3
-        type: string
-      price:
-        example: 99.99
-        type: number
-    required:
-      - category_id
-      - name
-      - price
-    type: object
-  request.UpdateStaffBodyRequest:
-    properties:
-      name:
-        example: John Doe
-        maxLength: 100
-        minLength: 3
-        type: string
-      role:
-        allOf:
-          - $ref: "#/definitions/valueobject.StaffRole"
-        example: COOK
-        maxLength: 500
-    required:
-      - name
-      - role
+        - $ref: '#/definitions/valueobject.VideoStatus'
+        example: PROCESSING
     type: object
   response.HealthCheckLivenessResponse:
     properties:
@@ -518,466 +97,63 @@ definitions:
     properties:
       checks:
         additionalProperties:
-          $ref: "#/definitions/response.HealthCheckVerifications"
+          $ref: '#/definitions/response.HealthCheckVerifications'
         type: object
       status:
-        $ref: "#/definitions/response.HealthCheckStatus"
+        $ref: '#/definitions/response.HealthCheckStatus'
     type: object
   response.HealthCheckStatus:
     enum:
-      - pass
-      - warn
-      - fail
+    - pass
+    - warn
+    - fail
     type: string
     x-enum-varnames:
-      - HealthCheckStatusPass
-      - HealthCheckStatusWarn
-      - HealthCheckStatusFail
+    - HealthCheckStatusPass
+    - HealthCheckStatusWarn
+    - HealthCheckStatusFail
   response.HealthCheckVerifications:
     properties:
       componentId:
         type: string
       status:
-        $ref: "#/definitions/response.HealthCheckStatus"
+        $ref: '#/definitions/response.HealthCheckStatus'
       time:
         type: string
     type: object
-  valueobject.OrderStatus:
+  valueobject.VideoStatus:
     enum:
-      - OPEN
-      - CANCELLED
-      - PENDING
-      - RECEIVED
-      - PREPARING
-      - READY
-      - COMPLETED
-      - UNDEFINDED
+    - CREATED
+    - PROCESSING
+    - FINISHED
+    - FAILED
+    - UNDEFINDED
     type: string
     x-enum-varnames:
-      - OPEN
-      - CANCELLED
-      - PENDING
-      - RECEIVED
-      - PREPARING
-      - READY
-      - COMPLETED
-      - UNDEFINDED
-  valueobject.PaymentStatus:
-    enum:
-      - PROCESSING
-      - CONFIRMED
-      - FAILED
-      - ABORTED
-      - ""
-    type: string
-    x-enum-varnames:
-      - PROCESSING
-      - CONFIRMED
-      - FAILED
-      - ABORTED
-      - UNDEFINDED_P
-  valueobject.StaffRole:
-    enum:
-      - COOK
-      - ATTENDANT
-      - MANAGER
-      - ""
-    type: string
-    x-enum-varnames:
-      - COOK
-      - ATTENDANT
-      - MANAGER
-      - UNDEFINED
+    - CREATED
+    - PROCESSING
+    - FINISHED
+    - FAILED
+    - UNDEFINDED
 externalDocs:
   description: GitHub Repository
   url: https://github.com/FIAP-SOAT-G20/hackathon-video-service
 info:
   contact: {}
-  description: "### FIAP Tech Challenge Phase 3 - 10SOAT - G22"
+  description: '### FIAP Tech Challenge Phase 3 - 10SOAT - G22'
   title: Fast Food API v3
   version: "1"
 paths:
-  /auth:
-    post:
-      consumes:
-        - application/json
-      description: Authenticates a user by CPF and returns a JWT token
-      parameters:
-        - description: User CPF
-          in: body
-          name: authentication
-          required: true
-          schema:
-            $ref: "#/definitions/request.AuthenticateBodyRequest"
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.AuthenticationResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Authenticate user
-      tags:
-        - sign-in
-  /categories:
-    get:
-      consumes:
-        - application/json
-      description: List all categories
-      parameters:
-        - default: 1
-          description: Page number
-          in: query
-          name: page
-          type: integer
-        - default: 10
-          description: Items per page
-          in: query
-          name: limit
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.CategoryJsonPaginatedResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: List categories
-      tags:
-        - category
-    post:
-      consumes:
-        - application/json
-      description: Creates a new category
-      parameters:
-        - description: Category data
-          in: body
-          name: category
-          required: true
-          schema:
-            $ref: "#/definitions/request.CreateCategoryBodyRequest"
-      produces:
-        - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: "#/definitions/presenter.CategoryJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Create category
-      tags:
-        - category
-  /categories/{id}:
-    delete:
-      description: Deletes a category by ID
-      parameters:
-        - description: Category ID
-          in: path
-          name: id
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.CategoryJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Delete category
-      tags:
-        - category
-    get:
-      consumes:
-        - application/json
-      description: Search for a category by ID
-      parameters:
-        - description: Category ID
-          in: path
-          name: id
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.CategoryJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Get category
-      tags:
-        - category
-    put:
-      consumes:
-        - application/json
-      description: Update an existing category
-      parameters:
-        - description: Category ID
-          in: path
-          name: id
-          required: true
-          type: integer
-        - description: Category data
-          in: body
-          name: category
-          required: true
-          schema:
-            $ref: "#/definitions/request.UpdateCategoryBodyRequest"
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.CategoryJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Update category
-      tags:
-        - category
-  /customers:
-    get:
-      consumes:
-        - application/json
-      description: List all customers
-      parameters:
-        - description: Filter by name
-          in: query
-          name: name
-          type: string
-        - default: 1
-          description: Page number
-          in: query
-          name: page
-          type: integer
-        - default: 10
-          description: Items per page
-          in: query
-          name: limit
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.CustomerJsonPaginatedResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: List customers (Reference TC-1 2.b.i)
-      tags:
-        - customers
-    post:
-      consumes:
-        - application/json
-      description: Creates a new customer
-      parameters:
-        - description: Customer data
-          in: body
-          name: customer
-          required: true
-          schema:
-            $ref: "#/definitions/request.CreateCustomerBodyRequest"
-      produces:
-        - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: "#/definitions/presenter.CustomerJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Create customer
-      tags:
-        - customers
-        - sign-up
-  /customers/{id}:
-    delete:
-      description: Deletes a customer by ID
-      parameters:
-        - description: Customer ID
-          in: path
-          name: id
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.CustomerJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Delete customer
-      tags:
-        - customers
-    get:
-      consumes:
-        - application/json
-      description: Search for a customer by ID
-      parameters:
-        - description: Customer ID
-          in: path
-          name: id
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.CustomerJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Get customer
-      tags:
-        - customers
-    put:
-      consumes:
-        - application/json
-      description: Update an existing customer
-      parameters:
-        - description: Customer ID
-          in: path
-          name: id
-          required: true
-          type: integer
-        - description: Customer data
-          in: body
-          name: customer
-          required: true
-          schema:
-            $ref: "#/definitions/request.UpdateCustomerBodyRequest"
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.CustomerJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Update customer
-      tags:
-        - customers
   /health:
     get:
       description: Checks application readiness
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/response.HealthCheckResponse"
+            $ref: '#/definitions/response.HealthCheckResponse'
         "500":
           description: Internal server error
           schema:
@@ -985,33 +161,33 @@ paths:
         "503":
           description: Service Unavailable
           schema:
-            $ref: "#/definitions/response.HealthCheckResponse"
+            $ref: '#/definitions/response.HealthCheckResponse'
       summary: Application Readiness
       tags:
-        - health-check
+      - health-check
   /health/livez:
     get:
       description: Checks application liveness
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/response.HealthCheckLivenessResponse"
+            $ref: '#/definitions/response.HealthCheckLivenessResponse'
       summary: Application Liveness
       tags:
-        - health-check
+      - health-check
   /health/readyz:
     get:
       description: Checks application readiness
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/response.HealthCheckResponse"
+            $ref: '#/definitions/response.HealthCheckResponse'
         "500":
           description: Internal server error
           schema:
@@ -1019,1019 +195,251 @@ paths:
         "503":
           description: Service Unavailable
           schema:
-            $ref: "#/definitions/response.HealthCheckResponse"
+            $ref: '#/definitions/response.HealthCheckResponse'
       summary: Application Readiness
       tags:
-        - health-check
-  /orders:
+      - health-check
+  /videos:
     get:
       consumes:
-        - application/json
+      - application/json
       description: |-
-        List all orders
-        ## Order list is sorted by:
-        - **Status** in **descending** order (`READY` > `PREPARING` > `RECEIVED` > `PENDING` > `OPEN`)
+        List all videos
+        ## Video list is sorted by:
+        - **Status** in **descending** order (CREATED > PROCESSING > FINISHED)
         - **Created date** (CreatedAt) in **ascending** order (oldest first)
-        Obs: Status CANCELLED and COMPLETED are not included in the list by default
       parameters:
-        - description: Filter by customer ID
-          in: query
-          name: user_id
-          type: integer
-        - description:
-            "Filter by status (Accept many), options: <sub>OPEN, PENDING,
-            RECEIVED, PREPARING, READY</sub>, ex: <sub>PENDING</sub> or <sub>OPEN,PENDING</sub>"
-          in: query
-          name: status
-          type: string
-        - default: CANCELLED,COMPLETED
-          description:
-            "Exclude by status (Accept many), options: <sub>NONE, OPEN, PENDING,
-            RECEIVED, PREPARING, READY, CANCELLED, COMPLETED</sub>, ex: <sub>CANCELLED</sub>
-            or <sub>CANCELLED,COMPLETED</sub> (default)"
-          in: query
-          name: status_exclude
-          type: string
-        - default: status:d,created_at
-          description:
-            Sort by field (Accept many). Use `<field_name>:d` for descending,
-            and the default order is ascending
-          in: query
-          name: sort
-          type: string
-        - default: 1
-          description: Page number
-          in: query
-          name: page
-          type: integer
-        - default: 10
-          description: Items per page
-          in: query
-          name: limit
-          type: integer
+      - description: Filter by user ID
+        in: query
+        name: user_id
+        type: integer
+      - description: 'Filter by status (Accept many), options: <sub>CREATED, PROCESSING,
+          FINISHED</sub>, ex: <sub>CREATED</sub> or <sub>CREATED,PROCESSING</sub>'
+        in: query
+        name: status
+        type: string
+      - default: FAILED
+        description: 'Exclude by status (Accept many), options: <sub>NONE, CREATED,
+          PROCESSING, FINISHED, FAILED</sub>, ex: <sub>FAILED</sub> (default)'
+        in: query
+        name: status_exclude
+        type: string
+      - default: status:d,created_at
+        description: Sort by field (Accept many). Use `<field_name>:d` for descending,
+          and the default order is ascending
+        in: query
+        name: sort
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/presenter.OrderJsonPaginatedResponse"
+            $ref: '#/definitions/presenter.VideoJsonPaginatedResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: List orders (Reference TC-1 2.b.vi; TC-2 1.a.iv)
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: List videos (Reference TC-1 2.b.vi; TC-2 1.a.iv)
       tags:
-        - orders
+      - videos
     post:
       consumes:
-        - application/json
-      description: Creates a new order
+      - application/json
+      description: Creates a new video
       parameters:
-        - description: Order data
-          in: body
-          name: order
-          required: true
-          schema:
-            $ref: "#/definitions/request.CreateOrderBodyRequest"
+      - description: Video data
+        in: body
+        name: video
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateVideoBodyRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: "#/definitions/presenter.OrderJsonResponse"
+            $ref: '#/definitions/presenter.VideoJsonResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Create order
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: Create video
       tags:
-        - orders
-  /orders/{id}:
+      - videos
+  /videos/{id}:
     delete:
-      description: Deletes a order by ID
+      description: Deletes a video by ID
       parameters:
-        - description: Order ID
-          in: path
-          name: id
-          required: true
-          type: integer
+      - description: Video ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/presenter.OrderJsonResponse"
+            $ref: '#/definitions/presenter.VideoJsonResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
         "404":
           description: Not Found
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Delete order
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: Delete video
       tags:
-        - orders
+      - videos
     get:
       consumes:
-        - application/json
-      description: Search for a order by ID
+      - application/json
+      description: Search for a video by ID
       parameters:
-        - description: Order ID
-          in: path
-          name: id
-          required: true
-          type: integer
+      - description: Video ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/presenter.OrderJsonResponse"
+            $ref: '#/definitions/presenter.VideoJsonResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
         "404":
           description: Not Found
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Get order
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: Get video
       tags:
-        - orders
+      - videos
     patch:
       consumes:
-        - application/json
+      - application/json
       description: |-
-        Partially updates an existing order
-        The status are: **OPEN**, **CANCELLED**, **PENDING**, **RECEIVED**, **PREPARING**, **READY**, **COMPLETED**
+        Partially updates an existing video
+        The status are: **CREATED**, **FAILED**, **PROCESSING**, **FINISHED**
         ## Transition of status:
-        - OPEN      -> CANCELLED || PENDING
-        - CANCELLED -> {},
-        - PENDING   -> OPEN || RECEIVED
-        - RECEIVED  -> PREPARING
-        - PREPARING -> READY
-        - READY     -> COMPLETED
-        - COMPLETED -> {}
+        - CREATED      -> FAILED || PROCESSING
+        - FAILED       -> {},
+        - PROCESSING   -> FINISHED
+        - FINISHED     -> {}
       parameters:
-        - description: Order ID
-          in: path
-          name: id
-          required: true
-          type: integer
-        - description: Order data
-          in: body
-          name: order
-          required: true
-          schema:
-            $ref: "#/definitions/request.UpdateOrderPartilRequest"
+      - description: Video ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Video data
+        in: body
+        name: video
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateVideoPartilRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/presenter.OrderJsonResponse"
+            $ref: '#/definitions/presenter.VideoJsonResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
         "404":
           description: Not Found
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Partial update order (Reference TC-2 1.a.v)
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: Partial update video (Reference TC-2 1.a.v)
       tags:
-        - orders
+      - videos
     put:
       consumes:
-        - application/json
+      - application/json
       description: |-
-        Update an existing order
-        The status are: **OPEN**, **CANCELLED**, **PENDING**, **RECEIVED**, **PREPARING**, **READY**, **COMPLETED**
+        Update an existing video
+        The status are: **CREATED**, **FAILED**, **PROCESSING**, **FINISHED**
         ## Transition of status:
-        - OPEN      -> CANCELLED || PENDING
-        - CANCELLED -> {},
-        - PENDING   -> OPEN || RECEIVED
-        - RECEIVED  -> PREPARING
-        - PREPARING -> READY
-        - READY     -> COMPLETED
-        - COMPLETED -> {}
+        - CREATED      -> FAILED || PROCESSING
+        - FAILED       -> {},
+        - PROCESSING   -> FINISHED
+        - FINISHED     -> {}
       parameters:
-        - description: Order ID
-          in: path
-          name: id
-          required: true
-          type: integer
-        - description: Order data
-          in: body
-          name: order
-          required: true
-          schema:
-            $ref: "#/definitions/request.UpdateOrderBodyRequest"
+      - description: Video ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Video data
+        in: body
+        name: video
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateVideoBodyRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/presenter.OrderJsonResponse"
+            $ref: '#/definitions/presenter.VideoJsonResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
         "404":
           description: Not Found
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Update order
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: Update video
       tags:
-        - orders
-  /orders/histories:
-    get:
-      consumes:
-        - application/json
-      description: List all order histories
-      parameters:
-        - description: Filter by order_id
-          in: query
-          name: order_id
-          type: string
-        - description:
-            "Filter by status. Available options: OPEN, CANCELLED, PENDING,
-            RECEIVED, PREPARING, READY, COMPLETED"
-          in: query
-          name: status
-          type: string
-        - default: 1
-          description: Page number
-          in: query
-          name: page
-          type: integer
-        - default: 10
-          description: Items per page
-          in: query
-          name: limit
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.OrderHistoryJsonPaginatedResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: List order histories
-      tags:
-        - orders
-  /orders/histories/{id}:
-    delete:
-      description: Deletes a order history by ID
-      parameters:
-        - description: OrderHistory ID
-          in: path
-          name: id
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.OrderHistoryJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Delete order history
-      tags:
-        - orders
-    get:
-      consumes:
-        - application/json
-      description: Search for a order history by ID
-      parameters:
-        - description: OrderHistory ID
-          in: path
-          name: id
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.OrderHistoryJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Get order history
-      tags:
-        - orders
-  /orders/products:
-    get:
-      consumes:
-        - application/json
-      description: List all order products
-      parameters:
-        - description: Filter by order ID
-          in: query
-          name: order_id
-          type: string
-        - default: 1
-          description: Page number
-          in: query
-          name: page
-          type: integer
-        - default: 10
-          description: Items per page
-          in: query
-          name: limit
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.OrderProductJsonPaginatedResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: List order products
-      tags:
-        - orders
-  /orders/products/{order_id}/{product_id}:
-    delete:
-      description: Deletes a order product by Order ID and Product ID
-      parameters:
-        - description: Order ID
-          in: path
-          name: order_id
-          required: true
-          type: integer
-        - description: Product ID
-          in: path
-          name: product_id
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.OrderProductJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Delete order product
-      tags:
-        - orders
-    get:
-      consumes:
-        - application/json
-      description: Get an order product
-      parameters:
-        - description: Order ID
-          in: path
-          name: order_id
-          required: true
-          type: integer
-        - description: Product ID
-          in: path
-          name: product_id
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.OrderProductJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Get an order product
-      tags:
-        - orders
-    post:
-      consumes:
-        - application/json
-      description: Create an order product
-      parameters:
-        - description: Order ID
-          in: path
-          name: order_id
-          required: true
-          type: integer
-        - description: Product ID
-          in: path
-          name: product_id
-          required: true
-          type: integer
-        - description: OrderProduct data
-          in: body
-          name: order
-          required: true
-          schema:
-            $ref: "#/definitions/request.CreateOrderProductBodyRequest"
-      produces:
-        - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: "#/definitions/presenter.OrderProductJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Create an order product
-      tags:
-        - orders
-    put:
-      consumes:
-        - application/json
-      description: Update an existing order product
-      parameters:
-        - description: Order ID
-          in: path
-          name: order_id
-          required: true
-          type: integer
-        - description: Product ID
-          in: path
-          name: product_id
-          required: true
-          type: integer
-        - description: OrderProduct data
-          in: body
-          name: order
-          required: true
-          schema:
-            $ref: "#/definitions/request.UpdateOrderProductBodyRequest"
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.OrderProductJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Update order product
-      tags:
-        - orders
-  /payments/{order_id}:
-    get:
-      consumes:
-        - application/json
-      description: Get a payment given order ID
-      parameters:
-        - description: Order ID
-          in: path
-          name: order_id
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: "#/definitions/presenter.PaymentJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Get a payment given order ID (Reference TC-2 1.a.ii)
-      tags:
-        - payments
-  /payments/{order_id}/checkout:
-    post:
-      consumes:
-        - application/json
-      description: |-
-        Creates a new payment (Checkout)
-        The status of the payment will be set to PROCESSING
-      parameters:
-        - description: Order ID
-          in: path
-          name: order_id
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: "#/definitions/presenter.PaymentJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Create a payment (Checkout) (Reference TC-1 2.b.v; TC-2 1.a.i, 1.a.v)
-      tags:
-        - payments
-  /payments/callback:
-    post:
-      consumes:
-        - application/json
-      description: |-
-        Update a new payment (Webhook)
-        - resource = external payment id, obtained from the checkout response
-        - topic = payment
-
-        > The status of the payment will be set to CONFIRMED if the payment was successful
-        ## Possible status:
-        - `PROCESSING` (default)
-        - `CONFIRMED`
-        - `FAILED`
-        - `ABORTED`
-      parameters:
-        - description: Payment data
-          in: body
-          name: payment
-          required: true
-          schema:
-            $ref: "#/definitions/request.UpdatePaymentRequest"
-      produces:
-        - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: "#/definitions/presenter.PaymentJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Update a payment (Webhook) (Reference TC-2 1.a.iii)
-      tags:
-        - payments
-  /products:
-    get:
-      consumes:
-        - application/json
-      description: |-
-        List all products
-        Response can return JSON or XML format (Accept header: application/json or text/xml)
-      parameters:
-        - description: Filter by name
-          in: query
-          name: name
-          type: string
-        - description: Filter by category ID
-          in: query
-          name: category_id
-          type: integer
-        - default: 1
-          description: Page number
-          in: query
-          name: page
-          type: integer
-        - default: 10
-          description: Items per page
-          in: query
-          name: limit
-          type: integer
-      produces:
-        - application/json
-        - text/xml
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.ProductJsonPaginatedResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: List products (Reference TC-1 2.b.iv)
-      tags:
-        - products
-    post:
-      consumes:
-        - application/json
-      description: |-
-        Creates a new product
-        Response can return JSON or XML format (Accept header: application/json or text/xml)
-      parameters:
-        - description: Product data
-          in: body
-          name: product
-          required: true
-          schema:
-            $ref: "#/definitions/request.CreateProductBodyRequest"
-      produces:
-        - application/json
-        - text/xml
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: "#/definitions/presenter.ProductJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Create product (Reference TC-1 2.b.iii)
-      tags:
-        - products
-  /products/{id}:
-    delete:
-      consumes:
-        - application/json
-      description: |-
-        Deletes a product by ID
-        Response can return JSON or XML format (Accept header: application/json or text/xml)
-      parameters:
-        - description: Product ID
-          in: path
-          name: id
-          required: true
-          type: integer
-      produces:
-        - application/json
-        - text/xml
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.ProductJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Delete product (Reference TC-1 2.b.iii)
-      tags:
-        - products
-    get:
-      consumes:
-        - application/json
-      description: |-
-        Search for a product by ID
-        Response can return JSON or XML format (Accept header: application/json or text/xml)
-      parameters:
-        - description: Product ID
-          in: path
-          name: id
-          required: true
-          type: integer
-      produces:
-        - application/json
-        - text/xml
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.ProductJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Get product
-      tags:
-        - products
-    put:
-      consumes:
-        - application/json
-      description: |-
-        Update an existing product
-        Response can return JSON or XML format (Accept header: application/json or text/xml)
-      parameters:
-        - description: Product ID
-          in: path
-          name: id
-          required: true
-          type: integer
-        - description: Product data
-          in: body
-          name: product
-          required: true
-          schema:
-            $ref: "#/definitions/request.UpdateProductBodyRequest"
-      produces:
-        - application/json
-        - text/xml
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.ProductJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Update product (Reference TC-1 2.b.iii)
-      tags:
-        - products
-  /staffs:
-    get:
-      consumes:
-        - application/json
-      description: List all staffs
-      parameters:
-        - description: Filter by name
-          in: query
-          name: name
-          type: string
-        - description: "Filter by role. Available options: COOK, ATTENDANT, MANAGER"
-          in: query
-          name: role
-          type: string
-        - default: 1
-          description: Page number
-          in: query
-          name: page
-          type: integer
-        - default: 10
-          description: Items per page
-          in: query
-          name: limit
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.StaffJsonPaginatedResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: List staffs
-      tags:
-        - staffs
-    post:
-      consumes:
-        - application/json
-      description: Creates a new staff
-      parameters:
-        - description: Staff data
-          in: body
-          name: staff
-          required: true
-          schema:
-            $ref: "#/definitions/request.CreateStaffBodyRequest"
-      produces:
-        - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: "#/definitions/presenter.StaffJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Create staff
-      tags:
-        - staffs
-  /staffs/{id}:
-    delete:
-      description: Deletes a staff by ID
-      parameters:
-        - description: Staff ID
-          in: path
-          name: id
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.StaffJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Delete staff
-      tags:
-        - staffs
-    get:
-      consumes:
-        - application/json
-      description: Search for a staff by ID
-      parameters:
-        - description: Staff ID
-          in: path
-          name: id
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.StaffJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Get staff
-      tags:
-        - staffs
-    put:
-      consumes:
-        - application/json
-      description: Update an existing staff
-      parameters:
-        - description: Staff ID
-          in: path
-          name: id
-          required: true
-          type: integer
-        - description: Staff data
-          in: body
-          name: staff
-          required: true
-          schema:
-            $ref: "#/definitions/request.UpdateStaffBodyRequest"
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: "#/definitions/presenter.StaffJsonResponse"
-        "400":
-          description: Bad Request
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "404":
-          description: Not Found
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: "#/definitions/middleware.ErrorJsonResponse"
-      summary: Update staff
-      tags:
-        - staffs
+      - videos
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and the access token.
@@ -2040,19 +448,7 @@ securityDefinitions:
     type: apiKey
 swagger: "2.0"
 tags:
-  - description: Regiter a new customer
-    name: sign-up
-  - description: Sign in to the system
-    name: sign-in
-  - description: List, create, update and delete customers
-    name: customers
-  - description: List, create, update and delete products
-    name: products
-  - description: List, create, update and delete orders
-    name: orders
-  - description: Process payments
-    name: payments
-  - description: List, create, update and delete staff
-    name: staffs
-  - description: Health check
-    name: health-check
+- description: List, create, update and delete videos
+  name: videos
+- description: Health check
+  name: health-check

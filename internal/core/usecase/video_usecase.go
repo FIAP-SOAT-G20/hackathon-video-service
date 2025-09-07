@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/entity"
@@ -11,12 +13,16 @@ import (
 )
 
 type VideoUseCase struct {
-	gateway port.VideoGateway
+	gateway   port.VideoGateway
+	s3Service port.S3Service
 }
 
 // NewVideoUseCase creates a new VideosUseCase
-func NewVideoUseCase(gateway port.VideoGateway) port.VideoUseCase {
-	return &VideoUseCase{gateway}
+func NewVideoUseCase(gateway port.VideoGateway, s3Service port.S3Service) port.VideoUseCase {
+	return &VideoUseCase{
+		gateway:   gateway,
+		s3Service: s3Service,
+	}
 }
 
 // List returns a list of Videos
@@ -36,6 +42,16 @@ func (uc *VideoUseCase) Create(ctx context.Context, i dto.CreateVideoInput) (*en
 	if err := uc.gateway.Create(ctx, video); err != nil {
 		return nil, domain.NewInternalError(err)
 	}
+
+	// Generate S3 presigned URL for video upload
+	key := fmt.Sprintf("videos/%d/%s", video.ID, video.Name)
+	presignedURL, err := uc.s3Service.GeneratePresignedURL(ctx, key, 15*time.Minute)
+	if err != nil {
+		// Log error but don't fail the video creation
+		// The presigned URL generation is not critical for video entity creation
+		presignedURL = ""
+	}
+	video.PresignedURL = presignedURL
 
 	return video, nil
 }

@@ -65,12 +65,16 @@ func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config) *route
 
 	// Services
 	jwtService := service.NewJWTService(cfg)
+	s3Service, err := service.NewS3Service(cfg)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create S3 service: %v", err))
+	}
 
 	// Gateways
 	videoGateway := gateway.NewVideoGateway(videoDS)
 
 	// Use cases
-	videoUC := usecase.NewVideoUseCase(videoGateway)
+	videoUC := usecase.NewVideoUseCase(videoGateway, s3Service)
 
 	// Controllers
 	videoController := controller.NewVideoController(videoUC)

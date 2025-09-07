@@ -15,6 +15,13 @@ type Config struct {
 	AWS_SQS_OrderStatusUpdatedMaxMessages     int
 	AWS_SQS_OrderStatusUpdatedWaitTimeSeconds int
 
+	// AWS S3 settings
+	AWSS3BucketName             string
+	AWSS3BucketRawFolder        string
+	AWSS3BucketProcessedFolder  string
+	AWSS3Region                 string
+	AWSS3PresignedURLExpiration time.Duration
+
 	// Database settings
 	DBDSN          string
 	DBMaxOpenConns int
@@ -73,11 +80,25 @@ func LoadConfig() *Config {
 		jwtExpiration = 24 * time.Hour
 	}
 
+	s3PresignedURLExpirationStr := getEnv("AWS_S3_PRESIGNED_URL_EXPIRATION", "15m")
+	s3PresignedURLExpiration, err := time.ParseDuration(s3PresignedURLExpirationStr)
+	if err != nil {
+		log.Printf("Warning: invalid AWS_S3_PRESIGNED_URL_EXPIRATION value %q: %v. Using default value 15m.", s3PresignedURLExpirationStr, err)
+		s3PresignedURLExpiration = 15 * time.Minute
+	}
+
 	return &Config{
 		// AWS SQS settings
 		AWS_SQS_OrderStatusUpdatedURL:             getEnv("AWS_SQS_ORDER_STATUS_UPDATED_URL", ""),
 		AWS_SQS_OrderStatusUpdatedMaxMessages:     AWS_SQS_OrderStatusUpdatedMaxMessages,
 		AWS_SQS_OrderStatusUpdatedWaitTimeSeconds: AWS_SQS_OrderStatusUpdatedWaitTimeSeconds,
+
+		// AWS S3 settings
+		AWSS3BucketName:             getEnv("AWS_S3_BUCKET_NAME", "hackathon-video-service"),
+		AWSS3Region:                 getEnv("AWS_REGION", "us-east-1"),
+		AWSS3PresignedURLExpiration: s3PresignedURLExpiration,
+		AWSS3BucketRawFolder:        getEnv("AWS_S3_BUCKET_RAW_FOLDER", "raw"),
+		AWSS3BucketProcessedFolder:  getEnv("AWS_S3_BUCKET_PROCESSED_FOLDER", "processed"),
 
 		// Database settings
 		DBEngine: getEnv("DB_ENGINE", "postgresql"),

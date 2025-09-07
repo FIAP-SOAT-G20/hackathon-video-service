@@ -46,14 +46,14 @@ func (p *videoJsonPresenter) Present(pp dto.PresenterInput) ([]byte, error) {
 // ToVideoJsonResponse convert entity.Video to VideoJsonResponse
 func ToVideoJsonResponse(video *entity.Video) VideoJsonResponse {
 	return VideoJsonResponse{
-		ID:          video.ID,
-		UserID:      video.UserID,
-		Name:        video.Name,
-		Description: video.Description,
-		Status:      string(video.Status),
-		Hash:        video.Hash,
-		Link:        video.Link,
-		CreatedAt:   video.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt:   video.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
+		ID:           video.ID,
+		UserID:       video.UserID,
+		Name:         video.Name,
+		Description:  video.Description,
+		Status:       string(video.Status),
+		Hash:         video.Hash,
+		PresignedURL: video.PresignedURL,
+		CreatedAt:    video.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
+		UpdatedAt:    video.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
 	}
 }

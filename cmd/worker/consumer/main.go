@@ -17,6 +17,7 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/datasource"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws/sqs"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/service"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 )
 
@@ -37,7 +38,15 @@ func main() {
 
 	videoDS := datasource.NewVideoDataSource(db.DB)
 	videoGateway := gateway.NewVideoGateway(videoDS)
-	videoUC := usecase.NewVideoUseCase(videoGateway)
+
+	// Create S3 service
+	s3Service, err := service.NewS3Service(appCfg)
+	if err != nil {
+		loggerInstance.Error("Failed to create S3 service", "error", err.Error())
+		os.Exit(1)
+	}
+
+	videoUC := usecase.NewVideoUseCase(videoGateway, s3Service)
 
 	if appCfg.AWS_SQS_OrderStatusUpdatedURL == "" {
 		loggerInstance.Error("AWS SQS Order Status Updated URL is not configured")

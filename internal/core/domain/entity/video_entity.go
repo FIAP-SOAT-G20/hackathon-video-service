@@ -7,15 +7,15 @@ import (
 )
 
 type Video struct {
-	ID          uint64
-	UserID      uint64
-	Name        string
-	Description string
-	Status      valueobject.VideoStatus
-	Hash        string
-	Link        string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID           uint64
+	UserID       uint64
+	Name         string
+	Description  string
+	Status       valueobject.VideoStatus
+	Hash         string
+	PresignedURL string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 func (p *Video) Update(customerID uint64, status valueobject.VideoStatus, name string, description string) {

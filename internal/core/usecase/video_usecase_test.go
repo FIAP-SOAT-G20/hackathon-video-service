@@ -122,11 +122,15 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Create() {
 				s.mockGateway.EXPECT().
 					Create(s.ctx, gomock.Any()).
 					Return(nil)
+				s.mockS3Service.EXPECT().
+					GeneratePresignedURL(s.ctx, gomock.Any(), gomock.Any()).
+					Return("https://s3.example.com/presigned-url", nil)
 			},
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.NoError(t, err)
 				assert.NotNil(t, video)
 				assert.Equal(t, uint64(1), video.UserID)
+				assert.NotEmpty(t, video.PresignedURL)
 			},
 		},
 		{
@@ -138,6 +142,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Create() {
 				s.mockGateway.EXPECT().
 					Create(s.ctx, gomock.Any()).
 					Return(assert.AnError)
+				// S3 service should not be called if gateway fails
 			},
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.Error(t, err)
@@ -146,7 +151,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Create() {
 			},
 		},
 		{
-			name: "should return error when video history use case create fails",
+			name: "should create video even when S3 service fails",
 			input: dto.CreateVideoInput{
 				UserID: 1,
 			},
@@ -154,11 +159,15 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Create() {
 				s.mockGateway.EXPECT().
 					Create(s.ctx, gomock.Any()).
 					Return(nil)
+				s.mockS3Service.EXPECT().
+					GeneratePresignedURL(s.ctx, gomock.Any(), gomock.Any()).
+					Return("", assert.AnError)
 			},
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
-				assert.Error(t, err)
-				assert.Nil(t, video)
-				assert.IsType(t, &domain.InternalError{}, err)
+				assert.NoError(t, err)
+				assert.NotNil(t, video)
+				assert.Equal(t, uint64(1), video.UserID)
+				assert.Empty(t, video.PresignedURL) // Should be empty when S3 fails
 			},
 		},
 	}

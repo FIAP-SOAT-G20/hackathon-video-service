@@ -6,6 +6,7 @@ A scalable video service application with support for multiple database backends
 
 - **Multi-Database Support**: PostgreSQL, AWS DocumentDB, and MongoDB
 - **RESTful API**: Complete CRUD operations for video management
+- **S3 Integration**: Automatic presigned URL generation for video uploads
 - **Authentication**: JWT-based authentication
 - **Health Checks**: Comprehensive health monitoring
 - **Docker Support**: Full containerization with Docker Compose
@@ -158,3 +159,13 @@ internal/
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+AWS S3 Bucket — presigned URL APIs with Go
+https://ronen-niv.medium.com/aws-s3-handling-presigned-urls-2718ab247d57
+
+Go S3 Package Overview
+https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3
+
+Download and upload objects with presigned URLs
+https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html

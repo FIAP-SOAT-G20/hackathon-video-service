@@ -16,17 +16,19 @@ import (
 
 type VideoUsecaseSuiteTest struct {
 	suite.Suite
-	mockVideos  []*entity.Video
-	mockGateway *mockport.MockVideoGateway
-	useCase     port.VideoUseCase
-	ctx         context.Context
+	mockVideos    []*entity.Video
+	mockGateway   *mockport.MockVideoGateway
+	mockS3Service *mockport.MockS3Service
+	useCase       port.VideoUseCase
+	ctx           context.Context
 }
 
 func (s *VideoUsecaseSuiteTest) SetupTest() {
 	ctrl := gomock.NewController(s.T())
 	defer ctrl.Finish()
 	s.mockGateway = mockport.NewMockVideoGateway(ctrl)
-	s.useCase = usecase.NewVideoUseCase(s.mockGateway)
+	s.mockS3Service = mockport.NewMockS3Service(ctrl)
+	s.useCase = usecase.NewVideoUseCase(s.mockGateway, s.mockS3Service)
 	s.ctx = context.Background()
 	currentTime := time.Now()
 	s.mockVideos = []*entity.Video{
