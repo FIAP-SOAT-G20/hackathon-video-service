@@ -91,7 +91,7 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 		return false, err
 	}
 
-	if updatedVideoStatus.VideoID == 0 {
+	if updatedVideoStatus.ID == 0 {
 		return false, domain.NewValidationError(errors.New(domain.ErrVideoIsMandatory))
 	}
 
@@ -100,7 +100,7 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 	}
 
 	// Get Video by ID
-	_, err = uc.Get(ctx, dto.GetVideoInput{ID: updatedVideoStatus.VideoID})
+	_, err = uc.Get(ctx, dto.GetVideoInput{ID: updatedVideoStatus.ID})
 	if err != nil {
 		if err.Error() == domain.ErrInternalError {
 			return true, err
@@ -110,7 +110,7 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 
 	// Update the video status in the database
 	uoi := dto.UpdateVideoInput{
-		ID:     updatedVideoStatus.VideoID,
+		ID:     updatedVideoStatus.ID,
 		Status: updatedVideoStatus.Status,
 	}
 	if updatedVideoStatus.StaffID != nil {
@@ -124,7 +124,7 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 		return false, err
 	}
 
-	logger.Info("Message processed successfully", "videoID", updatedVideoStatus.VideoID, "status", updatedVideoStatus.Status, "staffID", updatedVideoStatus.StaffID)
+	logger.Info("Message processed successfully", "videoID", updatedVideoStatus.ID, "status", updatedVideoStatus.Status, "staffID", updatedVideoStatus.StaffID)
 
 	return false, nil
 }

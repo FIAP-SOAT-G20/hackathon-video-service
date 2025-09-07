@@ -53,7 +53,7 @@ I have successfully implemented AWS DocumentDB integration for the hackathon vid
 // PostgreSQL Entity
 type Video struct {
     ID         uint64                  `gorm:"primaryKey"`
-    CustomerID uint64
+    UserID   uint64
     Status     valueobject.VideoStatus
     CreatedAt  time.Time
     UpdatedAt  time.Time
@@ -62,8 +62,7 @@ type Video struct {
 // DocumentDB Document
 type VideoDocument struct {
     ID         primitive.ObjectID      `bson:"_id,omitempty"`
-    VideoID    uint64                  `bson:"video_id"`
-    CustomerID uint64                  `bson:"user_id"`
+    UserID uint64                  `bson:"user_id"`
     Status     valueobject.VideoStatus `bson:"status"`
     CreatedAt  time.Time               `bson:"created_at"`
     UpdatedAt  time.Time               `bson:"updated_at"`

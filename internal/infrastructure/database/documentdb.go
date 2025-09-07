@@ -88,17 +88,8 @@ func (d *DocumentDatabase) Close(ctx context.Context) error {
 func (d *DocumentDatabase) CreateIndexes(ctx context.Context) error {
 	videoCollection := d.GetCollection("videos")
 
-	// Create unique index on video_id
-	_, err := videoCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys:    bson.D{{Key: "video_id", Value: 1}},
-		Options: options.Index().SetUnique(true),
-	})
-	if err != nil {
-		return fmt.Errorf("failed to create video_id unique index: %w", err)
-	}
-
 	// Create index on user_id
-	_, err = videoCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
+	_, err := videoCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
 		Keys: bson.D{{Key: "user_id", Value: 1}},
 	})
 	if err != nil {

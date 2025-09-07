@@ -2,7 +2,6 @@ package presenter
 
 type VideoJsonResponse struct {
 	ID          uint64 `json:"id"`
-	VideoID     uint64 `json:"video_id" example:"1"`
 	UserID      uint64 `json:"user_id" example:"1"`
 	Name        string `json:"name" example:"My Video"`
 	Description string `json:"description" example:"This is a description"`

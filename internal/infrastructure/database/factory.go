@@ -71,15 +71,6 @@ func NewDatabase(cfg *config.Config, logger *logger.Logger) (*DatabaseConfig, er
 
 // determineDatabaseType determines which database to use based on configuration
 func determineDatabaseType(cfg *config.Config) DatabaseType {
-	// Check if DocumentDB URI is configured
-	if cfg.DocumentDBURI != "" && cfg.DocumentDBURI != "mongodb://localhost:27017" {
-		if strings.Contains(cfg.DocumentDBURI, "docdb") ||
-			strings.Contains(cfg.DocumentDBURI, "documentdb") {
-			return DocumentDB
-		}
-		return MongoDB
-	}
-
 	// Check environment variable for explicit database type
 	if dbType := cfg.DBEngine; dbType != "" {
 		switch strings.ToLower(dbType) {

@@ -24,7 +24,6 @@ type videoDocumentDataSource struct {
 // VideoDocument represents the MongoDB document structure for video
 type VideoDocument struct {
 	ID          primitive.ObjectID      `bson:"_id,omitempty"`
-	VideoID     uint64                  `bson:"video_id"`
 	UserID      uint64                  `bson:"user_id"`
 	Name        string                  `bson:"name"`
 	Description string                  `bson:"description"`
@@ -144,7 +143,7 @@ func (ds *videoDocumentDataSource) FindAll(ctx context.Context, filters map[stri
 
 func (ds *videoDocumentDataSource) Create(ctx context.Context, video *entity.Video) error {
 	doc := ds.entityToDocument(video)
-	doc.VideoID = video.ID // Ensure video_id is set
+	doc.ID = ds.uint64ToObjectID(video.ID)
 	doc.CreatedAt = time.Now()
 	doc.UpdatedAt = time.Now()
 
@@ -235,7 +234,7 @@ func (ds *videoDocumentDataSource) Transaction(ctx context.Context, fn func(ctx 
 
 func (ds *videoDocumentDataSource) entityToDocument(video *entity.Video) *VideoDocument {
 	return &VideoDocument{
-		VideoID:     video.ID,
+		ID:          ds.uint64ToObjectID(video.ID),
 		UserID:      video.UserID,
 		Name:        video.Name,
 		Description: video.Description,
@@ -247,7 +246,7 @@ func (ds *videoDocumentDataSource) entityToDocument(video *entity.Video) *VideoD
 
 func (ds *videoDocumentDataSource) documentToEntity(doc *VideoDocument) *entity.Video {
 	return &entity.Video{
-		ID:          doc.VideoID,
+		ID:          ds.objectIDToUint64(doc.ID),
 		UserID:      doc.UserID,
 		Name:        doc.Name,
 		Description: doc.Description,

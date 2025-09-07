@@ -88,7 +88,6 @@ export ENVIRONMENT="mongodb"
 ```json
 {
   "_id": ObjectId("..."),
-  "video_id": 123,
   "user_id": 456,
   "status": "OPEN",
   "created_at": ISODate("2024-01-01T00:00:00Z"),
@@ -100,7 +99,6 @@ export ENVIRONMENT="mongodb"
 
 The following indexes are automatically created:
 
-- `video_id` (unique)
 - `user_id`
 - `status`
 - `status + user_id` (compound)

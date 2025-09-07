@@ -80,7 +80,7 @@ func LoadConfig() *Config {
 		AWS_SQS_OrderStatusUpdatedWaitTimeSeconds: AWS_SQS_OrderStatusUpdatedWaitTimeSeconds,
 
 		// Database settings
-		DBEngine: getEnv("DB_ENGINE", "mongodb"),
+		DBEngine: getEnv("DB_ENGINE", "postgresql"),
 
 		DBDSN:          getEnv("DB_DSN", "host=localhost port=5432 user=postgres password=postgres dbname=fiapx sslmode=disable"),
 		DBMaxOpenConns: dbMaxOpenConns,
