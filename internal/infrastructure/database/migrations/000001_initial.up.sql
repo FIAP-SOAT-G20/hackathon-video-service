@@ -5,9 +5,9 @@ CREATE TABLE IF NOT EXISTS videos
 (
     id          SERIAL PRIMARY KEY,
     name        VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    hash        VARCHAR(64) NOT NULL,
-    link        VARCHAR(255) NOT NULL,
+    description TEXT,
+    hash        VARCHAR(64),
+    link        VARCHAR(255),
     user_id     INT NOT NULL,
     status     video_status DEFAULT 'CREATED',
     created_at  TIMESTAMP NOT NULL DEFAULT now(),

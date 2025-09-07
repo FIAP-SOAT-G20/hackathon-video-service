@@ -12,6 +12,8 @@ type Video struct {
 	Name        string
 	Description string
 	Status      valueobject.VideoStatus
+	Hash        string
+	Link        string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
