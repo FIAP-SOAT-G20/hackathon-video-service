@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"time"
 
@@ -39,7 +40,8 @@ func (uc *VideoUseCase) List(ctx context.Context, i dto.ListVideosInput) ([]*ent
 func (uc *VideoUseCase) Create(ctx context.Context, i dto.CreateVideoInput) (*entity.Video, error) {
 
 	// Generate S3 presigned URL for video upload
-	key := fmt.Sprintf("%d/%s", i.UserID, i.Name)
+	base64Name := base64.StdEncoding.EncodeToString([]byte(i.Name))
+	key := fmt.Sprintf("%d/%s", i.UserID, base64Name)
 	presignedURL, err := uc.s3Service.GeneratePresignedURL(ctx, key, 15*time.Minute)
 	if err != nil {
 		// Log error but don't fail the video creation
@@ -51,6 +53,7 @@ func (uc *VideoUseCase) Create(ctx context.Context, i dto.CreateVideoInput) (*en
 		UserID:       i.UserID,
 		Status:       valueobject.CREATED,
 		Name:         i.Name,
+		Hash:         base64Name,
 		Description:  i.Description,
 		PresignedURL: presignedURL,
 	}
