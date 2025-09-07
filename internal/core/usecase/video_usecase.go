@@ -37,21 +37,27 @@ func (uc *VideoUseCase) List(ctx context.Context, i dto.ListVideosInput) ([]*ent
 
 // Create creates a new Video
 func (uc *VideoUseCase) Create(ctx context.Context, i dto.CreateVideoInput) (*entity.Video, error) {
-	video := &entity.Video{UserID: i.UserID, Status: valueobject.CREATED, Name: i.Name, Description: i.Description}
-
-	if err := uc.gateway.Create(ctx, video); err != nil {
-		return nil, domain.NewInternalError(err)
-	}
 
 	// Generate S3 presigned URL for video upload
-	key := fmt.Sprintf("videos/%d/%s", video.ID, video.Name)
+	key := fmt.Sprintf("%d/%s", i.UserID, i.Name)
 	presignedURL, err := uc.s3Service.GeneratePresignedURL(ctx, key, 15*time.Minute)
 	if err != nil {
 		// Log error but don't fail the video creation
 		// The presigned URL generation is not critical for video entity creation
 		presignedURL = ""
 	}
-	video.PresignedURL = presignedURL
+
+	video := &entity.Video{
+		UserID:       i.UserID,
+		Status:       valueobject.CREATED,
+		Name:         i.Name,
+		Description:  i.Description,
+		PresignedURL: presignedURL,
+	}
+
+	if err := uc.gateway.Create(ctx, video); err != nil {
+		return nil, domain.NewInternalError(err)
+	}
 
 	return video, nil
 }
