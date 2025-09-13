@@ -41,7 +41,11 @@ func TestVideoDocumentDataSource_Simple(t *testing.T) {
 		Started:          true,
 	})
 	require.NoError(t, err)
-	defer mongoContainer.Terminate(ctx)
+	defer func() {
+		if err := mongoContainer.Terminate(ctx); err != nil {
+			t.Logf("Failed to terminate mongo container: %v", err)
+		}
+	}()
 
 	// Get container endpoint
 	endpoint, err := mongoContainer.Endpoint(ctx, "")
@@ -58,7 +62,11 @@ func TestVideoDocumentDataSource_Simple(t *testing.T) {
 	// Connect to DocumentDB
 	db, err := database.NewDocumentDBConnection(cfg, logger)
 	require.NoError(t, err)
-	defer db.Close(ctx)
+	defer func() {
+		if err := db.Close(ctx); err != nil {
+			t.Logf("Failed to close database connection: %v", err)
+		}
+	}()
 
 	// Create datasource
 	videoDS := NewVideoDocumentDataSource(db)

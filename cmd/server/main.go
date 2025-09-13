@@ -45,7 +45,11 @@ func main() {
 		loggerInstance.Error("failed to connect to database", "error", err.Error())
 		os.Exit(1)
 	}
-	defer dbConfig.Close()
+	defer func() {
+		if err := dbConfig.Close(); err != nil {
+			loggerInstance.Error("failed to close database connection", "error", err.Error())
+		}
+	}()
 
 	handlers := setupHandlers(dbConfig, cfg)
 

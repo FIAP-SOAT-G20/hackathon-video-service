@@ -91,9 +91,7 @@ func (h *HealthCheckHandler) checkPostgreSQL(cfg *config.Config) response.Health
 		return check
 	}
 	defer func() {
-		if closeErr := db.Close(); closeErr != nil {
-			// Log error but don't change status since connection test was successful
-		}
+		_ = db.Close() // Ignore error for cleanup operation
 	}()
 
 	if err := db.Ping(); err != nil {
@@ -123,9 +121,7 @@ func (h *HealthCheckHandler) checkMongoDB(cfg *config.Config) response.HealthChe
 		return check
 	}
 	defer func() {
-		if err := client.Disconnect(context.Background()); err != nil {
-			// Log error but don't change status since connection test was successful
-		}
+		_ = client.Disconnect(context.Background()) // Ignore error for cleanup operation
 	}()
 
 	// Ping MongoDB to verify connection

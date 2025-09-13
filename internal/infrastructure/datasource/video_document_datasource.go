@@ -89,22 +89,23 @@ func (ds *videoDocumentDataSource) FindAll(ctx context.Context, filters map[stri
 		sortField := "created_at"
 		sortOrder := -1 // Default descending
 
-		if sort == "id asc" || sort == "video_id asc" {
+		switch sort {
+		case "id asc", "video_id asc":
 			sortField = "video_id"
 			sortOrder = 1
-		} else if sort == "id desc" || sort == "video_id desc" {
+		case "id desc", "video_id desc":
 			sortField = "video_id"
 			sortOrder = -1
-		} else if sort == "created_at asc" {
+		case "created_at asc":
 			sortField = "created_at"
 			sortOrder = 1
-		} else if sort == "created_at desc" {
+		case "created_at desc":
 			sortField = "created_at"
 			sortOrder = -1
-		} else if sort == "updated_at asc" {
+		case "updated_at asc":
 			sortField = "updated_at"
 			sortOrder = 1
-		} else if sort == "updated_at desc" {
+		case "updated_at desc":
 			sortField = "updated_at"
 			sortOrder = -1
 		}
@@ -125,7 +126,9 @@ func (ds *videoDocumentDataSource) FindAll(ctx context.Context, filters map[stri
 	if err != nil {
 		return nil, 0, fmt.Errorf("error finding videos: %w", err)
 	}
-	defer cursor.Close(ctx)
+	defer func() {
+		_ = cursor.Close(ctx) // Ignore error for cleanup operation
+	}()
 
 	var documents []VideoDocument
 	if err := cursor.All(ctx, &documents); err != nil {
@@ -212,7 +215,7 @@ func (ds *videoDocumentDataSource) Delete(ctx context.Context, id uint64) error 
 
 func (ds *videoDocumentDataSource) Transaction(ctx context.Context, fn func(ctx context.Context) error) error {
 	// MongoDB transactions require a session
-	session, err := ds.db.Client.StartSession()
+	session, err := ds.db.StartSession()
 	if err != nil {
 		return fmt.Errorf("error starting session: %w", err)
 	}

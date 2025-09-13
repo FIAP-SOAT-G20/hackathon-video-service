@@ -44,7 +44,9 @@ func setupTestMongoDB(ctx context.Context, t *testing.T) (testcontainers.Contain
 
 	endpoint, err := mongoContainer.Endpoint(ctx, "")
 	if err != nil {
-		mongoContainer.Terminate(ctx)
+		if termErr := mongoContainer.Terminate(ctx); termErr != nil {
+			t.Logf("Failed to terminate mongo container: %v", termErr)
+		}
 		t.Fatalf("Failed to get container endpoint: %v", err)
 	}
 
@@ -63,7 +65,11 @@ func TestVideoDocumentDataSource_Integration(t *testing.T) {
 
 	// Setup MongoDB container
 	mongoContainer, endpoint := setupTestMongoDB(ctx, t)
-	defer mongoContainer.Terminate(ctx)
+	defer func() {
+		if err := mongoContainer.Terminate(ctx); err != nil {
+			t.Logf("Failed to terminate mongo container: %v", err)
+		}
+	}()
 
 	// Setup test configuration
 	cfg := &config.Config{
@@ -85,7 +91,11 @@ func TestVideoDocumentDataSource_Integration(t *testing.T) {
 		time.Sleep(2 * time.Second)
 	}
 	require.NoError(t, err, "Failed to connect to MongoDB after retries")
-	defer db.Close(ctx)
+	defer func() {
+		if err := db.Close(ctx); err != nil {
+			t.Logf("Failed to close database connection: %v", err)
+		}
+	}()
 
 	// Create indexes
 	err = db.CreateIndexes(ctx)
@@ -250,7 +260,11 @@ func TestVideoDocumentDataSource_NoAuth(t *testing.T) {
 		Started:          true,
 	})
 	require.NoError(t, err)
-	defer mongoContainer.Terminate(ctx)
+	defer func() {
+		if err := mongoContainer.Terminate(ctx); err != nil {
+			t.Logf("Failed to terminate mongo container: %v", err)
+		}
+	}()
 
 	// Get container endpoint
 	endpoint, err := mongoContainer.Endpoint(ctx, "")
@@ -270,7 +284,11 @@ func TestVideoDocumentDataSource_NoAuth(t *testing.T) {
 	// Connect to DocumentDB
 	db, err := database.NewDocumentDBConnection(cfg, logger)
 	require.NoError(t, err)
-	defer db.Close(ctx)
+	defer func() {
+		if err := db.Close(ctx); err != nil {
+			t.Logf("Failed to close database connection: %v", err)
+		}
+	}()
 
 	// Create datasource
 	videoDS := NewVideoDocumentDataSource(db)

@@ -67,7 +67,7 @@ func NewDocumentDBConnection(cfg *config.Config, logger *logger.Logger) (*Docume
 
 // GetDatabase returns the MongoDB database instance
 func (d *DocumentDatabase) GetDatabase() *mongo.Database {
-	return d.Client.Database(d.database)
+	return d.Database(d.database)
 }
 
 // GetCollection returns a specific collection from the database
@@ -77,7 +77,7 @@ func (d *DocumentDatabase) GetCollection(name string) *mongo.Collection {
 
 // Close closes the DocumentDB connection
 func (d *DocumentDatabase) Close(ctx context.Context) error {
-	if err := d.Client.Disconnect(ctx); err != nil {
+	if err := d.Disconnect(ctx); err != nil {
 		return fmt.Errorf("failed to disconnect from DocumentDB: %w", err)
 	}
 	d.logger.Info("DocumentDB connection closed")
