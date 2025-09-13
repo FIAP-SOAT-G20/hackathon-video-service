@@ -12,4 +12,5 @@ type VideoController interface {
 	Get(ctx context.Context, presenter Presenter, input dto.GetVideoInput) ([]byte, error)
 	Update(ctx context.Context, presenter Presenter, input dto.UpdateVideoInput) ([]byte, error)
 	Delete(ctx context.Context, presenter Presenter, input dto.DeleteVideoInput) ([]byte, error)
+	Download(ctx context.Context, presenter Presenter, input dto.DownloadVideoInput) ([]byte, error)
 }

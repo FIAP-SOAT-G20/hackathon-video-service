@@ -38,6 +38,9 @@ func (p *videoJsonPresenter) Present(pp dto.PresenterInput) ([]byte, error) {
 			Videos: videoOutputs,
 		}
 		return json.Marshal(output)
+	case entity.VideoProcessedDownload:
+		output := ToVideoProcessedDownloadResponse(v)
+		return json.Marshal(output)
 	default:
 		return nil, domain.NewInternalError(errors.New(domain.ErrInternalError))
 	}
@@ -55,5 +58,11 @@ func ToVideoJsonResponse(video *entity.Video) VideoJsonResponse {
 		PresignedURL: video.PresignedURL,
 		CreatedAt:    video.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt:    video.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
+	}
+}
+
+func ToVideoProcessedDownloadResponse(download entity.VideoProcessedDownload) VideoJsonProcessedDownloadResponse {
+	return VideoJsonProcessedDownloadResponse{
+		URL: download.URL,
 	}
 }

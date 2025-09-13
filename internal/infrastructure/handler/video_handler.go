@@ -32,6 +32,7 @@ func (h *VideoHandler) Register(router *gin.RouterGroup) {
 	router.PUT("/:id", h.Update)
 	router.PATCH("/:id", h.UpdatePartial)
 	router.DELETE("/:id", h.Delete)
+	router.GET("/:id/processed", h.Download)
 }
 
 // List godoc
@@ -44,12 +45,12 @@ func (h *VideoHandler) Register(router *gin.RouterGroup) {
 //	@Tags			videos
 //	@Accept			json
 //	@Produce		json
-//	@Param			user_id		query		int										false	"Filter by user ID"
+//	@Param			user_id			query		int										false	"Filter by user ID"
 //	@Param			status			query		string									false	"Filter by status (Accept many), options: <sub>CREATED, PROCESSING, FINISHED</sub>, ex: <sub>CREATED</sub> or <sub>CREATED,PROCESSING</sub>"
 //	@Param			status_exclude	query		string									false	"Exclude by status (Accept many), options: <sub>NONE, CREATED, PROCESSING, FINISHED, FAILED</sub>, ex: <sub>FAILED</sub> (default)"	default(FAILED)
-//	@Param			sort			query		string									false	"Sort by field (Accept many). Use `<field_name>:d` for descending, and the default order is ascending"																								default(status:d,created_at)
-//	@Param			page			query		int										false	"Page number"																																														default(1)
-//	@Param			limit			query		int										false	"Items per page"																																													default(10)
+//	@Param			sort			query		string									false	"Sort by field (Accept many). Use `<field_name>:d` for descending, and the default order is ascending"								default(status:d,created_at)
+//	@Param			page			query		int										false	"Page number"																														default(1)
+//	@Param			limit			query		int										false	"Items per page"																													default(10)
 //	@Success		200				{object}	presenter.VideoJsonPaginatedResponse	"OK"
 //	@Failure		400				{object}	middleware.ErrorJsonResponse			"Bad Request"
 //	@Failure		500				{object}	middleware.ErrorJsonResponse			"Internal Server Error"
@@ -316,6 +317,47 @@ func (h *VideoHandler) Delete(c *gin.Context) {
 	}
 
 	output, err := h.controller.Delete(
+		c.Request.Context(),
+		presenter.NewVideoJsonPresenter(),
+		input,
+	)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	c.Data(http.StatusOK, "application/json", output)
+}
+
+// Download godoc
+//
+//	@Summary		Download processed video
+//	@Description	Generate a presigned URL to download a processed video from S3
+//	@Description	Only available for videos with status FINISHED
+//	@Tags			videos
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int								true	"Video ID"
+//	@Success		200	{object}	map[string]string				"OK - Returns download_url"
+//	@Failure		400	{object}	middleware.ErrorJsonResponse	"Bad Request"
+//	@Failure		404	{object}	middleware.ErrorJsonResponse	"Not Found"
+//	@Failure		422	{object}	middleware.ErrorJsonResponse	"Video not processed yet"
+//	@Failure		500	{object}	middleware.ErrorJsonResponse	"Internal Server Error"
+//	@Router			/videos/{id}/processed [get]
+func (h *VideoHandler) Download(c *gin.Context) {
+	var uri request.DownloadVideoUriRequest
+	if err := c.ShouldBindUri(&uri); err != nil {
+		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidParam))
+		return
+	}
+
+	input := dto.DownloadVideoInput{
+		ID: uri.ID,
+	}
+
+	fmt.Println("Download input:", input)
+
+	output, err := h.controller.Download(
 		c.Request.Context(),
 		presenter.NewVideoJsonPresenter(),
 		input,

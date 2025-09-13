@@ -41,3 +41,7 @@ type UpdateVideoPartilBodyRequest struct {
 type DeleteVideoUriRequest struct {
 	ID uint64 `uri:"id" binding:"required"`
 }
+
+type DownloadVideoUriRequest struct {
+	ID uint64 `uri:"id" binding:"required"`
+}

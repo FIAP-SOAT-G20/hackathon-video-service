@@ -35,3 +35,7 @@ type ListVideosInput struct {
 	Limit         int
 	Sort          string
 }
+
+type DownloadVideoInput struct {
+	ID uint64
+}

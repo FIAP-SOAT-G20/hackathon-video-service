@@ -13,6 +13,7 @@ var (
 	ErrInvalidAuthHeader = "invalid authorization header format"
 
 	ErrVideoInvalidStatusTransition = "invalid status transition"
+	ErrVideoNotProcessed            = "video is not processed yet"
 	ErrStaffIdIsMandatory           = "staff is mandatory"
 	ErrVideoIsMandatory             = "video is mandatory"
 	ErrVideoIsNotOpen               = "video is not on status open"

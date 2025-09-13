@@ -428,6 +428,65 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/videos/{id}/processed": {
+            "get": {
+                "description": "Generate a presigned URL to download a processed video from S3\nOnly available for videos with status FINISHED",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "videos"
+                ],
+                "summary": "Download processed video",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Video ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK - Returns download_url",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Video not processed yet",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorJsonResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

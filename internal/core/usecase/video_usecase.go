@@ -126,3 +126,31 @@ func (uc *VideoUseCase) Delete(ctx context.Context, i dto.DeleteVideoInput) (*en
 
 	return video, nil
 }
+
+// Download generates a presigned URL for downloading a processed video
+func (uc *VideoUseCase) Download(ctx context.Context, i dto.DownloadVideoInput) (entity.VideoProcessedDownload, error) {
+	video, err := uc.gateway.FindByID(ctx, i.ID)
+	if err != nil {
+		return entity.VideoProcessedDownload{}, domain.NewInternalError(err)
+	}
+
+	if video == nil {
+		return entity.VideoProcessedDownload{}, domain.NewNotFoundError(domain.ErrNotFound)
+	}
+
+	// Only allow download for FINISHED videos
+	if video.Status != valueobject.FINISHED {
+		return entity.VideoProcessedDownload{}, domain.NewInvalidInputError(domain.ErrVideoNotProcessed)
+	}
+
+	// Generate download key using the video hash
+	key := video.Hash
+
+	// Generate presigned download URL for processed video (valid for 1 hour)
+	downloadURL, err := uc.s3Service.GeneratePresignedDownloadURL(ctx, key, 1*time.Hour)
+	if err != nil {
+		return entity.VideoProcessedDownload{}, domain.NewInternalError(err)
+	}
+
+	return entity.VideoProcessedDownload{URL: downloadURL}, nil
+}

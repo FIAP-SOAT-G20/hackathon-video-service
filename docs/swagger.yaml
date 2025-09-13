@@ -38,9 +38,6 @@ definitions:
         type: string
       id:
         type: integer
-      presigned_url:
-        example: https://example.com/video/1
-        type: string
       name:
         example: My Video
         type: string
@@ -438,6 +435,47 @@ paths:
           schema:
             $ref: '#/definitions/middleware.ErrorJsonResponse'
       summary: Update video
+      tags:
+      - videos
+  /videos/{id}/processed:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Generate a presigned URL to download a processed video from S3
+        Only available for videos with status FINISHED
+      parameters:
+      - description: Video ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK - Returns download_url
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "422":
+          description: Video not processed yet
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: Download processed video
       tags:
       - videos
 securityDefinitions:

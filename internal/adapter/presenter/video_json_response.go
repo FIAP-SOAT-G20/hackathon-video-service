@@ -16,3 +16,7 @@ type VideoJsonPaginatedResponse struct {
 	JsonPagination
 	Videos []VideoJsonResponse `json:"videos"`
 }
+
+type VideoJsonProcessedDownloadResponse struct {
+	URL string `json:"url"`
+}

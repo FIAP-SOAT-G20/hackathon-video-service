@@ -64,3 +64,12 @@ func (c *VideoController) Delete(ctx context.Context, p port.Presenter, i dto.De
 
 	return p.Present(dto.PresenterInput{Result: video})
 }
+
+func (c *VideoController) Download(ctx context.Context, p port.Presenter, i dto.DownloadVideoInput) ([]byte, error) {
+	videoProcessedDownload, err := c.useCase.Download(ctx, i)
+	if err != nil {
+		return nil, err
+	}
+
+	return p.Present(dto.PresenterInput{Result: videoProcessedDownload})
+}

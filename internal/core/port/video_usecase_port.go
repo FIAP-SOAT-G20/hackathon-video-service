@@ -13,4 +13,5 @@ type VideoUseCase interface {
 	Get(ctx context.Context, input dto.GetVideoInput) (*entity.Video, error)
 	Update(ctx context.Context, input dto.UpdateVideoInput) (*entity.Video, error)
 	Delete(ctx context.Context, input dto.DeleteVideoInput) (*entity.Video, error)
+	Download(ctx context.Context, input dto.DownloadVideoInput) (entity.VideoProcessedDownload, error)
 }

@@ -72,6 +72,21 @@ func (mr *MockVideoControllerMockRecorder) Delete(ctx, presenter, input any) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockVideoController)(nil).Delete), ctx, presenter, input)
 }
 
+// Download mocks base method.
+func (m *MockVideoController) Download(ctx context.Context, presenter port.Presenter, input dto.DownloadVideoInput) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Download", ctx, presenter, input)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Download indicates an expected call of Download.
+func (mr *MockVideoControllerMockRecorder) Download(ctx, presenter, input any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Download", reflect.TypeOf((*MockVideoController)(nil).Download), ctx, presenter, input)
+}
+
 // Get mocks base method.
 func (m *MockVideoController) Get(ctx context.Context, presenter port.Presenter, input dto.GetVideoInput) ([]byte, error) {
 	m.ctrl.T.Helper()

@@ -43,17 +43,17 @@ func (m *MockVideoGateway) EXPECT() *MockVideoGatewayMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockVideoGateway) Create(ctx context.Context, order *entity.Video) error {
+func (m *MockVideoGateway) Create(ctx context.Context, video *entity.Video) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, order)
+	ret := m.ctrl.Call(m, "Create", ctx, video)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockVideoGatewayMockRecorder) Create(ctx, order any) *gomock.Call {
+func (mr *MockVideoGatewayMockRecorder) Create(ctx, video any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockVideoGateway)(nil).Create), ctx, order)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockVideoGateway)(nil).Create), ctx, video)
 }
 
 // Delete mocks base method.
@@ -102,15 +102,15 @@ func (mr *MockVideoGatewayMockRecorder) FindByID(ctx, id any) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockVideoGateway) Update(ctx context.Context, order *entity.Video) error {
+func (m *MockVideoGateway) Update(ctx context.Context, video *entity.Video) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, order)
+	ret := m.ctrl.Call(m, "Update", ctx, video)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockVideoGatewayMockRecorder) Update(ctx, order any) *gomock.Call {
+func (mr *MockVideoGatewayMockRecorder) Update(ctx, video any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockVideoGateway)(nil).Update), ctx, order)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockVideoGateway)(nil).Update), ctx, video)
 }

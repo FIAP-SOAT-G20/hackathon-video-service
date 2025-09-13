@@ -56,3 +56,21 @@ func (s *S3Service) GeneratePresignedURL(ctx context.Context, key string, expira
 
 	return request.URL, nil
 }
+
+// GeneratePresignedDownloadURL generates a presigned URL for downloading a processed file from S3
+func (s *S3Service) GeneratePresignedDownloadURL(ctx context.Context, key string, expiration time.Duration) (string, error) {
+	presignClient := s3.NewPresignClient(s.client)
+
+	keyWithFolder := fmt.Sprintf("%s/%s", s.ProcessedFolderName, key)
+	request, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(s.bucketName),
+		Key:    aws.String(keyWithFolder),
+	}, func(opts *s3.PresignOptions) {
+		opts.Expires = expiration
+	})
+	if err != nil {
+		return "", fmt.Errorf("failed to generate presigned download URL: %w", err)
+	}
+
+	return request.URL, nil
+}
