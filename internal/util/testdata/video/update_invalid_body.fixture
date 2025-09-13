@@ -1,4 +1,3 @@
 {
-    "user_id": "invalid",
-    "status": "PENDING"
+    "status": "INVALID_STATUS"
 }

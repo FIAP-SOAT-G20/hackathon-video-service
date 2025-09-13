@@ -21,13 +21,13 @@ type VideoUsecaseSuiteTest struct {
 	mockS3Service *mockport.MockS3Service
 	useCase       port.VideoUseCase
 	ctx           context.Context
+	ctrl          *gomock.Controller
 }
 
 func (s *VideoUsecaseSuiteTest) SetupTest() {
-	ctrl := gomock.NewController(s.T())
-	defer ctrl.Finish()
-	s.mockGateway = mockport.NewMockVideoGateway(ctrl)
-	s.mockS3Service = mockport.NewMockS3Service(ctrl)
+	s.ctrl = gomock.NewController(s.T())
+	s.mockGateway = mockport.NewMockVideoGateway(s.ctrl)
+	s.mockS3Service = mockport.NewMockS3Service(s.ctrl)
 	s.useCase = usecase.NewVideoUseCase(s.mockGateway, s.mockS3Service)
 	s.ctx = context.Background()
 	currentTime := time.Now()
@@ -47,6 +47,10 @@ func (s *VideoUsecaseSuiteTest) SetupTest() {
 			UpdatedAt: currentTime,
 		},
 	}
+}
+
+func (s *VideoUsecaseSuiteTest) TearDownTest() {
+	s.ctrl.Finish()
 }
 
 func TestVideoUsecaseSuiteTest(t *testing.T) {

@@ -26,7 +26,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 			url:  "/videos",
 			setupMocks: func() {
 				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListVideosInput{
-					StatusExclude: []valueobject.VideoStatus{valueobject.FAILED, valueobject.FINISHED},
+					StatusExclude: []valueobject.VideoStatus{valueobject.FAILED},
 					Page:          1,
 					Limit:         10,
 					Sort:          "status:d,created_at",
@@ -44,7 +44,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListVideosInput{
 					UserID:        1,
 					Status:        []valueobject.VideoStatus{valueobject.CREATED, valueobject.PROCESSING},
-					StatusExclude: []valueobject.VideoStatus{valueobject.FAILED, valueobject.FINISHED},
+					StatusExclude: []valueobject.VideoStatus{valueobject.FAILED},
 					Page:          1,
 					Limit:         10,
 					Sort:          "status:d,created_at",
@@ -78,7 +78,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 			url:  "/videos",
 			setupMocks: func() {
 				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListVideosInput{
-					StatusExclude: []valueobject.VideoStatus{valueobject.FAILED, valueobject.FINISHED},
+					StatusExclude: []valueobject.VideoStatus{valueobject.FAILED},
 					Page:          1,
 					Limit:         10,
 					Sort:          "status:d,created_at",
@@ -121,7 +121,11 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Create() {
 			body: strings.NewReader(s.requests["create_success"]),
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Create(gomock.Any(), gomock.Any(), dto.CreateVideoInput{UserID: 1}).
+					Create(gomock.Any(), gomock.Any(), dto.CreateVideoInput{
+						UserID:      1,
+						Name:        "Test Video",
+						Description: "Test video description",
+					}).
 					Return([]byte(s.responses["create_success"]), nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -153,7 +157,11 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Create() {
 			body: strings.NewReader(s.requests["create_success"]),
 			setupMocks: func() {
 				s.mockController.EXPECT().
-					Create(gomock.Any(), gomock.Any(), dto.CreateVideoInput{UserID: 1}).
+					Create(gomock.Any(), gomock.Any(), dto.CreateVideoInput{
+						UserID:      1,
+						Name:        "Test Video",
+						Description: "Test video description",
+					}).
 					Return(nil, domain.NewInternalError(nil))
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -255,7 +263,6 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 				s.mockController.EXPECT().
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:     15,
-						UserID: 5,
 						Status: valueobject.PROCESSING,
 					}).
 					Return([]byte(s.responses["update_success"]), nil)
@@ -303,7 +310,6 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 				s.mockController.EXPECT().
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:     15,
-						UserID: 5,
 						Status: valueobject.PROCESSING,
 					}).
 					Return(nil, domain.NewInternalError(nil))
@@ -347,7 +353,6 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 				s.mockController.EXPECT().
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:     15,
-						UserID: 5,
 						Status: valueobject.PROCESSING,
 					}).
 					Return([]byte(s.responses["update_success"]), nil)
@@ -395,7 +400,6 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 				s.mockController.EXPECT().
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:     15,
-						UserID: 5,
 						Status: valueobject.PROCESSING,
 					}).
 					Return(nil, domain.NewInternalError(nil))

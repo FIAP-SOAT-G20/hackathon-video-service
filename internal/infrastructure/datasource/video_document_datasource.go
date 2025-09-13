@@ -24,6 +24,7 @@ type videoDocumentDataSource struct {
 // VideoDocument represents the MongoDB document structure for video
 type VideoDocument struct {
 	ID          primitive.ObjectID      `bson:"_id,omitempty"`
+	VideoID     uint64                  `bson:"video_id"`
 	UserID      uint64                  `bson:"user_id"`
 	Name        string                  `bson:"name"`
 	Description string                  `bson:"description"`
@@ -178,6 +179,7 @@ func (ds *videoDocumentDataSource) Update(ctx context.Context, video *entity.Vid
 
 	update := bson.M{
 		"$set": bson.M{
+			"video_id":    video.ID,
 			"user_id":     video.UserID,
 			"status":      video.Status,
 			"name":        video.Name,
@@ -238,6 +240,7 @@ func (ds *videoDocumentDataSource) Transaction(ctx context.Context, fn func(ctx 
 func (ds *videoDocumentDataSource) entityToDocument(video *entity.Video) *VideoDocument {
 	return &VideoDocument{
 		ID:          ds.uint64ToObjectID(video.ID),
+		VideoID:     video.ID,
 		UserID:      video.UserID,
 		Name:        video.Name,
 		Description: video.Description,
@@ -248,8 +251,14 @@ func (ds *videoDocumentDataSource) entityToDocument(video *entity.Video) *VideoD
 }
 
 func (ds *videoDocumentDataSource) documentToEntity(doc *VideoDocument) *entity.Video {
+	// Use VideoID field directly, fall back to converting ObjectID if VideoID is 0
+	id := doc.VideoID
+	if id == 0 {
+		id = ds.objectIDToUint64(doc.ID)
+	}
+
 	return &entity.Video{
-		ID:          ds.objectIDToUint64(doc.ID),
+		ID:          id,
 		UserID:      doc.UserID,
 		Name:        doc.Name,
 		Description: doc.Description,
