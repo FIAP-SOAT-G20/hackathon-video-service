@@ -24,6 +24,8 @@ type S3Service struct {
 
 // NewS3Service creates a new S3Service instance
 func NewS3Service(cfg *config.Config) (port.S3Service, error) {
+	// TODO: move AWS client creation to a upper layer if needed in other places
+	// TODO: change this service to become a package like sqs package
 	var awsConfig aws.Config
 	var err error
 

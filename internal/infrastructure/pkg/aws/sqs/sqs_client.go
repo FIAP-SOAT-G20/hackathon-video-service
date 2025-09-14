@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
@@ -18,34 +18,43 @@ type SqsClient struct {
 
 // NewSqsClient creates a new SQS client with AWS SDK v2
 func NewSqsClient(ctx context.Context) (*SqsClient, error) {
+	// TODO: move AWS client creation to a upper layer if needed in other places
 	// Validate AWS credentials first
+	// Check if AWS environment variables are set
+	var awsConfig aws.Config
+	var err error
+
 	accessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
 	secretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+	region := os.Getenv("AWS_REGION")
 
-	if accessKeyID == "" {
-		return nil, fmt.Errorf("AWS_ACCESS_KEY_ID environment variable is not set or empty")
+	if accessKeyID != "" && secretAccessKey != "" {
+		// Use explicit AWS credentials from environment variables
+		awsConfig, err = awsconfig.LoadDefaultConfig(context.TODO(),
+			awsconfig.WithRegion(region),
+			awsconfig.WithCredentialsProvider(
+				credentials.StaticCredentialsProvider{
+					Value: aws.Credentials{
+						AccessKeyID:     accessKeyID,
+						SecretAccessKey: secretAccessKey,
+						SessionToken:    os.Getenv("AWS_SESSION_TOKEN"),
+					},
+				},
+			),
+		)
+	} else {
+		// Fall back to default AWS configuration (e.g., IAM roles, default profile)
+		awsConfig, err = awsconfig.LoadDefaultConfig(context.TODO(),
+			awsconfig.WithRegion(region),
+		)
 	}
 
-	if secretAccessKey == "" {
-		return nil, fmt.Errorf("AWS_SECRET_ACCESS_KEY environment variable is not set or empty")
-	}
-
-	// Load AWS configuration with credentials
-	cfg, err := config.LoadDefaultConfig(ctx, config.WithCredentialsProvider(
-		credentials.StaticCredentialsProvider{
-			Value: aws.Credentials{
-				AccessKeyID:     accessKeyID,
-				SecretAccessKey: secretAccessKey,
-				SessionToken:    os.Getenv("AWS_SESSION_TOKEN"),
-			},
-		},
-	))
 	if err != nil {
-		return nil, fmt.Errorf("unable to load SDK config: %w", err)
+		return nil, fmt.Errorf("failed to load AWS config: %w", err)
 	}
 
 	// Create SQS client
-	client := sqs.NewFromConfig(cfg)
+	client := sqs.NewFromConfig(awsConfig)
 
 	return &SqsClient{
 		client: client,
