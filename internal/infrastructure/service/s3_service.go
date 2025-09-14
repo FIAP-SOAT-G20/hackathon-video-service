@@ -96,6 +96,7 @@ func (s *S3Service) GeneratePresignedDownloadURL(ctx context.Context, key string
 		Bucket:                     aws.String(s.bucketName),
 		Key:                        aws.String(keyWithFolder),
 		ResponseContentDisposition: aws.String(fmt.Sprintf("attachment; filename=\"%s\"", desiredFilename)),
+		ResponseContentType:        aws.String("application/zip"),
 	}, func(opts *s3.PresignOptions) {
 		opts.Expires = expiration
 	})
