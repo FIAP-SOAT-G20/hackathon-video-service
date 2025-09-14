@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  golangci:
+  govulncheck:
     name: govulncheck
     runs-on: ubuntu-latest
     steps:
@@ -15,5 +15,5 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: stable
-      - name: golangci-lint
+      - name: govulncheck
         uses: golang/govulncheck-action@v1
