@@ -54,13 +54,13 @@ func main() {
 	}
 
 	// Create S3 service
-	s3Service, err := service.NewS3Service(ctx, appCfg, awsClientFactory)
+	s3Service, err := service.NewS3Service(ctx, appCfg.AWSS3BucketName, awsClientFactory)
 	if err != nil {
 		loggerInstance.Error("Failed to create S3 service", "error", err.Error())
 		os.Exit(1)
 	}
 
-	videoUC := usecase.NewVideoUseCase(videoGateway, s3Service)
+	videoUC := usecase.NewVideoUseCase(videoGateway, s3Service, appCfg)
 
 	if appCfg.AWS_SQS_VideoUpdatedURL == "" {
 		loggerInstance.Error("AWS SQS Order Status Updated URL is not configured")
