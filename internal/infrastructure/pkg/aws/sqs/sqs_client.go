@@ -18,12 +18,24 @@ type SqsClient struct {
 
 // NewSqsClient creates a new SQS client with AWS SDK v2
 func NewSqsClient(ctx context.Context) (*SqsClient, error) {
+	// Validate AWS credentials first
+	accessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
+	secretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+
+	if accessKeyID == "" {
+		return nil, fmt.Errorf("AWS_ACCESS_KEY_ID environment variable is not set or empty")
+	}
+
+	if secretAccessKey == "" {
+		return nil, fmt.Errorf("AWS_SECRET_ACCESS_KEY environment variable is not set or empty")
+	}
+
 	// Load AWS configuration with credentials
 	cfg, err := config.LoadDefaultConfig(ctx, config.WithCredentialsProvider(
 		credentials.StaticCredentialsProvider{
 			Value: aws.Credentials{
-				AccessKeyID:     os.Getenv("AWS_ACCESS_KEY_ID"),
-				SecretAccessKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
+				AccessKeyID:     accessKeyID,
+				SecretAccessKey: secretAccessKey,
 				SessionToken:    os.Getenv("AWS_SESSION_TOKEN"),
 			},
 		},
