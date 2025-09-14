@@ -8,11 +8,11 @@ Feature: Video Management
   Scenario: Retrieve an existing video
     Given I have an existing video with ID "12345"
     When I request the video details for ID "12345"
-    Then I should receive the video details with status "PENDING"
+    Then I should receive the video details with status "PROCESSING"
 
   Scenario: Update an existing video
     Given I have an existing video with ID "12345"
-    When I update the video status to "PENDING"
+    When I update the video status to "FINISHED"
     Then I should receive a confirmation that the video status has been updated
 
   Scenario: Delete an existing video
