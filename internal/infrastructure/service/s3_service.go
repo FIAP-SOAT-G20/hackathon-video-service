@@ -3,10 +3,12 @@ package service
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
@@ -22,9 +24,34 @@ type S3Service struct {
 
 // NewS3Service creates a new S3Service instance
 func NewS3Service(cfg *config.Config) (port.S3Service, error) {
-	awsConfig, err := awsconfig.LoadDefaultConfig(context.TODO(),
-		awsconfig.WithRegion(cfg.AWSS3Region),
-	)
+	var awsConfig aws.Config
+	var err error
+
+	// Check if AWS environment variables are set
+	accessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
+	secretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+
+	if accessKeyID != "" && secretAccessKey != "" {
+		// Use explicit AWS credentials from environment variables
+		awsConfig, err = awsconfig.LoadDefaultConfig(context.TODO(),
+			awsconfig.WithRegion(cfg.AWSS3Region),
+			awsconfig.WithCredentialsProvider(
+				credentials.StaticCredentialsProvider{
+					Value: aws.Credentials{
+						AccessKeyID:     accessKeyID,
+						SecretAccessKey: secretAccessKey,
+						SessionToken:    os.Getenv("AWS_SESSION_TOKEN"),
+					},
+				},
+			),
+		)
+	} else {
+		// Fall back to default AWS configuration (e.g., IAM roles, default profile)
+		awsConfig, err = awsconfig.LoadDefaultConfig(context.TODO(),
+			awsconfig.WithRegion(cfg.AWSS3Region),
+		)
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to load AWS config: %w", err)
 	}
