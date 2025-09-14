@@ -18,5 +18,5 @@ type VideoJsonPaginatedResponse struct {
 }
 
 type VideoJsonProcessedDownloadResponse struct {
-	URL string `json:"url"`
+	PresignedURL string `json:"presigned_url"`
 }

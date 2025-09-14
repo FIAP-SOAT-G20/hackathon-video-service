@@ -63,6 +63,6 @@ func ToVideoJsonResponse(video *entity.Video) VideoJsonResponse {
 
 func ToVideoProcessedDownloadResponse(download entity.VideoProcessedDownload) VideoJsonProcessedDownloadResponse {
 	return VideoJsonProcessedDownloadResponse{
-		URL: download.URL,
+		PresignedURL: download.URL,
 	}
 }
