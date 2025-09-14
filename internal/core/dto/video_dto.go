@@ -16,6 +16,7 @@ type UpdateVideoInput struct {
 	Name        string
 	Description string
 	Status      valueobject.VideoStatus
+	Hash        string
 	StaffID     uint64
 }
 

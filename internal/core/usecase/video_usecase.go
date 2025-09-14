@@ -101,7 +101,7 @@ func (uc *VideoUseCase) Update(ctx context.Context, i dto.UpdateVideoInput) (*en
 		}
 	}
 
-	video.Update(i.UserID, i.Status, i.Name, i.Description)
+	video.Update(i.UserID, i.Status, i.Name, i.Description, i.Hash)
 
 	if err := uc.gateway.Update(ctx, video); err != nil {
 		return nil, domain.NewInternalError(err)

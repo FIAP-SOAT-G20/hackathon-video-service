@@ -264,6 +264,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:     15,
 						Status: valueobject.PROCESSING,
+						Hash:   "abc123hash456",
 					}).
 					Return([]byte(s.responses["update_success"]), nil)
 			},
@@ -311,6 +312,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:     15,
 						Status: valueobject.PROCESSING,
+						Hash:   "abc123hash456",
 					}).
 					Return(nil, domain.NewInternalError(nil))
 			},
@@ -354,6 +356,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:     15,
 						Status: valueobject.PROCESSING,
+						Hash:   "abc123hash456",
 					}).
 					Return([]byte(s.responses["update_success"]), nil)
 			},
@@ -401,6 +404,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:     15,
 						Status: valueobject.PROCESSING,
+						Hash:   "abc123hash456",
 					}).
 					Return(nil, domain.NewInternalError(nil))
 			},

@@ -1,3 +1,4 @@
 {
-    "status": "PROCESSING"
+    "status": "PROCESSING",
+    "hash": "abc123hash456"
 }

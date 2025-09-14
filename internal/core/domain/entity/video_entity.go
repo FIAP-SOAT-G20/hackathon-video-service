@@ -22,7 +22,7 @@ type VideoProcessedDownload struct {
 	URL string
 }
 
-func (p *Video) Update(customerID uint64, status valueobject.VideoStatus, name string, description string) {
+func (p *Video) Update(customerID uint64, status valueobject.VideoStatus, name string, description string, hash string) {
 	if customerID != 0 {
 		p.UserID = customerID
 	}
@@ -34,6 +34,9 @@ func (p *Video) Update(customerID uint64, status valueobject.VideoStatus, name s
 	}
 	if description != "" {
 		p.Description = description
+	}
+	if hash != "" {
+		p.Hash = hash
 	}
 	p.UpdatedAt = time.Now()
 }

@@ -28,6 +28,7 @@ type UpdateVideoUriRequest struct {
 
 type UpdateVideoBodyRequest struct {
 	Status valueobject.VideoStatus `json:"status" binding:"required,video_status_exists" example:"PROCESSING"`
+	Hash   string                  `json:"hash" binding:"omitempty" example:"abc123hash456"`
 }
 
 type UpdateVideoPartilRequest struct {
@@ -36,6 +37,7 @@ type UpdateVideoPartilRequest struct {
 
 type UpdateVideoPartilBodyRequest struct {
 	Status valueobject.VideoStatus `json:"status" binding:"omitempty,video_status_exists" example:"PROCESSING"`
+	Hash   string                  `json:"hash" binding:"omitempty" example:"abc123hash456"`
 }
 
 type DeleteVideoUriRequest struct {

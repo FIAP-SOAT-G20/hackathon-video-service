@@ -184,6 +184,7 @@ func (ds *videoDocumentDataSource) Update(ctx context.Context, video *entity.Vid
 			"status":      video.Status,
 			"name":        video.Name,
 			"description": video.Description,
+			"hash":        video.Hash,
 			"updated_at":  time.Now(),
 		},
 	}

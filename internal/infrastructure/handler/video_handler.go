@@ -226,6 +226,7 @@ func (h *VideoHandler) Update(c *gin.Context) {
 	input := dto.UpdateVideoInput{
 		ID:     uri.ID,
 		Status: body.Status,
+		Hash:   body.Hash,
 	}
 
 	output, err := h.controller.Update(
@@ -278,6 +279,7 @@ func (h *VideoHandler) UpdatePartial(c *gin.Context) {
 	input := dto.UpdateVideoInput{
 		ID:     uri.ID,
 		Status: body.Status,
+		Hash:   body.Hash,
 	}
 
 	output, err := h.controller.Update(
