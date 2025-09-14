@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"time"
 
@@ -39,9 +38,19 @@ func (uc *VideoUseCase) List(ctx context.Context, i dto.ListVideosInput) ([]*ent
 // Create creates a new Video
 func (uc *VideoUseCase) Create(ctx context.Context, i dto.CreateVideoInput) (*entity.Video, error) {
 
+	video := &entity.Video{
+		UserID:      i.UserID,
+		Status:      valueobject.CREATED,
+		Name:        i.Name,
+		Description: i.Description,
+	}
+
+	if err := uc.gateway.Create(ctx, video); err != nil {
+		return nil, domain.NewInternalError(err)
+	}
+
 	// Generate S3 presigned URL for video upload
-	base64Name := base64.StdEncoding.EncodeToString([]byte(i.Name))
-	key := fmt.Sprintf("%d/%s", i.UserID, base64Name)
+	key := fmt.Sprintf("%d.mp4", video.ID)
 	presignedURL, err := uc.s3Service.GeneratePresignedURL(ctx, key, 15*time.Minute)
 	if err != nil {
 		// Log error but don't fail the video creation
@@ -49,18 +58,7 @@ func (uc *VideoUseCase) Create(ctx context.Context, i dto.CreateVideoInput) (*en
 		presignedURL = ""
 	}
 
-	video := &entity.Video{
-		UserID:       i.UserID,
-		Status:       valueobject.CREATED,
-		Name:         i.Name,
-		Hash:         base64Name,
-		Description:  i.Description,
-		PresignedURL: presignedURL,
-	}
-
-	if err := uc.gateway.Create(ctx, video); err != nil {
-		return nil, domain.NewInternalError(err)
-	}
+	video.PresignedURL = presignedURL
 
 	return video, nil
 }

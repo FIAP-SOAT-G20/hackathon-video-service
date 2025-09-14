@@ -6,6 +6,7 @@ import (
 
 type CreateVideoInput struct {
 	UserID      uint64
+	VideoID     uint64
 	Name        string
 	Description string
 }
