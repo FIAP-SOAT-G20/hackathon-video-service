@@ -74,8 +74,9 @@ func (s *S3Service) GeneratePresignedURL(ctx context.Context, key string, expira
 
 	keyWithFolder := fmt.Sprintf("%s/%s", s.RawFolderName, key)
 	request, err := presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(s.bucketName),
-		Key:    aws.String(keyWithFolder),
+		Bucket:      aws.String(s.bucketName),
+		Key:         aws.String(keyWithFolder),
+		ContentType: aws.String("video/*"), // video/webm, video/mp4, video/avi, etc
 	}, func(opts *s3.PresignOptions) {
 		opts.Expires = expiration
 	})
