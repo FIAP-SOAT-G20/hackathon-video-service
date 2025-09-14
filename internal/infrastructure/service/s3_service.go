@@ -33,7 +33,7 @@ func NewS3Service(ctx context.Context, cfg *config.Config, awsClientFactory *aws
 }
 
 // GeneratePresignedURL generates a presigned URL for uploading a file to S3
-func (s *S3Service) GeneratePresignedURL(ctx context.Context, key string, expiration time.Duration) (string, error) {
+func (s *S3Service) GeneratePresignedURL(ctx context.Context, key string, metadata map[string]string, expiration time.Duration) (string, error) {
 	presignClient := s3.NewPresignClient(s.client)
 
 	keyWithFolder := fmt.Sprintf("%s/%s", s.RawFolderName, key)
@@ -41,6 +41,7 @@ func (s *S3Service) GeneratePresignedURL(ctx context.Context, key string, expira
 		Bucket:      awssdk.String(s.bucketName),
 		Key:         awssdk.String(keyWithFolder),
 		ContentType: awssdk.String("video/mp4"),
+		Metadata:    metadata,
 	}, func(opts *s3.PresignOptions) {
 		opts.Expires = expiration
 	})

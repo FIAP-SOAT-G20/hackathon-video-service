@@ -51,7 +51,11 @@ func (uc *VideoUseCase) Create(ctx context.Context, i dto.CreateVideoInput) (*en
 
 	// Generate S3 presigned URL for video upload
 	key := fmt.Sprintf("%d.mp4", video.ID)
-	presignedURL, err := uc.s3Service.GeneratePresignedURL(ctx, key, 15*time.Minute)
+	metadata := map[string]string{
+		"video-id": fmt.Sprintf("%d", video.ID),
+		"user-id":  fmt.Sprintf("%d", video.UserID),
+	}
+	presignedURL, err := uc.s3Service.GeneratePresignedURL(ctx, key, metadata, 15*time.Minute)
 	if err != nil {
 		// Log error but don't fail the video creation
 		// The presigned URL generation is not critical for video entity creation

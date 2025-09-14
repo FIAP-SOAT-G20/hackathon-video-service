@@ -57,16 +57,16 @@ func (mr *MockS3ServiceMockRecorder) GeneratePresignedDownloadURL(ctx, key, expi
 }
 
 // GeneratePresignedURL mocks base method.
-func (m *MockS3Service) GeneratePresignedURL(ctx context.Context, key string, expiration time.Duration) (string, error) {
+func (m *MockS3Service) GeneratePresignedURL(ctx context.Context, key string, metadata map[string]string, expiration time.Duration) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GeneratePresignedURL", ctx, key, expiration)
+	ret := m.ctrl.Call(m, "GeneratePresignedURL", ctx, key, metadata, expiration)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GeneratePresignedURL indicates an expected call of GeneratePresignedURL.
-func (mr *MockS3ServiceMockRecorder) GeneratePresignedURL(ctx, key, expiration any) *gomock.Call {
+func (mr *MockS3ServiceMockRecorder) GeneratePresignedURL(ctx, key, metadata, expiration any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GeneratePresignedURL", reflect.TypeOf((*MockS3Service)(nil).GeneratePresignedURL), ctx, key, expiration)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GeneratePresignedURL", reflect.TypeOf((*MockS3Service)(nil).GeneratePresignedURL), ctx, key, metadata, expiration)
 }
