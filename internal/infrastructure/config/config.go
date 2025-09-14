@@ -11,9 +11,9 @@ import (
 
 type Config struct {
 	// AWS SQS settings
-	AWS_SQS_OrderStatusUpdatedURL             string
-	AWS_SQS_OrderStatusUpdatedMaxMessages     int
-	AWS_SQS_OrderStatusUpdatedWaitTimeSeconds int
+	AWS_SQS_VideoUpdatedURL             string
+	AWS_SQS_VideoUpdatedMaxMessages     int
+	AWS_SQS_VideoUpdatedWaitTimeSeconds int
 
 	// AWS S3 settings
 	AWSS3BucketName             string
@@ -57,8 +57,8 @@ func LoadConfig() *Config {
 		log.Printf("Warning: .env file not found or error loading it: %v", err)
 	}
 
-	AWS_SQS_OrderStatusUpdatedMaxMessages, _ := strconv.Atoi(getEnv("AWS_SQS_ORDER_STATUS_UPDATED_MAX_MESSAGES", "10"))
-	AWS_SQS_OrderStatusUpdatedWaitTimeSeconds, _ := strconv.Atoi(getEnv("AWS_SQS_ORDER_STATUS_UPDATED_WAIT_TIME_SECONDS", "20"))
+	AWS_SQS_VideoUpdatedMaxMessages, _ := strconv.Atoi(getEnv("AWS_SQS_VIDEO_UPDATED_MAX_MESSAGES", "10"))
+	AWS_SQS_VideoUpdatedWaitTimeSeconds, _ := strconv.Atoi(getEnv("AWS_SQS_VIDEO_UPDATED_WAIT_TIME_SECONDS", "20"))
 
 	dbMaxOpenConns, _ := strconv.Atoi(getEnv("DB_MAX_OPEN_CONNS", "25"))
 	dbMaxIdleConns, _ := strconv.Atoi(getEnv("DB_MAX_IDLE_CONNS", "25"))
@@ -89,9 +89,9 @@ func LoadConfig() *Config {
 
 	return &Config{
 		// AWS SQS settings
-		AWS_SQS_OrderStatusUpdatedURL:             getEnv("AWS_SQS_ORDER_STATUS_UPDATED_URL", ""),
-		AWS_SQS_OrderStatusUpdatedMaxMessages:     AWS_SQS_OrderStatusUpdatedMaxMessages,
-		AWS_SQS_OrderStatusUpdatedWaitTimeSeconds: AWS_SQS_OrderStatusUpdatedWaitTimeSeconds,
+		AWS_SQS_VideoUpdatedURL:             getEnv("AWS_SQS_VIDEO_UPDATED_URL", ""),
+		AWS_SQS_VideoUpdatedMaxMessages:     AWS_SQS_VideoUpdatedMaxMessages,
+		AWS_SQS_VideoUpdatedWaitTimeSeconds: AWS_SQS_VideoUpdatedWaitTimeSeconds,
 
 		// AWS S3 settings
 		AWSS3BucketName:             getEnv("AWS_S3_BUCKET_NAME", "hackathon-video-service"),

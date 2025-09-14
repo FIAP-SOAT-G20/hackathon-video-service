@@ -8,7 +8,7 @@ import (
 
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/adapter/gateway"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain"
-	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/entity"
+	valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/dto"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/usecase"
@@ -20,6 +20,12 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/service"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 )
+
+type VideoUpdated struct {
+	VideoID uint64                  `json:"video_id"`
+	Status  valueobject.VideoStatus `json:"status"`
+	Hash    string                  `json:"hash"`
+}
 
 func main() {
 
@@ -48,7 +54,7 @@ func main() {
 
 	videoUC := usecase.NewVideoUseCase(videoGateway, s3Service)
 
-	if appCfg.AWS_SQS_OrderStatusUpdatedURL == "" {
+	if appCfg.AWS_SQS_VideoUpdatedURL == "" {
 		loggerInstance.Error("AWS SQS Order Status Updated URL is not configured")
 		os.Exit(1)
 	}
@@ -61,13 +67,13 @@ func main() {
 
 	sqsHandler := sqs.NewSqsHandler(
 		sqsClient,
-		appCfg.AWS_SQS_OrderStatusUpdatedURL,
-		appCfg.AWS_SQS_OrderStatusUpdatedMaxMessages,
-		appCfg.AWS_SQS_OrderStatusUpdatedWaitTimeSeconds,
+		appCfg.AWS_SQS_VideoUpdatedURL,
+		appCfg.AWS_SQS_VideoUpdatedMaxMessages,
+		appCfg.AWS_SQS_VideoUpdatedWaitTimeSeconds,
 		loggerInstance,
 	)
 
-	loggerInstance.Info("Starting SQS consumer", "queueURL", appCfg.AWS_SQS_OrderStatusUpdatedURL)
+	loggerInstance.Info("Starting SQS consumer", "queueURL", appCfg.AWS_SQS_VideoUpdatedURL)
 
 	// Receive messages from SQS
 	for {
@@ -94,22 +100,22 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 	logger.Info("Processing message", "messageID", *message.MessageId, "body", *message.Body)
 
 	// Unmarshal the message body to your entity
-	var updatedVideoStatus entity.VideoStatusUpdated
-	err = json.Unmarshal([]byte(*message.Body), &updatedVideoStatus)
+	var updatedVideo VideoUpdated
+	err = json.Unmarshal([]byte(*message.Body), &updatedVideo)
 	if err != nil {
 		return false, err
 	}
 
-	if updatedVideoStatus.ID == 0 {
+	if updatedVideo.VideoID == 0 {
 		return false, domain.NewValidationError(errors.New(domain.ErrVideoIsMandatory))
 	}
 
-	if updatedVideoStatus.Status == "" {
+	if updatedVideo.Status == "" {
 		return false, domain.NewValidationError(errors.New(domain.ErrStatusIsMandatory))
 	}
 
 	// Get Video by ID
-	_, err = uc.Get(ctx, dto.GetVideoInput{ID: updatedVideoStatus.ID})
+	_, err = uc.Get(ctx, dto.GetVideoInput{ID: updatedVideo.VideoID})
 	if err != nil {
 		if err.Error() == domain.ErrInternalError {
 			return true, err
@@ -119,8 +125,9 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 
 	// Update the video status in the database
 	uoi := dto.UpdateVideoInput{
-		ID:     updatedVideoStatus.ID,
-		Status: updatedVideoStatus.Status,
+		ID:     updatedVideo.VideoID,
+		Status: updatedVideo.Status,
+		Hash:   updatedVideo.Hash,
 	}
 
 	_, err = uc.Update(ctx, uoi)
@@ -131,7 +138,11 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 		return false, err
 	}
 
-	logger.Info("Message processed successfully", "videoID", updatedVideoStatus.ID, "status")
+	logger.Info("Message processed successfully",
+		"videoID", updatedVideo.VideoID,
+		"status", updatedVideo.Status,
+		"hash", updatedVideo.Hash,
+	)
 
 	return false, nil
 }
