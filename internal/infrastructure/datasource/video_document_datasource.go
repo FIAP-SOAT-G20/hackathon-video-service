@@ -74,6 +74,10 @@ func (ds *videoDocumentDataSource) FindAll(ctx context.Context, filters map[stri
 			if customerID, ok := value.(uint64); ok && customerID != 0 {
 				filter["user_id"] = customerID
 			}
+		case "hash":
+			if hash, ok := value.(string); ok && hash != "" {
+				filter["hash"] = hash
+			}
 		}
 	}
 

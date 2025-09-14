@@ -28,7 +28,7 @@ func NewVideoUseCase(gateway port.VideoGateway, s3Service port.S3Service) port.V
 
 // List returns a list of Videos
 func (uc *VideoUseCase) List(ctx context.Context, i dto.ListVideosInput) ([]*entity.Video, int64, error) {
-	videos, total, err := uc.gateway.FindAll(ctx, i.UserID, i.Status, i.StatusExclude, i.Page, i.Limit, i.Sort)
+	videos, total, err := uc.gateway.FindAll(ctx, i.UserID, i.Status, i.StatusExclude, i.Hash, i.Page, i.Limit, i.Sort)
 	if err != nil {
 		return nil, 0, domain.NewInternalError(err)
 	}

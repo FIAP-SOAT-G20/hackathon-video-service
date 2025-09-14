@@ -71,9 +71,9 @@ func (mr *MockVideoGatewayMockRecorder) Delete(ctx, id any) *gomock.Call {
 }
 
 // FindAll mocks base method.
-func (m *MockVideoGateway) FindAll(ctx context.Context, customerId uint64, status, statusExclude []valueobject.VideoStatus, page, limit int, sort string) ([]*entity.Video, int64, error) {
+func (m *MockVideoGateway) FindAll(ctx context.Context, customerId uint64, status, statusExclude []valueobject.VideoStatus, hash string, page, limit int, sort string) ([]*entity.Video, int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAll", ctx, customerId, status, statusExclude, page, limit, sort)
+	ret := m.ctrl.Call(m, "FindAll", ctx, customerId, status, statusExclude, hash, page, limit, sort)
 	ret0, _ := ret[0].([]*entity.Video)
 	ret1, _ := ret[1].(int64)
 	ret2, _ := ret[2].(error)
@@ -81,9 +81,9 @@ func (m *MockVideoGateway) FindAll(ctx context.Context, customerId uint64, statu
 }
 
 // FindAll indicates an expected call of FindAll.
-func (mr *MockVideoGatewayMockRecorder) FindAll(ctx, customerId, status, statusExclude, page, limit, sort any) *gomock.Call {
+func (mr *MockVideoGatewayMockRecorder) FindAll(ctx, customerId, status, statusExclude, hash, page, limit, sort any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockVideoGateway)(nil).FindAll), ctx, customerId, status, statusExclude, page, limit, sort)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockVideoGateway)(nil).FindAll), ctx, customerId, status, statusExclude, hash, page, limit, sort)
 }
 
 // FindByID mocks base method.

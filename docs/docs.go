@@ -134,6 +134,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "Filter by hash",
+                        "name": "hash",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "default": "status:d,created_at",
                         "description": "Sort by field (Accept many). Use ` + "`" + `\u003cfield_name\u003e:d` + "`" + ` for descending, and the default order is ascending",
                         "name": "sort",
@@ -593,6 +599,10 @@ const docTemplate = `{
                 "status"
             ],
             "properties": {
+                "hash": {
+                    "type": "string",
+                    "example": "abc123hash456"
+                },
                 "status": {
                     "allOf": [
                         {

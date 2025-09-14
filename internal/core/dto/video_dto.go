@@ -32,6 +32,7 @@ type ListVideosInput struct {
 	UserID        uint64
 	Status        []valueobject.VideoStatus
 	StatusExclude []valueobject.VideoStatus
+	Hash          string
 	Page          int
 	Limit         int
 	Sort          string

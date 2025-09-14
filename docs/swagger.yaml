@@ -71,6 +71,9 @@ definitions:
     type: object
   request.UpdateVideoBodyRequest:
     properties:
+      hash:
+        example: abc123hash456
+        type: string
       status:
         allOf:
         - $ref: '#/definitions/valueobject.VideoStatus'
@@ -220,6 +223,10 @@ paths:
           PROCESSING, FINISHED, FAILED</sub>, ex: <sub>FAILED</sub> (default)'
         in: query
         name: status_exclude
+        type: string
+      - description: Filter by hash
+        in: query
+        name: hash
         type: string
       - default: status:d,created_at
         description: Sort by field (Accept many). Use `<field_name>:d` for descending,

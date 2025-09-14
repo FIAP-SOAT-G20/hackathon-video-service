@@ -48,9 +48,10 @@ func (h *VideoHandler) Register(router *gin.RouterGroup) {
 //	@Param			user_id			query		int										false	"Filter by user ID"
 //	@Param			status			query		string									false	"Filter by status (Accept many), options: <sub>CREATED, PROCESSING, FINISHED</sub>, ex: <sub>CREATED</sub> or <sub>CREATED,PROCESSING</sub>"
 //	@Param			status_exclude	query		string									false	"Exclude by status (Accept many), options: <sub>NONE, CREATED, PROCESSING, FINISHED, FAILED</sub>, ex: <sub>FAILED</sub> (default)"	default(FAILED)
-//	@Param			sort			query		string									false	"Sort by field (Accept many). Use `<field_name>:d` for descending, and the default order is ascending"								default(status:d,created_at)
-//	@Param			page			query		int										false	"Page number"																														default(1)
-//	@Param			limit			query		int										false	"Items per page"																													default(10)
+//	@Param			hash			query		string									false	"Filter by hash"
+//	@Param			sort			query		string									false	"Sort by field (Accept many). Use `<field_name>:d` for descending, and the default order is ascending"	default(status:d,created_at)
+//	@Param			page			query		int										false	"Page number"																							default(1)
+//	@Param			limit			query		int										false	"Items per page"																						default(10)
 //	@Success		200				{object}	presenter.VideoJsonPaginatedResponse	"OK"
 //	@Failure		400				{object}	middleware.ErrorJsonResponse			"Bad Request"
 //	@Failure		500				{object}	middleware.ErrorJsonResponse			"Internal Server Error"
@@ -97,6 +98,7 @@ func (h *VideoHandler) List(c *gin.Context) {
 		UserID:        query.UserID,
 		Status:        status,
 		StatusExclude: statusExclude,
+		Hash:          query.Hash,
 		Page:          query.Page,
 		Limit:         query.Limit,
 		Sort:          query.Sort,

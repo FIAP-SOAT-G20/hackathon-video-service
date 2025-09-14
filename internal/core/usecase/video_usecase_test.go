@@ -29,7 +29,7 @@ func (s *VideoUsecaseSuiteTest) TestVideosUseCase_List() {
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindAll(s.ctx, uint64(0), nil, nil, 1, 10, "").
+					FindAll(s.ctx, uint64(0), nil, nil, "", 1, 10, "").
 					Return(s.mockVideos, int64(2), nil)
 			},
 			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
@@ -46,7 +46,7 @@ func (s *VideoUsecaseSuiteTest) TestVideosUseCase_List() {
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindAll(s.ctx, uint64(0), nil, nil, 1, 10, "").
+					FindAll(s.ctx, uint64(0), nil, nil, "", 1, 10, "").
 					Return(nil, int64(0), assert.AnError)
 			},
 			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
@@ -64,7 +64,7 @@ func (s *VideoUsecaseSuiteTest) TestVideosUseCase_List() {
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindAll(s.ctx, uint64(0), []valueobject.VideoStatus{"PENDING"}, nil, 1, 10, "").
+					FindAll(s.ctx, uint64(0), []valueobject.VideoStatus{"PENDING"}, nil, "", 1, 10, "").
 					Return(s.mockVideos, int64(2), nil)
 			},
 			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
@@ -82,13 +82,31 @@ func (s *VideoUsecaseSuiteTest) TestVideosUseCase_List() {
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindAll(s.ctx, uint64(1), nil, nil, 1, 10, "").
+					FindAll(s.ctx, uint64(1), nil, nil, "", 1, 10, "").
 					Return(s.mockVideos, int64(2), nil)
 			},
 			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, s.mockVideos, videos)
 				assert.Equal(t, int64(2), total)
+			},
+		},
+		{
+			name: "should filter by hash",
+			input: dto.ListVideosInput{
+				Hash:  "abc123hash456",
+				Page:  1,
+				Limit: 10,
+			},
+			setupMocks: func() {
+				s.mockGateway.EXPECT().
+					FindAll(s.ctx, uint64(0), nil, nil, "abc123hash456", 1, 10, "").
+					Return(s.mockVideos, int64(1), nil)
+			},
+			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, s.mockVideos, videos)
+				assert.Equal(t, int64(1), total)
 			},
 		},
 	}

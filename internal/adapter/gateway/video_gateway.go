@@ -26,6 +26,7 @@ func (g *videoGateway) FindAll(
 	customerId uint64,
 	status []valueobject.VideoStatus,
 	statusExclude []valueobject.VideoStatus,
+	hash string,
 	page,
 	limit int,
 	sort string,
@@ -41,6 +42,9 @@ func (g *videoGateway) FindAll(
 	}
 	if statusExclude != nil {
 		filters["statuses_exclude"] = statusExclude
+	}
+	if hash != "" {
+		filters["hash"] = hash
 	}
 
 	// Create Sort "status:d,created_at" -> "status desc, created_at asc"
