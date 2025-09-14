@@ -141,8 +141,8 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Create() {
 				s.mockGateway.EXPECT().
 					Create(s.ctx, gomock.Any()).
 					Return(nil)
-				s.mockS3Service.EXPECT().
-					GeneratePresignedURL(s.ctx, gomock.Any(), gomock.Any(), gomock.Any()).
+				s.mockObjectStorage.EXPECT().
+					GeneratePresignedURL(s.ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Return("https://s3.example.com/presigned-url", nil)
 			},
 			checkResult: func(t *testing.T, video *entity.Video, err error) {

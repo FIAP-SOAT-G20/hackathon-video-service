@@ -14,17 +14,17 @@ import (
 )
 
 type VideoUseCase struct {
-	gateway   port.VideoGateway
-	s3Service port.S3Service
-	config    *config.Config
+	gateway         port.VideoGateway
+	objectStorageDS port.ObjectStorageDatasource
+	config          *config.Config
 }
 
 // NewVideoUseCase creates a new VideosUseCase
-func NewVideoUseCase(gateway port.VideoGateway, s3Service port.S3Service, cfg *config.Config) port.VideoUseCase {
+func NewVideoUseCase(gateway port.VideoGateway, osDS port.ObjectStorageDatasource, cfg *config.Config) port.VideoUseCase {
 	return &VideoUseCase{
-		gateway:   gateway,
-		s3Service: s3Service,
-		config:    cfg,
+		gateway:         gateway,
+		objectStorageDS: osDS,
+		config:          cfg,
 	}
 }
 
@@ -59,8 +59,13 @@ func (uc *VideoUseCase) Create(ctx context.Context, i dto.CreateVideoInput) (*en
 		"video-id": fmt.Sprintf("%d", video.ID),
 		"user-id":  fmt.Sprintf("%d", video.UserID),
 	}
-	// TODO: Make expiration configurable
-	presignedURL, err := uc.s3Service.GeneratePresignedURL(ctx, keyWithFolder, metadata, 15*time.Minute)
+	presignedURL, err := uc.objectStorageDS.GeneratePresignedURL(
+		ctx,
+		uc.config.AWSS3BucketName,
+		keyWithFolder,
+		metadata,
+		uc.config.AWSS3PresignedURLExpiration,
+	)
 	if err != nil {
 		// Log error but don't fail the video creation
 		// The presigned URL generation is not critical for video entity creation
@@ -155,7 +160,7 @@ func (uc *VideoUseCase) Download(ctx context.Context, i dto.DownloadVideoInput) 
 	keyWithFolder := fmt.Sprintf("%s/%s", uc.config.AWSS3BucketProcessedFolder, key)
 
 	// Generate presigned download URL for processed video (valid for 1 hour)
-	downloadURL, err := uc.s3Service.GeneratePresignedDownloadURL(ctx, keyWithFolder, 1*time.Hour)
+	downloadURL, err := uc.objectStorageDS.GeneratePresignedDownloadURL(ctx, uc.config.AWSS3BucketName, keyWithFolder, 1*time.Hour)
 	if err != nil {
 		return entity.VideoProcessedDownload{}, domain.NewInternalError(err)
 	}

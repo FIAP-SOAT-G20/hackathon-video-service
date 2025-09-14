@@ -15,6 +15,7 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
 	awsclient "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws/s3"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/route"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/server"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/service"
@@ -79,16 +80,21 @@ func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config) *route
 
 	// Services
 	jwtService := service.NewJWTService(cfg)
-	s3Service, err := service.NewS3Service(ctx, cfg.AWSS3BucketName, awsClientFactory)
+	// s3Service, err := service.NewS3Datasource(ctx, cfg.AWSS3BucketName, awsClientFactory)
+	// if err != nil {
+	// 	panic(fmt.Sprintf("failed to create S3 service: %v", err))
+	// }
+
+	s3Client, err := s3.NewS3Client(awsClientFactory)
 	if err != nil {
-		panic(fmt.Sprintf("failed to create S3 service: %v", err))
+		panic(fmt.Sprintf("failed to create S3 client: %v", err))
 	}
 
 	// Gateways
 	videoGateway := gateway.NewVideoGateway(videoDS)
 
 	// Use cases
-	videoUC := usecase.NewVideoUseCase(videoGateway, s3Service, cfg)
+	videoUC := usecase.NewVideoUseCase(videoGateway, s3Client, cfg)
 
 	// Controllers
 	videoController := controller.NewVideoController(videoUC)
