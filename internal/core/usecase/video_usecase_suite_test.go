@@ -10,6 +10,7 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
 	mockport "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port/mocks"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/usecase"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/config"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
 )
@@ -28,7 +29,7 @@ func (s *VideoUsecaseSuiteTest) SetupTest() {
 	s.ctrl = gomock.NewController(s.T())
 	s.mockGateway = mockport.NewMockVideoGateway(s.ctrl)
 	s.mockS3Service = mockport.NewMockS3Service(s.ctrl)
-	s.useCase = usecase.NewVideoUseCase(s.mockGateway, s.mockS3Service)
+	s.useCase = usecase.NewVideoUseCase(s.mockGateway, s.mockS3Service, config.LoadConfig())
 	s.ctx = context.Background()
 	currentTime := time.Now()
 	s.mockVideos = []*entity.Video{
