@@ -53,7 +53,7 @@ run-api: build run-db ## Run the API application
 
 
 .PHONY: run-worker
-run-worker: build documentdb-up ## Run the worker application 
+run-worker: build run-db ## Run the worker application 
 	@echo  "🟢 Running the application..."
 	$(GORUN) $(WORKER_FILE) || true
 
