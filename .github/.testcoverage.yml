@@ -30,3 +30,4 @@ exclude:
     - ^.*errors\.go$
     - ^.*_dto\.go$
     - tests/*
+    - redoc_handler.go
