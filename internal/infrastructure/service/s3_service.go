@@ -3,16 +3,14 @@ package service
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	awsconfig "github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/config"
+	awsclient "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws"
 )
 
 type S3Service struct {
@@ -22,43 +20,9 @@ type S3Service struct {
 	ProcessedFolderName string
 }
 
-// NewS3Service creates a new S3Service instance
-func NewS3Service(cfg *config.Config) (port.S3Service, error) {
-	// TODO: move AWS client creation to a upper layer if needed in other places
-	// TODO: change this service to become a package like sqs package
-	var awsConfig aws.Config
-	var err error
-
-	// Check if AWS environment variables are set
-	accessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
-	secretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
-
-	if accessKeyID != "" && secretAccessKey != "" {
-		// Use explicit AWS credentials from environment variables
-		awsConfig, err = awsconfig.LoadDefaultConfig(context.TODO(),
-			awsconfig.WithRegion(cfg.AWSS3Region),
-			awsconfig.WithCredentialsProvider(
-				credentials.StaticCredentialsProvider{
-					Value: aws.Credentials{
-						AccessKeyID:     accessKeyID,
-						SecretAccessKey: secretAccessKey,
-						SessionToken:    os.Getenv("AWS_SESSION_TOKEN"),
-					},
-				},
-			),
-		)
-	} else {
-		// Fall back to default AWS configuration (e.g., IAM roles, default profile)
-		awsConfig, err = awsconfig.LoadDefaultConfig(context.TODO(),
-			awsconfig.WithRegion(cfg.AWSS3Region),
-		)
-	}
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to load AWS config: %w", err)
-	}
-
-	client := s3.NewFromConfig(awsConfig)
+// NewS3Service creates a new S3Service instance using AWS client factory
+func NewS3Service(ctx context.Context, cfg *config.Config, awsClientFactory *awsclient.ClientFactory) (port.S3Service, error) {
+	client := s3.NewFromConfig(awsClientFactory.GetConfig())
 
 	return &S3Service{
 		client:              client,
@@ -74,9 +38,9 @@ func (s *S3Service) GeneratePresignedURL(ctx context.Context, key string, expira
 
 	keyWithFolder := fmt.Sprintf("%s/%s", s.RawFolderName, key)
 	request, err := presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
-		Bucket:      aws.String(s.bucketName),
-		Key:         aws.String(keyWithFolder),
-		ContentType: aws.String("video/mp4"),
+		Bucket:      awssdk.String(s.bucketName),
+		Key:         awssdk.String(keyWithFolder),
+		ContentType: awssdk.String("video/mp4"),
 	}, func(opts *s3.PresignOptions) {
 		opts.Expires = expiration
 	})
@@ -94,10 +58,10 @@ func (s *S3Service) GeneratePresignedDownloadURL(ctx context.Context, key string
 
 	keyWithFolder := fmt.Sprintf("%s/%s", s.ProcessedFolderName, key)
 	request, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
-		Bucket:                     aws.String(s.bucketName),
-		Key:                        aws.String(keyWithFolder),
-		ResponseContentDisposition: aws.String(fmt.Sprintf("attachment; filename=\"%s\"", desiredFilename)),
-		ResponseContentType:        aws.String("application/zip"),
+		Bucket:                     awssdk.String(s.bucketName),
+		Key:                        awssdk.String(keyWithFolder),
+		ResponseContentDisposition: awssdk.String(fmt.Sprintf("attachment; filename=\"%s\"", desiredFilename)),
+		ResponseContentType:        awssdk.String("application/zip"),
 	}, func(opts *s3.PresignOptions) {
 		opts.Expires = expiration
 	})

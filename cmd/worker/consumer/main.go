@@ -16,6 +16,7 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/database"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/datasource"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
+	awsclient "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws/sqs"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/service"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
@@ -45,8 +46,15 @@ func main() {
 	videoDS := datasource.NewVideoDataSource(db.DB)
 	videoGateway := gateway.NewVideoGateway(videoDS)
 
+	// Create AWS client factory
+	awsClientFactory, err := awsclient.NewClientFactory(ctx, appCfg.AWSS3Region)
+	if err != nil {
+		loggerInstance.Error("Failed to create AWS client factory", "error", err.Error())
+		os.Exit(1)
+	}
+
 	// Create S3 service
-	s3Service, err := service.NewS3Service(appCfg)
+	s3Service, err := service.NewS3Service(ctx, appCfg, awsClientFactory)
 	if err != nil {
 		loggerInstance.Error("Failed to create S3 service", "error", err.Error())
 		os.Exit(1)
@@ -59,7 +67,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	sqsClient, err := sqs.NewSqsClient(ctx)
+	sqsClient, err := sqs.NewSqsClient(awsClientFactory)
 	if err != nil {
 		loggerInstance.Error("Failed to create SQS client", "error", err.Error())
 		os.Exit(1)

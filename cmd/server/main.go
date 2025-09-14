@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/datasource"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
+	awsclient "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/route"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/server"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/service"
@@ -61,6 +63,14 @@ func main() {
 }
 
 func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config) *route.Handlers {
+	ctx := context.Background()
+
+	// Create AWS client factory
+	awsClientFactory, err := awsclient.NewClientFactory(ctx, cfg.AWSS3Region)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create AWS client factory: %v", err))
+	}
+
 	// Create video datasource using factory
 	videoDS, err := datasource.NewVideoDataSourceFactory(dbConfig)
 	if err != nil {
@@ -69,7 +79,7 @@ func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config) *route
 
 	// Services
 	jwtService := service.NewJWTService(cfg)
-	s3Service, err := service.NewS3Service(cfg)
+	s3Service, err := service.NewS3Service(ctx, cfg, awsClientFactory)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create S3 service: %v", err))
 	}

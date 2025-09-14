@@ -3,58 +3,21 @@ package sqs
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	awsconfig "github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
+
+	awsclient "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws"
 )
 
 type SqsClient struct {
 	client *sqs.Client
 }
 
-// NewSqsClient creates a new SQS client with AWS SDK v2
-func NewSqsClient(ctx context.Context) (*SqsClient, error) {
-	// TODO: move AWS client creation to a upper layer if needed in other places
-	// Validate AWS credentials first
-	// Check if AWS environment variables are set
-	var awsConfig aws.Config
-	var err error
-
-	accessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
-	secretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
-	region := os.Getenv("AWS_REGION")
-
-	if accessKeyID != "" && secretAccessKey != "" {
-		// Use explicit AWS credentials from environment variables
-		awsConfig, err = awsconfig.LoadDefaultConfig(context.TODO(),
-			awsconfig.WithRegion(region),
-			awsconfig.WithCredentialsProvider(
-				credentials.StaticCredentialsProvider{
-					Value: aws.Credentials{
-						AccessKeyID:     accessKeyID,
-						SecretAccessKey: secretAccessKey,
-						SessionToken:    os.Getenv("AWS_SESSION_TOKEN"),
-					},
-				},
-			),
-		)
-	} else {
-		// Fall back to default AWS configuration (e.g., IAM roles, default profile)
-		awsConfig, err = awsconfig.LoadDefaultConfig(context.TODO(),
-			awsconfig.WithRegion(region),
-		)
-	}
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to load AWS config: %w", err)
-	}
-
-	// Create SQS client
-	client := sqs.NewFromConfig(awsConfig)
+// NewSqsClient creates a new SQS client using AWS client factory
+func NewSqsClient(awsClientFactory *awsclient.ClientFactory) (*SqsClient, error) {
+	client := sqs.NewFromConfig(awsClientFactory.GetConfig())
 
 	return &SqsClient{
 		client: client,
