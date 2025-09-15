@@ -72,8 +72,8 @@ run-api-air: build ## Run the application with Air
 	@echo  "🟢 Running the application with Air..."
 	@go tool air -c air.toml
 
-.PHONY: tests
-tests: lint ## Run tests
+.PHONY: test
+test: lint ## Run tests
 	@echo  "🟢 Running tests..."
 	@$(GOFMT) ./...
 	@$(GOVET) ./...
