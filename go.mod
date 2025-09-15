@@ -1,6 +1,6 @@
 module github.com/FIAP-SOAT-G20/hackathon-video-service
 
-go 1.24.2
+go 1.24.6
 
 require (
 	github.com/cucumber/godog v0.15.1
@@ -26,6 +26,7 @@ require (
 	github.com/cpuguy83/dockercfg v0.3.2 // indirect
 	github.com/cucumber/gherkin/go/v26 v26.2.0 // indirect
 	github.com/cucumber/messages/go/v21 v21.0.1 // indirect
+	github.com/docker/docker v28.3.3+incompatible // indirect
 	github.com/ebitengine/purego v0.8.4 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/gofrs/uuid v4.3.1+incompatible // indirect
@@ -195,7 +196,6 @@ require (
 	github.com/dlclark/regexp2 v1.11.4 // indirect
 	github.com/docker/cli v27.5.0+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
-	github.com/docker/docker v28.2.2+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.2 // indirect
 	github.com/docker/go-connections v0.5.0
 	github.com/docker/go-metrics v0.0.1 // indirect
