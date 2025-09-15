@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "### FIAP Tech Challenge Phase 3 - 10SOAT - G22",
-        "title": "Fast Food API v3",
+        "description": "### FIAP Hackathon - 10SOAT - G21",
+        "title": "Hackathon Video Service API",
         "contact": {},
         "version": "1"
     },
@@ -104,7 +104,7 @@
                 "tags": [
                     "videos"
                 ],
-                "summary": "List videos (Reference TC-1 2.b.vi; TC-2 1.a.iv)",
+                "summary": "List videos",
                 "parameters": [
                     {
                         "type": "integer",
@@ -381,7 +381,7 @@
                 "tags": [
                     "videos"
                 ],
-                "summary": "Partial update video (Reference TC-2 1.a.v)",
+                "summary": "Partial update video",
                 "parameters": [
                     {
                         "type": "integer",
@@ -502,7 +502,7 @@
                 }
             }
         },
-        "presenter.VideoJsonPaginatedResponse": {
+        "presenter.Pagination": {
             "type": "object",
             "properties": {
                 "limit": {
@@ -513,9 +513,21 @@
                     "type": "integer",
                     "example": 1
                 },
-                "total": {
+                "total_items": {
+                    "type": "integer",
+                    "example": 1000
+                },
+                "total_pages": {
                     "type": "integer",
                     "example": 100
+                }
+            }
+        },
+        "presenter.VideoJsonPaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "pagination": {
+                    "$ref": "#/definitions/presenter.Pagination"
                 },
                 "videos": {
                     "type": "array",

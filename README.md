@@ -1,171 +1,595 @@
 # Hackathon Video Service
 
-A scalable video service application with support for multiple database backends including PostgreSQL and AWS DocumentDB.
+A scalable, cloud-native video service application built with Go, featuring clean architecture and asynchronous message processing.
 
 ## Features
 
-- **Multi-Database Support**: PostgreSQL, AWS DocumentDB, and MongoDB
-- **RESTful API**: Complete CRUD operations for video management
-- **S3 Integration**: Automatic presigned URL generation for video uploads
-- **Authentication**: JWT-based authentication
-- **Health Checks**: Comprehensive health monitoring
-- **Docker Support**: Full containerization with Docker Compose
-- **Testing**: Unit tests and integration tests
-- **Documentation**: OpenAPI/Swagger documentation
+- **🏗️ Clean Architecture**: Implements Clean Architecture principles with clear separation of concerns across domain, use case, and infrastructure layers
+- **📊 PostgreSQL Database**: High-performance relational database with ACID compliance, migrations, and connection pooling
+- **🌐 RESTful API**: Complete CRUD operations for video management with OpenAPI/Swagger documentation and standardized HTTP responses
+- **☁️ AWS S3 Integration**: Secure video storage with automatic presigned URL generation for uploads and downloads with configurable expiration times
+- **⚡ Asynchronous Processing**: AWS SQS integration with dedicated worker consumer for scalable, non-blocking video processing workflows
+- **🔐 JWT Authentication**: Stateless, secure token-based authentication with configurable expiration and refresh capabilities
+- **🏥 Health Monitoring**: Comprehensive health checks with database connectivity validation and service status reporting
+- **🐳 Containerized Deployment**: Multi-stage Docker builds optimized for production with Docker Compose for local development
+- **🧪 Comprehensive Testing**: Unit tests (90%+ coverage), integration tests, BDD tests with Gherkin scenarios, and automated CI/CD pipelines
+- **📝 Interactive Documentation**: Auto-generated OpenAPI/Swagger UI with live API testing and comprehensive endpoint documentation
+- **🔧 Enhanced Developer Experience**: Hot reload with Air, extensive Makefile automation, code generation, linting, and Git workflow tools
+- **📈 Production Ready**: Kubernetes deployment manifests, monitoring hooks, graceful shutdowns, and horizontal scaling support
 
-## Database Support
-
-This application supports multiple database backends:
-
-- **PostgreSQL** (default) - Traditional relational database
-- **AWS DocumentDB** - Managed MongoDB-compatible service
-- **MongoDB** - NoSQL document database for local development
-
-### Quick Start with PostgreSQL
-
-```bash
-# Start PostgreSQL database
-make run-db
-
-# Build and run the application
-make build
-make run-postgres
-```
-
-### Quick Start with DocumentDB/MongoDB
-
-```bash
-# Start MongoDB for local development
-make documentdb-up
-
-# Start MongoDB with Mongo Express UI
-make documentdb-up-with-ui
-
-# Build and run with DocumentDB
-make build
-make run-documentdb
-```
-
-**MongoDB Web UI**: When using `make documentdb-up-with-ui`, you can access the Mongo Express web interface at [http://localhost:8082](http://localhost:8082) to view and manage your MongoDB data.
-
-## Configuration
-
-The application automatically selects the database type based on environment variables:
-
-```bash
-# For PostgreSQL (default)
-export DB_DSN="host=localhost port=5432 user=postgres password=postgres dbname=video_service sslmode=disable"
-
-# For DocumentDB/MongoDB
-export DOCUMENTDB_URI="mongodb://username:password@cluster-endpoint:27017/database"
-export DOCUMENTDB_NAME="video_service"
-export ENVIRONMENT="documentdb"
-```
-
-See [DocumentDB Integration Guide](docs/documentdb-integration.md) for detailed configuration.
-
-## API Endpoints
-
-- `GET /api/v1/health` - Health check
-- `GET /api/v1/videos` - List videos
-- `POST /api/v1/videos` - Create video
-- `GET /api/v1/videos/{id}` - Get video by ID
-- `PUT /api/v1/videos/{id}` - Update video
-- `DELETE /api/v1/videos/{id}` - Delete video
-
-## Development
+## Quick Start
 
 ### Prerequisites
 
-- Go 1.24+
-- Docker and Docker Compose
-- Make
+- **Go 1.24+**
+- **Docker and Docker Compose**
+- **Make** (for development commands)
+- **AWS Account** (for S3 and SQS services)
 
-### Available Commands
+### 🚀 Development Setup
 
 ```bash
-make help                       # Show all available commands
-make build                      # Build the application
-make test                       # Run tests
-make run-postgres               # Run with PostgreSQL
-make run-documentdb             # Run with DocumentDB/MongoDB
-make documentdb-up              # Start MongoDB only
-make documentdb-up-with-ui      # Start MongoDB with Mongo Express UI
-make mongo-express-up           # Start Mongo Express UI (requires MongoDB)
-make mongo-express-down         # Stop Mongo Express UI
-make compose-up-with-ui         # Start full environment with UI
-make documentdb-test            # Test DocumentDB integration
-make test-integration           # Run integration tests for both databases
+# Clone and setup
+git clone <repository-url>
+cd hackathon-video-service
+cp .env.example .env  # Configure your environment variables
+
+# Start PostgreSQL database
+make run-db
+
+# Build and run the API server
+make build
+make run-api
+
+# In another terminal, run the worker (if SQS is configured)
+make run-worker
 ```
 
-### Testing
+### 🌐 Access Points
+
+- **API Server**: [http://localhost:8080](http://localhost:8080)
+- **API Documentation**: [http://localhost:8080/api/v1/swagger/index.html](http://localhost:8080/api/v1/swagger/index.html)
+- **Health Check**: [http://localhost:8080/api/v1/health](http://localhost:8080/api/v1/health)
+- **PgAdmin**: [http://localhost:5050](http://localhost:5050) (PostgreSQL admin interface)
+
+## Configuration
+
+The application uses environment variables for configuration. Copy `.env.example` to `.env` and configure according to your environment.
+
+### Database Configuration
 
 ```bash
-# Run unit tests
+# PostgreSQL Configuration
+DB_DSN="host=localhost port=5432 user=postgres password=postgres dbname=fiapx sslmode=disable"
+DB_ENGINE="postgres"
+DB_MAX_OPEN_CONNS=25
+DB_MAX_IDLE_CONNS=5
+DB_MAX_LIFETIME=300s
+```
+
+### AWS Services Configuration
+
+```bash
+# AWS Credentials
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_REGION=us-east-1
+AWS_SESSION_TOKEN=your_session_token  # Optional for temporary credentials
+
+# S3 Configuration
+AWS_S3_BUCKET_NAME=your-video-bucket
+AWS_S3_BUCKET_RAW_FOLDER=raw           # Folder for uploaded videos
+AWS_S3_BUCKET_PROCESSED_FOLDER=processed  # Folder for processed videos
+AWS_S3_PRESIGNED_URL_EXPIRATION=15m    # URL expiration time
+
+# SQS Configuration (for worker)
+AWS_SQS_VIDEO_UPDATED_URL=https://sqs.us-east-1.amazonaws.com/123456789012/video-updated
+AWS_SQS_VIDEO_UPDATED_MAX_MESSAGES=10
+AWS_SQS_VIDEO_UPDATED_WAIT_TIME_SECONDS=20
+```
+
+### Application Configuration
+
+```bash
+# Environment
+ENVIRONMENT=development  # development, staging, production
+
+# Server Settings
+SERVER_PORT=8080
+SERVER_READ_TIMEOUT=30s
+SERVER_WRITE_TIMEOUT=30s
+
+# JWT Settings
+JWT_SECRET=your-super-secret-jwt-key
+JWT_EXPIRATION=24h
+```
+
+### Worker Message Format
+
+The SQS worker processes messages in the following format:
+
+```json
+{
+  "video_id": 123,
+  "status": "FINISHED",
+  "hash": "abc123def456"  // Optional: base64 hash of processed video
+}
+```
+
+> **Valid Status Values**: `CREATED`, `PROCESSING`, `FINISHED`, `FAILED`
+
+## Architecture
+
+The application follows **Clean Architecture** principles with a microservices approach, featuring:
+
+### System Components
+
+1. **API Server** (`cmd/server/main.go`) - RESTful API for video management
+2. **Worker Consumer** (`cmd/worker/consumer/main.go`) - SQS message processor for asynchronous video updates
+3. **Database Layer** - PostgreSQL with GORM ORM and migrations
+4. **Message Queue** - AWS SQS for decoupled, scalable message processing
+5. **Object Storage** - AWS S3 for video file storage with presigned URLs
+
+### Project Structure
+
+```
+cmd/
+├── server/                 # API application entry point
+└── worker/                 # Worker applications
+    └── consumer/           # SQS message consumer
+internal/
+├── core/                   # Business logic (Clean Architecture)
+│   ├── domain/            # Entities, value objects, and domain errors
+│   ├── dto/               # Data transfer objects
+│   ├── port/              # Interface definitions (dependency inversion)
+│   └── usecase/           # Business use cases
+├── adapter/               # Interface adapters
+│   ├── controller/        # HTTP controllers and request handling
+│   ├── gateway/           # Repository implementations
+│   └── presenter/         # Response formatting (JSON, XML, pagination)
+└── infrastructure/        # Infrastructure layer
+    ├── config/            # Application configuration
+    ├── database/          # Database connections and migrations
+    ├── datasource/        # Data access implementations
+    ├── handler/           # HTTP route handlers
+    ├── middleware/        # HTTP middleware (auth, logging, etc.)
+    ├── pkg/               # Infrastructure packages
+    │   └── aws/           # AWS integrations (S3, SQS)
+    └── server/            # HTTP server setup
+```
+
+## API Endpoints
+
+### Core Video Management
+
+| Method | Endpoint | Description | Response |
+|--------|----------|-------------|----------|
+| `GET` | `/api/v1/health` | Health check endpoint | Health status |
+| `GET` | `/api/v1/videos` | List videos with pagination | Video list |
+| `POST` | `/api/v1/videos` | Create video and get upload URL | Video with presigned upload URL |
+| `GET` | `/api/v1/videos/{id}` | Get video by ID | Video details |
+| `PUT` | `/api/v1/videos/{id}` | Update video metadata | Updated video |
+| `DELETE` | `/api/v1/videos/{id}` | Delete video | Deletion confirmation |
+| `GET` | `/api/v1/videos/{id}/processed` | Get download URL | Presigned download URL |
+
+### API Examples
+
+#### Create Video (with Upload URL)
+```bash
+curl -X POST http://localhost:8080/api/v1/videos \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <jwt-token>" \
+  -d '{
+    "user_id": 1,
+    "name": "My Awesome Video",
+    "description": "A sample video upload"
+  }'
+```
+
+**Response:**
+```json
+{
+  "id": 1,
+  "user_id": 1,
+  "name": "My Awesome Video",
+  "description": "A sample video upload",
+  "status": "CREATED",
+  "presigned_url": "https://your-bucket.s3.amazonaws.com/raw/video-uuid?AWSAccessKeyId=...",
+  "created_at": "2024-02-09T10:00:00Z",
+  "updated_at": "2024-02-09T10:00:00Z"
+}
+```
+
+#### Get Video with Download URL
+```bash
+curl -X GET http://localhost:8080/api/v1/videos/1/processed \
+  -H "Authorization: Bearer <jwt-token>"
+```
+
+**Response:**
+```json
+{
+  "presigned_url": "https://your-bucket.s3.amazonaws.com/processed/video-hash?AWSAccessKeyId=..."
+}
+```
+
+#### List Videos with Pagination
+```bash
+curl -X GET "http://localhost:8080/api/v1/videos?page=1&limit=10" \
+  -H "Authorization: Bearer <jwt-token>"
+```
+
+**Response:**
+```json
+{
+  "videos": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "name": "My Awesome Video",
+      "description": "A sample video upload",
+      "status": "CREATED",
+      "created_at": "2024-02-09T10:00:00Z",
+      "updated_at": "2024-02-09T10:00:00Z"
+    }
+    // More videos...
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total_pages": 5,
+    "total_items": 50
+  }
+}
+```
+
+> [!NOTE]
+> You can filter videos by `hash` and `status` using query parameters. 
+
+### Presigned URLs
+
+The service provides secure, time-limited URLs for:
+
+- **Upload URLs**: Generated when creating a video (expires in 15 minutes)
+- **Download URLs**: Generated when retrieving processed videos (expires in 15 minutes)
+- **Security**: URLs are signed with AWS credentials and include expiration timestamps
+
+### Authentication
+
+Most endpoints require JWT authentication:
+
+```bash
+# Include in request headers
+Authorization: Bearer <your-jwt-token>
+```
+
+### Interactive Documentation
+
+#### Swagger UI
+Visit [http://localhost:8080/docs/index.html#/](http://localhost:8080/docs/index.html#/) for interactive API documentation.
+
+#### ReDoc
+Visit [http://localhost:8080/redoc](http://localhost:8080/redoc) for ReDoc API documentation.
+
+## Development
+
+### Development Commands
+
+```bash
+# 📋 Display all available commands
+make help
+
+# 🔨 Build and Run
+make build                      # Build the application
+make run-api                    # Run API server with PostgreSQL
+make run-worker                 # Run SQS worker consumer
+make run-api-air                # Run API with hot reload (Air)
+
+# 🗄️ Database Management
+make run-db                     # Start PostgreSQL with PgAdmin
+make stop-db                    # Stop database services
+make migrate-up                 # Run database migrations
+make migrate-down               # Roll back migrations
+make migrate-create name=<name> # Create new migration
+
+# 🐳 Docker Development
+make compose-up                 # Start full environment
+make compose-down               # Stop all services
+make compose-clean              # Clean volumes and images
+
+# 🧪 Testing
+make test                       # Run unit tests
+make tests                      # Run tests with linting
+make coverage                   # Generate test coverage report
+make bdd-tests                  # Run BDD/Gherkin tests
+make test-integration           # Run integration tests
+
+# 🔧 Code Quality
+make lint                       # Run linter
+make fmt                        # Format code
+make mock                       # Generate mocks
+make swagger                    # Generate Swagger docs
+make scan                       # Run security scan
+
+# 🚀 CI/CD
+make docker-build               # Build Docker image
+make docker-push                # Push to registry
+make new-branch                 # Create new feature branch
+make pull-request               # Create pull request
+```
+
+### Testing Strategy
+
+#### Unit Tests
+```bash
+# Run all unit tests
 make test
 
-# Run DocumentDB integration tests
-make documentdb-test
+# Run tests with race detection and coverage
+make tests
 
-# Run all integration tests
+# Generate HTML coverage report
+make coverage
+```
+
+#### Integration Tests
+```bash
+# Test PostgreSQL integration
 make test-integration
+```
+
+#### BDD Tests
+```bash
+# Run behavior-driven development tests
+make bdd-tests
+```
+
+#### Test Coverage
+The project maintains high test coverage excluding infrastructure files:
+- Core business logic: ~90%+ coverage
+- Use cases and domain logic: 100% coverage
+- Integration tests for database adapters
+
+### Hot Reload Development
+
+Use Air for automatic rebuilds during development:
+
+```bash
+make run-api-air
+```
+
+Air configuration is in `air.toml` and watches for changes in `.go` files.
+
+### Code Generation
+
+```bash
+# Generate mocks for all port interfaces
+make mock
+
+# Generate/update Swagger documentation
+make swagger
+```
+
+### Database Migrations
+
+```bash
+# Create a new migration
+make migrate-create name=add_video_status_field
+
+# Apply migrations
+make migrate-up
+
+# Rollback migrations
+make migrate-down
 ```
 
 ## Deployment
 
-### Docker Compose
+### Docker Compose Environments
 
+#### Development with PostgreSQL
 ```bash
-# Start with PostgreSQL
+# Start API server, worker, and PostgreSQL
 docker-compose up -d
 
-# Start with both PostgreSQL and MongoDB for testing
-docker-compose -f docker-compose.documentdb.yml up -d
+# Access services
+# API: http://localhost:8080
+# PgAdmin: http://localhost:5050
 ```
 
-### Production
+#### Production Deployment
 
-For production deployment with AWS DocumentDB, see the [deployment guide](docs/documentdb-integration.md#deployment).
+The application provides multi-stage Docker builds optimized for production:
 
-## Architecture
+```dockerfile
+# API Server
+FROM golang:1.24-alpine AS builder
+# ... build stage
+FROM alpine:latest
+COPY --from=builder /app/bin/app /app/app
+EXPOSE 8080
+CMD ["/app/app"]
 
-The application follows Clean Architecture principles with support for multiple database backends through a factory pattern:
-
+# Worker Consumer
+FROM golang:1.24-alpine AS builder
+# ... build stage  
+FROM alpine:latest
+COPY --from=builder /app/bin/worker /app/worker
+CMD ["/app/worker"]
 ```
-cmd/server/                 # Application entry point
-internal/
-├── core/                   # Business logic
-│   ├── domain/            # Entities and value objects
-│   ├── dto/               # Data transfer objects
-│   └── port/              # Interface definitions
-├── adapter/               # Interface adapters
-│   ├── controller/        # HTTP controllers
-│   ├── gateway/           # Data access gateways
-│   └── presenter/         # Response formatters
-└── infrastructure/        # Infrastructure layer
-    ├── database/          # Database connections (PostgreSQL, DocumentDB)
-    ├── datasource/        # Data source implementations
-    └── handler/           # HTTP handlers
+
+### Container Registry
+
+Images are published to GitHub Container Registry:
+
+```bash
+# Build and push images
+make docker-build
+make docker-push
+
+# Available images
+ghcr.io/fiap-soat-g20/fiapx-video-service:latest
+ghcr.io/fiap-soat-g20/fiapx-video-service:<version>
 ```
+
+### Kubernetes Deployment
+
+For Kubernetes deployment, see the [K8s documentation](docs/k8s.jpg) which includes:
+
+- Deployment manifests for API server and worker
+- Service definitions and ingress configuration
+- ConfigMaps and Secrets for environment variables
+- Horizontal Pod Autoscaler (HPA) configuration
+- Health check and readiness probes
+
+### AWS Production Setup
+
+#### Required AWS Services
+
+1. **RDS PostgreSQL** for data persistence
+2. **S3 Bucket** for video storage with appropriate IAM policies
+3. **SQS Queue** for message processing
+4. **ECS/EKS** or **EC2** for container hosting
+5. **Application Load Balancer** for traffic distribution
+
+#### Environment Configuration
+
+```bash
+# Production environment variables
+ENVIRONMENT=production
+SERVER_PORT=8080
+
+# Database Configuration
+DB_DSN="postgres://user:pass@rds-endpoint:5432/dbname?sslmode=require"
+
+# AWS Services
+AWS_S3_BUCKET_NAME=production-video-bucket
+AWS_SQS_VIDEO_UPDATED_URL=https://sqs.region.amazonaws.com/account/video-updated
+
+# Security
+JWT_SECRET=production-secret-key-256-bits
+```
+
+### Health Checks
+
+The application provides comprehensive health endpoints:
+
+- **Liveness Probe**: `GET /api/v1/health`
+- **Readiness Probe**: `GET /api/v1/health` (includes database connectivity)
+
+Configure in Kubernetes:
+```yaml
+livenessProbe:
+  httpGet:
+    path: /api/v1/health
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /api/v1/health
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 5
+```
+
+### Monitoring and Observability
+
+The application includes:
+- Structured logging with configurable levels
+- Metrics endpoints (planned)
+- Distributed tracing (planned)
+- Error tracking and alerting
+
+### Scaling Considerations
+
+- **API Server**: Stateless, can be horizontally scaled
+- **Worker Consumer**: Can run multiple instances for parallel message processing
+- **Database**: Use read replicas for read-heavy workloads
+- **S3**: Automatically scales, consider CloudFront for global distribution
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+We welcome contributions! Please follow these guidelines:
+
+### Development Workflow
+
+1. **Fork the repository**
+2. **Create a feature branch**: `make new-branch`
+3. **Make your changes** with tests
+4. **Run quality checks**: `make tests lint`
+5. **Commit your changes** with conventional commits
+6. **Push to your branch**
+7. **Create a Pull Request**: `make pull-request`
+
+### Code Standards
+
+- **Go Style**: Follow effective Go practices and `gofmt` formatting
+- **Clean Architecture**: Maintain separation of concerns
+- **Test Coverage**: Maintain >90% coverage for core business logic
+- **Documentation**: Update documentation for API changes
+- **Conventional Commits**: Use conventional commit format
+
+### Pull Request Checklist
+
+- [ ] Tests pass (`make tests`)
+- [ ] Linting passes (`make lint`)
+- [ ] Documentation updated
+- [ ] Integration tests included for new features
+- [ ] Environment variables documented
+
+## Documentation
+
+### Internal Documentation
+
+- [📋 Agreements](docs/agreements.md) - Project agreements and standards
+- [🏗️ Implementation Summary](docs/implementation-summary.md) - Technical implementation details
+- [🗄️ Database Schema](docs/db-schema.dbml) - Database design and relationships
+- [☸️ Kubernetes Deployment](docs/k8s.jpg) - K8s architecture diagram
+- [🔄 Flow Diagram](docs/flow-diagram.png) - System flow visualization
+- [🧪 Validation Testing](docs/validation-testing.md) - Testing strategies
+
+### API Documentation
+
+- **Interactive Swagger UI**: [http://localhost:8080/api/v1/swagger/index.html](http://localhost:8080/api/v1/swagger/index.html)
+- **OpenAPI Spec**: [docs/swagger.yaml](docs/swagger.yaml)
+- **Postman Collection**: [docs/postman_collection.json](docs/postman_collection.json)
+- **HTTP Requests**: [docs/requests.http](docs/requests.http)
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## References
 
-AWS S3 Bucket — presigned URL APIs with Go
-https://ronen-niv.medium.com/aws-s3-handling-presigned-urls-2718ab247d57
+### Architecture and Design Patterns
 
-Go S3 Package Overview
-https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3
+- [Clean Architecture - Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- [Video Sharing Platform Architecture Design](https://medium.com/@dominikzygarski_88070/project-video-sharing-platform-architecture-design-400e718f77b3)
+- [Distributed High Performance Video Processing](https://www-di.inf.puc-rio.br/~endler/paperlinks/CLOUD-2010.pdf)
+- [System Design — Video Processing System](https://medium.com/@qingedaig/system-design-video-processing-system-3742af267ba5)
 
-Download and upload objects with presigned URLs
-https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html
+### AWS Services Integration
+
+- [AWS SDK for Go Documentation](https://docs.aws.amazon.com/sdk-for-go/)
+- [S3 Presigned URLs with Go](https://ronen-niv.medium.com/aws-s3-handling-presigned-urls-2718ab247d57)
+- [Go S3 Package Documentation](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3)
+- [Download and Upload with Presigned URLs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html)
+- [Working with Object Metadata](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingMetadata.html)
+
+### Message Queue and SQS
+
+- [AWS SQS with Golang - Publishing and Consuming](https://medium.com/@weberasantos/publicando-e-consumindo-mensagem-no-sqs-aws-com-golang-6970a0e7581e)
+- [Process AWS SQS Messages with Goroutines](https://medium.com/@wiraizkandar/process-aws-sqs-message-with-goroutines-98ff4799ea69)
+- [Simplifying Message Queueing with Golang and Amazon SQS](https://dev.to/thanhphuchuynh/simplifying-message-queueing-with-golang-and-amazon-sqs-3gpl)
+
+### Development Tools and Practices
+
+- [Go Testing Best Practices](https://go.dev/doc/tutorial/add-a-test)
+- [Docker Multi-stage Builds](https://docs.docker.com/develop/dev-best-practices/)
+- [GitHub Actions for Go](https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go)
+
+---
+
+**Made with ❤️ by FIAP SOAT G20 Team**

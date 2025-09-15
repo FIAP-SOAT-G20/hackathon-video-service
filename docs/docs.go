@@ -111,7 +111,7 @@ const docTemplate = `{
                 "tags": [
                     "videos"
                 ],
-                "summary": "List videos (Reference TC-1 2.b.vi; TC-2 1.a.iv)",
+                "summary": "List videos",
                 "parameters": [
                     {
                         "type": "integer",
@@ -388,7 +388,7 @@ const docTemplate = `{
                 "tags": [
                     "videos"
                 ],
-                "summary": "Partial update video (Reference TC-2 1.a.v)",
+                "summary": "Partial update video",
                 "parameters": [
                     {
                         "type": "integer",
@@ -509,7 +509,7 @@ const docTemplate = `{
                 }
             }
         },
-        "presenter.VideoJsonPaginatedResponse": {
+        "presenter.Pagination": {
             "type": "object",
             "properties": {
                 "limit": {
@@ -520,9 +520,21 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "total": {
+                "total_items": {
+                    "type": "integer",
+                    "example": 1000
+                },
+                "total_pages": {
                     "type": "integer",
                     "example": 100
+                }
+            }
+        },
+        "presenter.VideoJsonPaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "pagination": {
+                    "$ref": "#/definitions/presenter.Pagination"
                 },
                 "videos": {
                     "type": "array",
@@ -723,8 +735,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Fast Food API v3",
-	Description:      "### FIAP Tech Challenge Phase 3 - 10SOAT - G22",
+	Title:            "Hackathon Video Service API",
+	Description:      "### FIAP Hackathon - 10SOAT - G21",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

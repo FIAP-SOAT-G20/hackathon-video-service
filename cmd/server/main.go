@@ -21,9 +21,9 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/service"
 )
 
-// @title						Fast Food API v3
+// @title						Hackathon Video Service API
 // @version					1
-// @description				### FIAP Tech Challenge Phase 3 - 10SOAT - G22
+// @description				### FIAP Hackathon - 10SOAT - G21
 // @servers					[ { "url": "http://localhost:8080" }, { "url": "http://localhost:30001" } ]
 // @BasePath					/api/v1
 // @tag.name					videos

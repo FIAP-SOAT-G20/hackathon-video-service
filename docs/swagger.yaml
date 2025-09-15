@@ -9,7 +9,7 @@ definitions:
         example: Bad Request
         type: string
     type: object
-  presenter.VideoJsonPaginatedResponse:
+  presenter.Pagination:
     properties:
       limit:
         example: 10
@@ -17,9 +17,17 @@ definitions:
       page:
         example: 1
         type: integer
-      total:
+      total_items:
+        example: 1000
+        type: integer
+      total_pages:
         example: 100
         type: integer
+    type: object
+  presenter.VideoJsonPaginatedResponse:
+    properties:
+      pagination:
+        $ref: '#/definitions/presenter.Pagination'
       videos:
         items:
           $ref: '#/definitions/presenter.VideoJsonResponse'
@@ -140,8 +148,8 @@ externalDocs:
   url: https://github.com/FIAP-SOAT-G20/hackathon-video-service
 info:
   contact: {}
-  description: '### FIAP Tech Challenge Phase 3 - 10SOAT - G22'
-  title: Fast Food API v3
+  description: '### FIAP Hackathon - 10SOAT - G21'
+  title: Hackathon Video Service API
   version: "1"
 paths:
   /health:
@@ -259,7 +267,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/middleware.ErrorJsonResponse'
-      summary: List videos (Reference TC-1 2.b.vi; TC-2 1.a.iv)
+      summary: List videos
       tags:
       - videos
     post:
@@ -396,7 +404,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/middleware.ErrorJsonResponse'
-      summary: Partial update video (Reference TC-2 1.a.v)
+      summary: Partial update video
       tags:
       - videos
     put:
