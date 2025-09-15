@@ -1,14 +1,5 @@
 <a name="readme-top"></a>
 
-# Hackathon FIAP-X Video Service
-
-A scalable, cloud-native video service application built with Go, featuring clean architecture and asynchronous message processing.
-
-> [Hackathon FIAP-X Video Service Specification](docs/specification.pdf)
-
----
-
-
 ![GitHub CI - Tests](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-unit-tests.yml/badge.svg)
 ![GitHub CI - Security](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-govulncheck.yml/badge.svg)
 ![GitHub CI - Lint](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-golangci-lint.yml/badge.svg)
@@ -16,7 +7,45 @@ A scalable, cloud-native video service application built with Go, featuring clea
 ![GitHub CI - BDD](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-bdd-tests.yml/badge.svg)
 ![GitHub CI - SonarCloud](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-sonarcloud.yml/badge.svg)
 
-## Features
+
+# <p align="center"><b>Hackathon FIAP-X</b> <small>Video Service - G21</small></p>
+
+<p align="center">
+    <img src="https://img.shields.io/badge/Code-Go-informational?style=flat-square&logo=go&color=00ADD8" alt="Go" />
+    <img src="https://img.shields.io/badge/Tools-Gin-informational?style=flat-square&logo=go&color=00ADD8" alt="Gin" />
+    <img src="https://img.shields.io/badge/Tools-PostgreSQL-informational?style=flat-square&logo=postgresql&color=4169E1" alt="PostgreSQL" />
+    <img src="https://img.shields.io/badge/Tools-Docker-informational?style=flat-square&logo=docker&color=2496ED" alt="Docker" />
+    <img src="https://img.shields.io/badge/Tools-Make-informational?style=flat-square&logo=make&color=6D00CC" alt="Make" />
+    <img src="https://img.shields.io/badge/Tools-GitHub_Actions-informational?style=flat-square&logo=githubactions&color=222222" alt="GitHub Actions" />
+    <img src="https://img.shields.io/badge/Tools-Swagger-informational?style=flat-square&logo=swagger&color=85EA2D" alt="Swagger" />
+    <img src="https://img.shields.io/badge/Tools-Postman-informational?style=flat-square&logo=postman&color=FF6C37" alt="Postman" />
+</p>
+
+## 💬 About
+
+A scalable, cloud-native video service application built with Go, featuring clean architecture and asynchronous message processing.
+
+> [Hackathon FIAP-X Video Service Specification](docs/specification.pdf)
+
+## 🔗 Related Projects
+
+This project is part of a larger system that includes:
+
+- [Video Processor Job](https://github.com/FIAP-SOAT-G20/hackathon-video-processor-job)
+- [Job Starter Lambda](https://github.com/FIAP-SOAT-G20/hackathon-job-starter-lambda)
+- [Notification Lambda](https://github.com/FIAP-SOAT-G20/hackathon-notification-lambda)
+- [User Lambda](https://github.com/FIAP-SOAT-G20/hackathon-user-lambda)
+- [Infrastructure (Terraform)](https://github.com/FIAP-SOAT-G20/hackaton-infrastructure-tf)
+- [Infrastructure (Kubernetes)](https://github.com/FIAP-SOAT-G20/hackaton-infrastructure-deploy)
+
+## 📚 Dictionary - Ubiquitous Language
+- **Video**: An entity representing a video file uploaded by a user, including metadata such as name, description, status, and storage information.
+- **User**: An entity representing a user of the video service, including metadata such as username, email, and authentication information.
+- **Admin**: An entity representing an administrator user with elevated privileges for managing the video service.
+- **Logged User**: An entity representing a user who uploads and manages their own video content.
+- **Video Status**: The current state of a video, which can be one of the following: CREATED, PROCESSING, FINISHED, FAILED.
+
+## ✨ Features
 
 - **🏗️ Clean Architecture**: Implements Clean Architecture principles with clear separation of concerns across domain, use case, and infrastructure layers
 - **📊 PostgreSQL Database**: High-performance relational database with ACID compliance, migrations, and connection pooling
@@ -33,7 +62,7 @@ A scalable, cloud-native video service application built with Go, featuring clea
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Quick Start
+## 🚀 Getting Started
 
 ### Prerequisites
 
@@ -64,13 +93,59 @@ make run-worker
 ### 🌐 Access Points
 
 - **API Server**: [http://localhost:8080](http://localhost:8080)
-- **API Documentation**: [http://localhost:8080/api/v1/swagger/index.html](http://localhost:8080/api/v1/swagger/index.html)
+- **API Documentation**: [http://localhost:8080/docs/index.html](http://localhost:8080/docs/index.html)
 - **Health Check**: [http://localhost:8080/api/v1/health](http://localhost:8080/api/v1/health)
 - **PgAdmin**: [http://localhost:5050](http://localhost:5050) (PostgreSQL admin interface)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Configuration
+##  🏗️ Architecture
+
+The application follows **Clean Architecture** principles with a microservices approach, featuring:
+
+### System Components
+
+1. **API Server** (`cmd/server/main.go`) - RESTful API for video management
+2. **Worker Consumer** (`cmd/worker/consumer/main.go`) - SQS message processor for asynchronous video updates
+3. **Database Layer** - PostgreSQL with GORM ORM and migrations
+4. **Message Queue** - AWS SQS for decoupled, scalable message processing
+5. **Object Storage** - AWS S3 for video file storage with presigned URLs
+
+### System Design
+
+![System Design Diagram](docs/system-design.png)
+
+### Project Structure
+
+```
+cmd/
+├── server/                 # API application entry point
+└── worker/                 # Worker applications
+    └── consumer/           # SQS message consumer
+internal/
+├── core/                   # Business logic (Clean Architecture)
+│   ├── domain/            # Entities, value objects, and domain errors
+│   ├── dto/               # Data transfer objects
+│   ├── port/              # Interface definitions (dependency inversion)
+│   └── usecase/           # Business use cases
+├── adapter/               # Interface adapters
+│   ├── controller/        # HTTP controllers and request handling
+│   ├── gateway/           # Repository implementations
+│   └── presenter/         # Response formatting (JSON, XML, pagination)
+└── infrastructure/        # Infrastructure layer
+    ├── config/            # Application configuration
+    ├── database/          # Database connections and migrations
+    ├── datasource/        # Data access implementations
+    ├── handler/           # HTTP route handlers
+    ├── middleware/        # HTTP middleware (auth, logging, etc.)
+    ├── pkg/               # Infrastructure packages
+    │   └── aws/           # AWS integrations (S3, SQS)
+    └── server/            # HTTP server setup
+```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## ⚙️ Configuration
 
 The application uses environment variables for configuration. Copy `.env.example` to `.env` and configure according to your environment.
 
@@ -138,53 +213,8 @@ The SQS worker processes messages in the following format:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Architecture
 
-The application follows **Clean Architecture** principles with a microservices approach, featuring:
-
-### System Components
-
-1. **API Server** (`cmd/server/main.go`) - RESTful API for video management
-2. **Worker Consumer** (`cmd/worker/consumer/main.go`) - SQS message processor for asynchronous video updates
-3. **Database Layer** - PostgreSQL with GORM ORM and migrations
-4. **Message Queue** - AWS SQS for decoupled, scalable message processing
-5. **Object Storage** - AWS S3 for video file storage with presigned URLs
-
-### System Design
-
-![System Design Diagram](docs/system-design.png)
-
-### Project Structure
-
-```
-cmd/
-├── server/                 # API application entry point
-└── worker/                 # Worker applications
-    └── consumer/           # SQS message consumer
-internal/
-├── core/                   # Business logic (Clean Architecture)
-│   ├── domain/            # Entities, value objects, and domain errors
-│   ├── dto/               # Data transfer objects
-│   ├── port/              # Interface definitions (dependency inversion)
-│   └── usecase/           # Business use cases
-├── adapter/               # Interface adapters
-│   ├── controller/        # HTTP controllers and request handling
-│   ├── gateway/           # Repository implementations
-│   └── presenter/         # Response formatting (JSON, XML, pagination)
-└── infrastructure/        # Infrastructure layer
-    ├── config/            # Application configuration
-    ├── database/          # Database connections and migrations
-    ├── datasource/        # Data access implementations
-    ├── handler/           # HTTP route handlers
-    ├── middleware/        # HTTP middleware (auth, logging, etc.)
-    ├── pkg/               # Infrastructure packages
-    │   └── aws/           # AWS integrations (S3, SQS)
-    └── server/            # HTTP server setup
-```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## API Endpoints
+## 🌐 API Reference
 
 ### Core Video Management
 
@@ -291,7 +321,7 @@ Authorization: Bearer <your-jwt-token>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Development
+## 🛠️ Development
 
 ### Development Commands
 
@@ -318,8 +348,7 @@ make compose-down               # Stop all services
 make compose-clean              # Clean volumes and images
 
 # 🧪 Testing
-make test                       # Run unit tests
-make tests                      # Run tests with linting
+make test                       # Run test with linting
 make coverage                   # Generate test coverage report
 make bdd-tests                  # Run BDD/Gherkin tests
 make test-integration           # Run integration tests
@@ -342,27 +371,21 @@ make pull-request               # Create pull request
 
 #### Unit Tests
 ```bash
-# Run all unit tests
+# Run unit tests with linting, race detection and coverage
 make test
-
-# Run tests with race detection and coverage
-make tests
 
 # Generate HTML coverage report
 make coverage
 ```
+
+> [!NOTE]
+> Unit tests cover core business logic with ~80%+ coverage, including use cases and domain logic.
 
 #### BDD Tests
 ```bash
 # Run behavior-driven development tests
 make bdd-tests
 ```
-
-#### Test Coverage
-The project maintains high test coverage excluding infrastructure files:
-- Core business logic: ~90%+ coverage
-- Use cases and domain logic: 100% coverage
-- Integration tests for database adapters
 
 ### Hot Reload Development
 
@@ -384,6 +407,9 @@ make mock
 make swagger
 ```
 
+> [!TIP]
+> Apply those commands after modifying interfaces or API routes.
+
 ### Database Migrations
 
 ```bash
@@ -397,9 +423,13 @@ make migrate-up
 make migrate-down
 ```
 
+> [!NOTE]
+> You don't need to run migrations manually in development,  
+> they run automatically on server start with `golang-migrate` and stored in `db/migrations`.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Deployment
+## 🚢 Deployment
 
 ### Docker Compose Environments
 
@@ -522,7 +552,7 @@ readinessProbe:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Contributing
+## 🤝 Contributing
 
 We welcome contributions! Please follow these guidelines:
 
@@ -554,7 +584,7 @@ We welcome contributions! Please follow these guidelines:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Documentation
+## 📄 Documentation
 
 ### Internal Documentation
 
@@ -575,13 +605,13 @@ We welcome contributions! Please follow these guidelines:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## License
+## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## References
+## 📚 References
 
 ### Architecture and Design Patterns
 
