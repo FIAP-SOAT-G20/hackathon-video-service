@@ -1,6 +1,18 @@
+<a name="readme-top"></a>
+
 # Hackathon Video Service
 
 A scalable, cloud-native video service application built with Go, featuring clean architecture and asynchronous message processing.
+
+---
+
+
+![GitHub CI - Tests](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-unit-tests.yml/badge.svg)
+![GitHub CI - Security](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-govulncheck.yml/badge.svg)
+![GitHub CI - Lint](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-golangci-lint.yml/badge.svg)
+![GitHub CI - Coverage](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-go-test-coverage.yaml/badge.svg)
+![GitHub CI - BDD](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-bdd-tests.yml/badge.svg)
+![GitHub CI - SonarCloud](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-sonarcloud.yml/badge.svg)
 
 ## Features
 
@@ -16,6 +28,8 @@ A scalable, cloud-native video service application built with Go, featuring clea
 - **📝 Interactive Documentation**: Auto-generated OpenAPI/Swagger UI with live API testing and comprehensive endpoint documentation
 - **🔧 Enhanced Developer Experience**: Hot reload with Air, extensive Makefile automation, code generation, linting, and Git workflow tools
 - **📈 Production Ready**: Kubernetes deployment manifests, monitoring hooks, graceful shutdowns, and horizontal scaling support
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Quick Start
 
@@ -51,6 +65,8 @@ make run-worker
 - **API Documentation**: [http://localhost:8080/api/v1/swagger/index.html](http://localhost:8080/api/v1/swagger/index.html)
 - **Health Check**: [http://localhost:8080/api/v1/health](http://localhost:8080/api/v1/health)
 - **PgAdmin**: [http://localhost:5050](http://localhost:5050) (PostgreSQL admin interface)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Configuration
 
@@ -118,6 +134,8 @@ The SQS worker processes messages in the following format:
 
 > **Valid Status Values**: `CREATED`, `PROCESSING`, `FINISHED`, `FAILED`
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Architecture
 
 The application follows **Clean Architecture** principles with a microservices approach, featuring:
@@ -157,6 +175,8 @@ internal/
     │   └── aws/           # AWS integrations (S3, SQS)
     └── server/            # HTTP server setup
 ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## API Endpoints
 
@@ -271,6 +291,8 @@ Visit [http://localhost:8080/docs/index.html#/](http://localhost:8080/docs/index
 #### ReDoc
 Visit [http://localhost:8080/redoc](http://localhost:8080/redoc) for ReDoc API documentation.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Development
 
 ### Development Commands
@@ -382,6 +404,8 @@ make migrate-up
 # Rollback migrations
 make migrate-down
 ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Deployment
 
@@ -509,6 +533,8 @@ The application includes:
 - **Database**: Use read replicas for read-heavy workloads
 - **S3**: Automatically scales, consider CloudFront for global distribution
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Contributing
 
 We welcome contributions! Please follow these guidelines:
@@ -539,6 +565,8 @@ We welcome contributions! Please follow these guidelines:
 - [ ] Integration tests included for new features
 - [ ] Environment variables documented
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Documentation
 
 ### Internal Documentation
@@ -552,14 +580,19 @@ We welcome contributions! Please follow these guidelines:
 
 ### API Documentation
 
-- **Interactive Swagger UI**: [http://localhost:8080/api/v1/swagger/index.html](http://localhost:8080/api/v1/swagger/index.html)
+- **Interactive Swagger UI**: [http://localhost:8080/docs/index.html](http://localhost:8080/docs/index.html)
+- **ReDoc**: [http://localhost:8080/redoc](http://localhost:8080/redoc)
 - **OpenAPI Spec**: [docs/swagger.yaml](docs/swagger.yaml)
 - **Postman Collection**: [docs/postman_collection.json](docs/postman_collection.json)
 - **HTTP Requests**: [docs/requests.http](docs/requests.http)
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## References
 
@@ -590,6 +623,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Docker Multi-stage Builds](https://docs.docker.com/develop/dev-best-practices/)
 - [GitHub Actions for Go](https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go)
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-**Made with ❤️ by FIAP SOAT G20 Team**
+---
+<p>
+
+<p align="center">
+    Made with&nbsp;&nbsp;♥️&nbsp;&nbsp;by FIAP 10SOAT G21 Team 
+</p>
