@@ -5,7 +5,6 @@
 ![GitHub CI - Lint](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-golangci-lint.yml/badge.svg)
 ![GitHub CI - Coverage](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-go-test-coverage.yaml/badge.svg)
 ![GitHub CI - BDD](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-bdd-tests.yml/badge.svg)
-![GitHub CI - SonarCloud](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-sonarcloud.yml/badge.svg)
 
 
 # <p align="center"><b>Hackathon FIAP-X</b> <small>Video Service - G21</small></p>
@@ -15,9 +14,10 @@
     <img src="https://img.shields.io/badge/Tools-Gin-informational?style=flat-square&logo=go&color=00ADD8" alt="Gin" />
     <img src="https://img.shields.io/badge/Tools-PostgreSQL-informational?style=flat-square&logo=postgresql&color=4169E1" alt="PostgreSQL" />
     <img src="https://img.shields.io/badge/Tools-Docker-informational?style=flat-square&logo=docker&color=2496ED" alt="Docker" />
+    <img src="https://img.shields.io/badge/Tools-Swagger-informational?style=flat-square&logo=swagger&color=85EA2D" alt="Swagger" />
+    <br>
     <img src="https://img.shields.io/badge/Tools-Make-informational?style=flat-square&logo=make&color=6D00CC" alt="Make" />
     <img src="https://img.shields.io/badge/Tools-GitHub_Actions-informational?style=flat-square&logo=githubactions&color=222222" alt="GitHub Actions" />
-    <img src="https://img.shields.io/badge/Tools-Swagger-informational?style=flat-square&logo=swagger&color=85EA2D" alt="Swagger" />
     <img src="https://img.shields.io/badge/Tools-Postman-informational?style=flat-square&logo=postman&color=FF6C37" alt="Postman" />
 </p>
 
