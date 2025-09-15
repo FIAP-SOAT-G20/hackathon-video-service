@@ -31,9 +31,12 @@ func (p *videoJsonPresenter) Present(pp dto.PresenterInput) ([]byte, error) {
 
 		output := &VideoJsonPaginatedResponse{
 			JsonPagination: JsonPagination{
-				Total: pp.Total,
-				Page:  pp.Page,
-				Limit: pp.Limit,
+				Pagination: Pagination{
+					TotalPages: (pp.Total + int64(pp.Limit) - 1) / int64(pp.Limit),
+					TotalItems: pp.Total,
+					Page:       pp.Page,
+					Limit:      pp.Limit,
+				},
 			},
 			Videos: videoOutputs,
 		}

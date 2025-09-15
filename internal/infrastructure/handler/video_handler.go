@@ -35,7 +35,7 @@ func (h *VideoHandler) Register(router *gin.RouterGroup) {
 
 // List godoc
 //
-//	@Summary		List videos (Reference TC-1 2.b.vi; TC-2 1.a.iv)
+//	@Summary		List videos
 //	@Description	List all videos
 //	@Description	## Video list is sorted by:
 //	@Description	- **Status** in **descending** order (CREATED > PROCESSING > FINISHED)
@@ -244,7 +244,7 @@ func (h *VideoHandler) Update(c *gin.Context) {
 
 // UpdatePartial godoc
 //
-//	@Summary		Partial update video (Reference TC-2 1.a.v)
+//	@Summary		Partial update video
 //	@Description	Partially updates an existing video
 //	@Description	The status are: **CREATED**, **FAILED**, **PROCESSING**, **FINISHED**
 //	@Description	## Transition of status:
