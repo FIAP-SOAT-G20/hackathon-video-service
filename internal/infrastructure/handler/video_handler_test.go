@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/dto"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/util"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
@@ -481,6 +483,128 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Delete() {
 			tt.setupMocks()
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodDelete, tt.url, nil)
+
+			// Act
+			s.router.ServeHTTP(w, req)
+
+			// Assert
+			tt.checkResult(t, w)
+		})
+	}
+}
+
+func (s *VideoHandlerSuiteTest) TestVideoHandler_Register() {
+	// Arrange
+	router := gin.New()
+	videoGroup := router.Group("/videos")
+
+	// Act
+	s.handler.Register(videoGroup)
+
+	// Assert - Check that all routes are registered
+	routes := router.Routes()
+
+	// Verify that we have the expected number of routes
+	assert.Equal(s.T(), 7, len(routes), "Expected 7 routes")
+
+	// Verify routes in the actual order they are registered
+	expectedRoutes := []struct {
+		method string
+		path   string
+	}{
+		{"GET", "/videos"},               // router.GET("", h.List)
+		{"GET", "/videos/:id"},           // router.GET("/:id", h.Get)
+		{"GET", "/videos/:id/processed"}, // router.GET("/:id/processed", h.Download)
+		{"POST", "/videos"},              // router.POST("", h.Create)
+		{"PUT", "/videos/:id"},           // router.PUT("/:id", h.Update)
+		{"PATCH", "/videos/:id"},         // router.PATCH("/:id", h.UpdatePartial)
+		{"DELETE", "/videos/:id"},        // router.DELETE("/:id", h.Delete)
+	}
+
+	for i, expectedRoute := range expectedRoutes {
+		if i < len(routes) {
+			assert.Equal(s.T(), expectedRoute.method, routes[i].Method, "Route %d method should match", i)
+			assert.Equal(s.T(), expectedRoute.path, routes[i].Path, "Route %d path should match", i)
+		}
+	}
+}
+
+func (s *VideoHandlerSuiteTest) TestVideoHandler_Download() {
+	tests := []struct {
+		name        string
+		url         string
+		setupMocks  func()
+		checkResult func(*testing.T, *httptest.ResponseRecorder)
+	}{
+		{
+			name: "success",
+			url:  "/videos/5/processed",
+			setupMocks: func() {
+				s.mockController.EXPECT().
+					Download(gomock.Any(), gomock.Any(), dto.DownloadVideoInput{ID: 5}).
+					Return([]byte(s.responses["download_success"]), nil)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusOK, res.Code)
+				assert.Equal(t, "application/json", res.Header().Get("Content-Type"))
+				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["download_success"])
+			},
+		},
+		{
+			name: "video not found",
+			url:  "/videos/5/processed",
+			setupMocks: func() {
+				s.mockController.EXPECT().
+					Download(gomock.Any(), gomock.Any(), dto.DownloadVideoInput{ID: 5}).
+					Return(nil, domain.NewNotFoundError(domain.ErrNotFound))
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusNotFound, res.Code)
+				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_not_found"])
+			},
+		},
+		{
+			name: "video not processed yet",
+			url:  "/videos/5/processed",
+			setupMocks: func() {
+				s.mockController.EXPECT().
+					Download(gomock.Any(), gomock.Any(), dto.DownloadVideoInput{ID: 5}).
+					Return(nil, domain.NewValidationError(errors.New(domain.ErrVideoNotProcessed)))
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusBadRequest, res.Code)
+			},
+		},
+		{
+			name:       "invalid request - id is not a number",
+			url:        "/videos/invalid/processed",
+			setupMocks: func() {},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusBadRequest, res.Code)
+				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_invalid_parameter"])
+			},
+		},
+		{
+			name: "controller error",
+			url:  "/videos/5/processed",
+			setupMocks: func() {
+				s.mockController.EXPECT().
+					Download(gomock.Any(), gomock.Any(), dto.DownloadVideoInput{ID: 5}).
+					Return(nil, domain.NewInternalError(nil))
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusInternalServerError, res.Code)
+				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_internal_error"])
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		s.T().Run(tt.name, func(t *testing.T) {
+			// Arrange
+			tt.setupMocks()
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(http.MethodGet, tt.url, nil)
 
 			// Act
 			s.router.ServeHTTP(w, req)

@@ -43,6 +43,7 @@ func (s *VideoHandlerSuiteTest) SetupTest() {
 	s.router.PATCH("/videos/:id", s.handler.UpdatePartial)
 	s.router.GET("/videos/:id", s.handler.Get)
 	s.router.DELETE("/videos/:id", s.handler.Delete)
+	s.router.GET("/videos/:id/processed", s.handler.Download)
 
 	// Mock requests
 	var err error
@@ -59,6 +60,7 @@ func (s *VideoHandlerSuiteTest) SetupTest() {
 		"update_success",
 		"get_success",
 		"delete_success",
+		"download_success",
 	)
 	assert.NoError(s.T(), err)
 
