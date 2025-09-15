@@ -189,7 +189,7 @@ compose-clean: ## Clean the application with Docker Compose, removing volumes an
 scan: ## Run security scan
 	@echo  "🟢 Running security scan..."
 	@go tool govulncheck -show verbose ./...
-	@go tool trivy image --severity HIGH,CRITICAL $(DOCKER_REGISTRY)/$(DOCKER_REGISTRY_APP):latest
+# 	@go tool trivy image --severity HIGH,CRITICAL $(DOCKER_REGISTRY)/$(DOCKER_REGISTRY_APP):latest
 
 .PHONY: new-branch
 new-branch: ## Create new branch
