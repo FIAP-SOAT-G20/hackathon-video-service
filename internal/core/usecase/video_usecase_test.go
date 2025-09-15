@@ -153,6 +153,26 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Create() {
 			},
 		},
 		{
+			name: "should create video successfully even when presigned URL generation fails",
+			input: dto.CreateVideoInput{
+				UserID: 1,
+			},
+			setupMocks: func() {
+				s.mockGateway.EXPECT().
+					Create(s.ctx, gomock.Any()).
+					Return(nil)
+				s.mockObjectStorage.EXPECT().
+					GeneratePresignedURL(s.ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					Return("", assert.AnError)
+			},
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
+				assert.NoError(t, err)
+				assert.NotNil(t, video)
+				assert.Equal(t, uint64(1), video.UserID)
+				assert.Empty(t, video.PresignedURL) // Should be empty when generation fails
+			},
+		},
+		{
 			name: "should return error when gateway create fails",
 			input: dto.CreateVideoInput{
 				UserID: 1,
@@ -536,6 +556,165 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Delete() {
 
 			// Assert
 			tt.checkResult(t, video, err)
+		})
+	}
+}
+
+func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
+	tests := []struct {
+		name        string
+		input       dto.DownloadVideoInput
+		setupMocks  func()
+		checkResult func(*testing.T, entity.VideoProcessedDownload, error)
+	}{
+		{
+			name:  "should download video successfully",
+			input: dto.DownloadVideoInput{ID: 1},
+			setupMocks: func() {
+				video := &entity.Video{
+					ID:     1,
+					UserID: 1,
+					Status: valueobject.FINISHED,
+					Hash:   "abc123hash456",
+				}
+				s.mockGateway.EXPECT().
+					FindByID(s.ctx, uint64(1)).
+					Return(video, nil)
+
+				s.mockObjectStorage.EXPECT().
+					GeneratePresignedDownloadURL(s.ctx, gomock.Any(), gomock.Any(), gomock.Any()).
+					Return("https://s3.example.com/download-url", nil)
+			},
+			checkResult: func(t *testing.T, download entity.VideoProcessedDownload, err error) {
+				assert.NoError(t, err)
+				assert.NotEmpty(t, download.URL)
+				assert.Equal(t, "https://s3.example.com/download-url", download.URL)
+			},
+		},
+		{
+			name:  "should return error when gateway find fails",
+			input: dto.DownloadVideoInput{ID: 1},
+			setupMocks: func() {
+				s.mockGateway.EXPECT().
+					FindByID(s.ctx, uint64(1)).
+					Return(nil, assert.AnError)
+			},
+			checkResult: func(t *testing.T, download entity.VideoProcessedDownload, err error) {
+				assert.Error(t, err)
+				assert.Empty(t, download.URL)
+				assert.IsType(t, &domain.InternalError{}, err)
+			},
+		},
+		{
+			name:  "should return not found error when video doesn't exist",
+			input: dto.DownloadVideoInput{ID: 1},
+			setupMocks: func() {
+				s.mockGateway.EXPECT().
+					FindByID(s.ctx, uint64(1)).
+					Return(nil, nil)
+			},
+			checkResult: func(t *testing.T, download entity.VideoProcessedDownload, err error) {
+				assert.Error(t, err)
+				assert.Empty(t, download.URL)
+				assert.IsType(t, &domain.NotFoundError{}, err)
+			},
+		},
+		{
+			name:  "should return error when video is not processed (CREATED status)",
+			input: dto.DownloadVideoInput{ID: 1},
+			setupMocks: func() {
+				video := &entity.Video{
+					ID:     1,
+					UserID: 1,
+					Status: valueobject.CREATED,
+					Hash:   "abc123hash456",
+				}
+				s.mockGateway.EXPECT().
+					FindByID(s.ctx, uint64(1)).
+					Return(video, nil)
+			},
+			checkResult: func(t *testing.T, download entity.VideoProcessedDownload, err error) {
+				assert.Error(t, err)
+				assert.Empty(t, download.URL)
+				assert.IsType(t, &domain.InvalidInputError{}, err)
+			},
+		},
+		{
+			name:  "should return error when video is not processed (PROCESSING status)",
+			input: dto.DownloadVideoInput{ID: 1},
+			setupMocks: func() {
+				video := &entity.Video{
+					ID:     1,
+					UserID: 1,
+					Status: valueobject.PROCESSING,
+					Hash:   "abc123hash456",
+				}
+				s.mockGateway.EXPECT().
+					FindByID(s.ctx, uint64(1)).
+					Return(video, nil)
+			},
+			checkResult: func(t *testing.T, download entity.VideoProcessedDownload, err error) {
+				assert.Error(t, err)
+				assert.Empty(t, download.URL)
+				assert.IsType(t, &domain.InvalidInputError{}, err)
+			},
+		},
+		{
+			name:  "should return error when video is not processed (FAILED status)",
+			input: dto.DownloadVideoInput{ID: 1},
+			setupMocks: func() {
+				video := &entity.Video{
+					ID:     1,
+					UserID: 1,
+					Status: valueobject.FAILED,
+					Hash:   "abc123hash456",
+				}
+				s.mockGateway.EXPECT().
+					FindByID(s.ctx, uint64(1)).
+					Return(video, nil)
+			},
+			checkResult: func(t *testing.T, download entity.VideoProcessedDownload, err error) {
+				assert.Error(t, err)
+				assert.Empty(t, download.URL)
+				assert.IsType(t, &domain.InvalidInputError{}, err)
+			},
+		},
+		{
+			name:  "should return error when object storage fails to generate download URL",
+			input: dto.DownloadVideoInput{ID: 1},
+			setupMocks: func() {
+				video := &entity.Video{
+					ID:     1,
+					UserID: 1,
+					Status: valueobject.FINISHED,
+					Hash:   "abc123hash456",
+				}
+				s.mockGateway.EXPECT().
+					FindByID(s.ctx, uint64(1)).
+					Return(video, nil)
+
+				s.mockObjectStorage.EXPECT().
+					GeneratePresignedDownloadURL(s.ctx, gomock.Any(), gomock.Any(), gomock.Any()).
+					Return("", assert.AnError)
+			},
+			checkResult: func(t *testing.T, download entity.VideoProcessedDownload, err error) {
+				assert.Error(t, err)
+				assert.Empty(t, download.URL)
+				assert.IsType(t, &domain.InternalError{}, err)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		s.T().Run(tt.name, func(t *testing.T) {
+			// Arrange
+			tt.setupMocks()
+
+			// Act
+			download, err := s.useCase.Download(s.ctx, tt.input)
+
+			// Assert
+			tt.checkResult(t, download, err)
 		})
 	}
 }
