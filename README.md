@@ -1,8 +1,10 @@
 <a name="readme-top"></a>
 
-# Hackathon Video Service
+# Hackathon FIAP-X Video Service
 
 A scalable, cloud-native video service application built with Go, featuring clean architecture and asynchronous message processing.
+
+> [Hackathon FIAP-X Video Service Specification](docs/specification.pdf)
 
 ---
 
@@ -148,6 +150,10 @@ The application follows **Clean Architecture** principles with a microservices a
 4. **Message Queue** - AWS SQS for decoupled, scalable message processing
 5. **Object Storage** - AWS S3 for video file storage with presigned URLs
 
+### System Design
+
+![System Design Diagram](docs/system-design.png)
+
 ### Project Structure
 
 ```
@@ -283,14 +289,6 @@ Most endpoints require JWT authentication:
 Authorization: Bearer <your-jwt-token>
 ```
 
-### Interactive Documentation
-
-#### Swagger UI
-Visit [http://localhost:8080/docs/index.html#/](http://localhost:8080/docs/index.html#/) for interactive API documentation.
-
-#### ReDoc
-Visit [http://localhost:8080/redoc](http://localhost:8080/redoc) for ReDoc API documentation.
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Development
@@ -352,12 +350,6 @@ make tests
 
 # Generate HTML coverage report
 make coverage
-```
-
-#### Integration Tests
-```bash
-# Test PostgreSQL integration
-make test-integration
 ```
 
 #### BDD Tests
@@ -456,6 +448,9 @@ ghcr.io/fiap-soat-g20/fiapx-video-service:latest
 ghcr.io/fiap-soat-g20/fiapx-video-service:<version>
 ```
 
+> [!NOTE]
+> This images are automatically built and pushed via GitHub Actions on new releases.
+
 ### Kubernetes Deployment
 
 For Kubernetes deployment, see the [K8s documentation](docs/k8s.jpg) which includes:
@@ -517,14 +512,6 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 5
 ```
-
-### Monitoring and Observability
-
-The application includes:
-- Structured logging with configurable levels
-- Metrics endpoints (planned)
-- Distributed tracing (planned)
-- Error tracking and alerting
 
 ### Scaling Considerations
 
