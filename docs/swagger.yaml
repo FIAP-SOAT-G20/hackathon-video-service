@@ -127,14 +127,14 @@ definitions:
     - PROCESSING
     - FINISHED
     - FAILED
-    - UNDEFINDED
+    - UNDEFINED
     type: string
     x-enum-varnames:
     - CREATED
     - PROCESSING
     - FINISHED
     - FAILED
-    - UNDEFINDED
+    - UNDEFINED
 externalDocs:
   description: GitHub Repository
   url: https://github.com/FIAP-SOAT-G20/hackathon-video-service

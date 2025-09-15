@@ -26,7 +26,7 @@ func (p *Video) Update(customerID uint64, status valueobject.VideoStatus, name s
 	if customerID != 0 {
 		p.UserID = customerID
 	}
-	if status != valueobject.UNDEFINDED {
+	if status != valueobject.UNDEFINED {
 		p.Status = status
 	}
 	if name != "" {

@@ -9,7 +9,7 @@ import (
 
 // VideoDataSourceFactory creates video datasource based on database type
 func NewVideoDataSourceFactory(dbConfig *database.DatabaseConfig) (port.VideoDataSource, error) {
-	// TODO: Replace this factory with a more scalable solution like dependency injection with interfaces
+	// TODO: Replace this factory with a more scalable solution like dependency injection with interfaces (target: before v2.0 release)
 	switch dbConfig.Type {
 	case database.PostgresDB:
 		if dbConfig.PostgresDB == nil {

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -25,7 +24,6 @@ func NewVideoHandler(controller port.VideoController, jwtService port.JWTService
 }
 
 func (h *VideoHandler) Register(router *gin.RouterGroup) {
-	//router.Use(middleware.JWTAuthMiddleware(h.jwtService))
 	router.GET("", h.List)
 	router.POST("", h.Create)
 	router.GET("/:id", h.Get)
@@ -273,7 +271,6 @@ func (h *VideoHandler) UpdatePartial(c *gin.Context) {
 
 	var body request.UpdateVideoPartilBodyRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
-		fmt.Println(err)
 		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidBody))
 		return
 	}
@@ -358,8 +355,6 @@ func (h *VideoHandler) Download(c *gin.Context) {
 	input := dto.DownloadVideoInput{
 		ID: uri.ID,
 	}
-
-	fmt.Println("Download input:", input)
 
 	output, err := h.controller.Download(
 		c.Request.Context(),

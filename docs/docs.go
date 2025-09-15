@@ -682,14 +682,14 @@ const docTemplate = `{
                 "PROCESSING",
                 "FINISHED",
                 "FAILED",
-                "UNDEFINDED"
+                "UNDEFINED"
             ],
             "x-enum-varnames": [
                 "CREATED",
                 "PROCESSING",
                 "FINISHED",
                 "FAILED",
-                "UNDEFINDED"
+                "UNDEFINED"
             ]
         }
     },

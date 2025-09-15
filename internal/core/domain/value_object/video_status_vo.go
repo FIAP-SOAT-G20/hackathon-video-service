@@ -12,7 +12,7 @@ const (
 	PROCESSING VideoStatus = "PROCESSING"
 	FINISHED   VideoStatus = "FINISHED"
 	FAILED     VideoStatus = "FAILED"
-	UNDEFINDED VideoStatus = "UNDEFINDED"
+	UNDEFINED  VideoStatus = "UNDEFINED"
 )
 
 func IsValidVideoStatus(status string) bool {
@@ -32,7 +32,7 @@ func (o VideoStatus) String() string {
 	case FAILED:
 		return "FAILED"
 	default:
-		return "UNDEFINDED"
+		return "UNDEFINED"
 	}
 }
 
@@ -48,7 +48,7 @@ func ToVideoStatus(status string) (VideoStatus, bool) {
 	case "FAILED":
 		return FAILED, true
 	default:
-		return UNDEFINDED, false
+		return UNDEFINED, false
 	}
 }
 
