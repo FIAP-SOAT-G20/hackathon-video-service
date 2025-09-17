@@ -155,8 +155,8 @@ func (uc *VideoUseCase) Download(ctx context.Context, i dto.DownloadVideoInput) 
 		return entity.VideoProcessedDownload{}, domain.NewInvalidInputError(domain.ErrVideoNotProcessed)
 	}
 
-	// Generate download key using the video hash
-	key := video.Hash
+	// Generate download key using the video hash + .zip
+	key := fmt.Sprintf("%s.zip", video.Hash)
 	keyWithFolder := fmt.Sprintf("%s/%s", uc.config.AWSS3BucketProcessedFolder, key)
 
 	// Generate presigned download URL for processed video (valid for 1 hour)
