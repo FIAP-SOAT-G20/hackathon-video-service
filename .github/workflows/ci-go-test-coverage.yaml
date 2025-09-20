@@ -70,14 +70,13 @@ jobs:
           
           **Status:** $COVERAGE_STATUS  
           **Result:** $COVERAGE_RESULT
-          **Coverage:** $COVERAGE_OUTPUT
           
           ### 🎯 Coverage Details:
           \`\`\`
           $COVERAGE_REPORT
           \`\`\`
           
-          ### � Coverage Requirements:
+          ### 📋 Coverage Requirements:
           - **Minimum Threshold:** 80%
           - **Coverage Profile:** ./cover.out
           - **Coverage Mode:** atomic
@@ -86,7 +85,7 @@ jobs:
           - **Go Version:** $(go version)
           - **Race Detection:** ✅ enabled
           - **Timeout:** 2 minutes
-          - **Test Packages:** All packages (./...)
+          - **Test Packages:** Handlers, Controllers, Services, Use Cases, Repositories
           
           ### 🚫 Excluded from Coverage:
           - Mock files (\`*_mock.go\`)
@@ -94,6 +93,7 @@ jobs:
           - Infrastructure adapters (\`*_gateway.go\`, \`*_datasource.go\`, \`*_presenter.go\`)
           - Documentation and configuration files
           - Value objects and domain entities
+          - All paths excluded can be found in \`.github/.testcoverage.yml\`
           
           ---
           _Automated test coverage ensures code quality and identifies untested business logic._
