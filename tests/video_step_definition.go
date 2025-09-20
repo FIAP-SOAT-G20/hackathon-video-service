@@ -33,7 +33,10 @@ func init() {
 
 	port, _ := nat.NewPort("tcp", "5432")
 
-	container, _ := startContainer(ctx)
+	container, err := startContainer(ctx)
+	if err != nil {
+		panic(fmt.Errorf("failed to start test container: %w", err))
+	}
 	containerPort, _ := container.MappedPort(ctx, port)
 	host, _ := container.Host(ctx)
 
