@@ -50,7 +50,7 @@ func (h *HealthCheckHandler) HealthCheck(c *gin.Context) {
 	var hasFailures bool
 
 	// Check PostgreSQL if using postgres engine
-	if cfg.DBEngine == "postgres" {
+	if cfg.DBEngine == "postgres" || cfg.DBEngine == "postgresql" {
 		postgresStatus := h.checkPostgreSQL(cfg)
 		hc.Checks["postgres:status"] = postgresStatus
 		if postgresStatus.Status == response.HealthCheckStatusFail {
@@ -59,7 +59,7 @@ func (h *HealthCheckHandler) HealthCheck(c *gin.Context) {
 	}
 
 	// Check MongoDB if using documentdb/mongodb engine or as secondary database
-	if cfg.DBEngine == "documentdb" || cfg.DBEngine == "mongodb" || cfg.DocumentDBURI != "" {
+	if cfg.DBEngine == "documentdb" || cfg.DBEngine == "mongodb" {
 		mongoStatus := h.checkMongoDB(cfg)
 		hc.Checks["mongodb:status"] = mongoStatus
 		if mongoStatus.Status == response.HealthCheckStatusFail {
