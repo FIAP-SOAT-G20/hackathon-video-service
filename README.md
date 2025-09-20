@@ -7,12 +7,13 @@
 ![GitHub CI - BDD](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-bdd-tests.yml/badge.svg)
 
 
-# <p align="center"><b>Hackathon FIAP-X</b> <small>Video Service - G21</small></p>
+# <p align="center"><b>Hackathon FIAP-X</b> <small>Video Service - G20</small></p>
 
 <p align="center">
     <img src="https://img.shields.io/badge/Code-Go-informational?style=flat-square&logo=go&color=00ADD8" alt="Go" />
     <img src="https://img.shields.io/badge/Tools-Gin-informational?style=flat-square&logo=go&color=00ADD8" alt="Gin" />
     <img src="https://img.shields.io/badge/Tools-PostgreSQL-informational?style=flat-square&logo=postgresql&color=4169E1" alt="PostgreSQL" />
+    <img src="https://img.shields.io/badge/Tools-Redis-informational?style=flat-square&logo=redis&color=DC382D" alt="Redis" />
     <img src="https://img.shields.io/badge/Tools-Docker-informational?style=flat-square&logo=docker&color=2496ED" alt="Docker" />
     <img src="https://img.shields.io/badge/Tools-Swagger-informational?style=flat-square&logo=swagger&color=85EA2D" alt="Swagger" />
     <br>
@@ -67,7 +68,7 @@ This project is part of a larger system that includes:
 
 ### Prerequisites
 
-- **Go 1.24+**
+- **Go 1.25+**
 - **Docker and Docker Compose**
 - **Redis** (for caching - can run via Docker)
 - **Make** (for development commands)
@@ -478,7 +479,7 @@ The application provides multi-stage Docker builds optimized for production:
 
 ```dockerfile
 # API Server
-FROM golang:1.24-alpine AS builder
+FROM golang:1.25-alpine AS builder
 # ... build stage
 FROM alpine:latest
 COPY --from=builder /app/bin/app /app/app
@@ -486,7 +487,7 @@ EXPOSE 8080
 CMD ["/app/app"]
 
 # Worker Consumer
-FROM golang:1.24-alpine AS builder
+FROM golang:1.25-alpine AS builder
 # ... build stage  
 FROM alpine:latest
 COPY --from=builder /app/bin/worker /app/worker
