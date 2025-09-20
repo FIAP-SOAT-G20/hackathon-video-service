@@ -639,6 +639,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Go Testing Best Practices](https://go.dev/doc/tutorial/add-a-test)
 - [Docker Multi-stage Builds](https://docs.docker.com/develop/dev-best-practices/)
 - [GitHub Actions for Go](https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go)
+- [How to Connect Your GitHub Project to Sonar](https://dev.to/olsido/how-to-connect-your-github-project-to-sonar-9ic)
+- [How to Enable SonarCloud for Your Project](https://dev.to/olsido/how-to-enable-sonarcloud-for-your-project-aoi)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
