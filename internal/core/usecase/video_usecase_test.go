@@ -2,6 +2,7 @@ package usecase_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -118,6 +119,179 @@ func (s *VideoUsecaseSuiteTest) TestVideosUseCase_List() {
 
 			// Act
 			videos, total, err := s.useCase.List(s.ctx, tt.input)
+
+			// Assert
+			tt.checkResult(t, videos, total, err)
+		})
+	}
+}
+
+func (s *VideoUsecaseSuiteTest) TestVideosUseCase_List_WithCache() {
+	tests := []struct {
+		name        string
+		input       dto.ListVideosInput
+		setupMocks  func()
+		checkResult func(*testing.T, []*entity.Video, int64, error)
+	}{
+		{
+			name: "should return cached result when cache hit",
+			input: dto.ListVideosInput{
+				Page:  1,
+				Limit: 10,
+			},
+			setupMocks: func() {
+				// Mock cache hit
+				cachedResult := `{"videos":[{"id":1,"user_id":1,"status":"CREATED","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"}],"total":1}`
+				s.mockCacheService.EXPECT().
+					Get(gomock.Any(), gomock.Any()).
+					Return(cachedResult, nil)
+			},
+			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
+				assert.NoError(t, err)
+				assert.NotNil(t, videos)
+				assert.Equal(t, int64(1), total)
+			},
+		},
+		{
+			name: "should fetch from database when cache miss and set cache",
+			input: dto.ListVideosInput{
+				Page:  1,
+				Limit: 10,
+			},
+			setupMocks: func() {
+				// Mock cache miss
+				s.mockCacheService.EXPECT().
+					Get(gomock.Any(), gomock.Any()).
+					Return(nil, fmt.Errorf("cache miss"))
+
+				// Mock gateway call
+				s.mockGateway.EXPECT().
+					FindAll(s.ctx, uint64(0), nil, nil, "", 1, 10, "").
+					Return(s.mockVideos, int64(2), nil)
+
+				// Mock cache set (happens in goroutine, so might be called)
+				s.mockCacheService.EXPECT().
+					Set(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(nil).AnyTimes()
+			},
+			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, s.mockVideos, videos)
+				assert.Equal(t, int64(2), total)
+			},
+		},
+		{
+			name: "should continue without cache when cache service unavailable",
+			input: dto.ListVideosInput{
+				Page:  1,
+				Limit: 10,
+			},
+			setupMocks: func() {
+				// Mock gateway call (cache service is nil in original useCase)
+				s.mockGateway.EXPECT().
+					FindAll(s.ctx, uint64(0), nil, nil, "", 1, 10, "").
+					Return(s.mockVideos, int64(2), nil)
+			},
+			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, s.mockVideos, videos)
+				assert.Equal(t, int64(2), total)
+			},
+		},
+		{
+			name: "should handle invalid cached data type gracefully",
+			input: dto.ListVideosInput{
+				Page:  1,
+				Limit: 10,
+			},
+			setupMocks: func() {
+				// Mock cache returns invalid type
+				s.mockCacheService.EXPECT().
+					Get(gomock.Any(), gomock.Any()).
+					Return(123, nil) // Return number instead of string
+
+				// Mock gateway call after cache fails
+				s.mockGateway.EXPECT().
+					FindAll(s.ctx, uint64(0), nil, nil, "", 1, 10, "").
+					Return(s.mockVideos, int64(2), nil)
+
+				// Note: Cache Set is done in goroutine, so we don't expect it in test
+			},
+			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, s.mockVideos, videos)
+				assert.Equal(t, int64(2), total)
+			},
+		},
+		{
+			name: "should handle invalid JSON in cache gracefully",
+			input: dto.ListVideosInput{
+				Page:  1,
+				Limit: 10,
+			},
+			setupMocks: func() {
+				// Mock cache returns invalid JSON
+				s.mockCacheService.EXPECT().
+					Get(gomock.Any(), gomock.Any()).
+					Return("invalid-json", nil)
+
+				// Mock gateway call after cache fails
+				s.mockGateway.EXPECT().
+					FindAll(s.ctx, uint64(0), nil, nil, "", 1, 10, "").
+					Return(s.mockVideos, int64(2), nil)
+
+				// Note: Cache Set is done in goroutine, so we don't expect it in test
+			},
+			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, s.mockVideos, videos)
+				assert.Equal(t, int64(2), total)
+			},
+		},
+		{
+			name: "should test cache key generation with status exclude",
+			input: dto.ListVideosInput{
+				Page:          1,
+				Limit:         10,
+				Status:        []valueobject.VideoStatus{valueobject.CREATED, valueobject.PROCESSING},
+				StatusExclude: []valueobject.VideoStatus{valueobject.FAILED},
+			},
+			setupMocks: func() {
+				// Mock cache miss
+				s.mockCacheService.EXPECT().
+					Get(gomock.Any(), gomock.Any()).
+					Return(nil, fmt.Errorf("cache miss"))
+
+				// Mock gateway call
+				s.mockGateway.EXPECT().
+					FindAll(s.ctx, uint64(0), []valueobject.VideoStatus{valueobject.CREATED, valueobject.PROCESSING}, []valueobject.VideoStatus{valueobject.FAILED}, "", 1, 10, "").
+					Return(s.mockVideos, int64(2), nil)
+
+				// Note: Cache Set is done in goroutine, so we don't expect it in test
+			},
+			checkResult: func(t *testing.T, videos []*entity.Video, total int64, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, s.mockVideos, videos)
+				assert.Equal(t, int64(2), total)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		s.T().Run(tt.name, func(t *testing.T) {
+			// Setup
+			tt.setupMocks()
+
+			// Execute
+			var videos []*entity.Video
+			var total int64
+			var err error
+
+			if tt.name == "should continue without cache when cache service unavailable" {
+				videos, total, err = s.useCase.List(s.ctx, tt.input) // Use useCase without cache
+			} else {
+				videos, total, err = s.useCaseWithCache.List(s.ctx, tt.input) // Use useCase with cache
+			}
 
 			// Assert
 			tt.checkResult(t, videos, total, err)

@@ -3,6 +3,7 @@ module github.com/FIAP-SOAT-G20/hackathon-video-service
 go 1.24.6
 
 require (
+	github.com/alicebob/miniredis/v2 v2.35.0
 	github.com/aws/aws-sdk-go-v2/service/elasticache v1.50.3
 	github.com/cucumber/godog v0.15.1
 	github.com/fatih/color v1.18.0
@@ -43,6 +44,7 @@ require (
 	github.com/shirou/gopsutil/v4 v4.25.5 // indirect
 	github.com/tklauser/go-sysconf v0.3.13 // indirect
 	github.com/tklauser/numcpus v0.7.0 // indirect
+	github.com/yuin/gopher-lua v1.1.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 )
 
