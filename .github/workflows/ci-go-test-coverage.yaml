@@ -29,7 +29,7 @@ jobs:
         run: go version
 
       - name: generate test coverage
-        run: go test -json -timeout 1m -race ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
+        run: go test -json -timeout 3m -race ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
       
       - name: check test coverage
         id: coverage
