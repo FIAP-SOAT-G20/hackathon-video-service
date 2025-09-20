@@ -67,6 +67,7 @@ jobs:
           
           # Extract coverage percentage from report if available
           COVERAGE_REPORT="${{ fromJSON(steps.coverage.outputs.report) }}"
+          COVERAGE_OUTPUT=$(go tool cover -func=cover.out | tail -n 1 | awk '{print $3}' || echo "N/A")
           
           # Create enhanced coverage summary
           cat > coverage_summary.md << EOF
@@ -74,6 +75,7 @@ jobs:
           
           **Status:** $COVERAGE_STATUS  
           **Result:** $COVERAGE_RESULT
+          **Coverage:** $COVERAGE_OUTPUT
           
           ### 🎯 Coverage Details:
           \`\`\`
@@ -88,10 +90,10 @@ jobs:
           ### 🔧 Test Configuration:
           - **Go Version:** ${{ matrix.go-version }}
           - **Race Detection:** ✅ enabled
-          - **Timeout:** 1 minute
+          - **Timeout:** 2 minutes
           - **Test Packages:** All packages (./...)
           
-          ### � Excluded from Coverage:
+          ### 🚫 Excluded from Coverage:
           - Mock files (\`*_mock.go\`)
           - Request/Response DTOs (\`*_request.go\`, \`*_response.go\`)
           - Infrastructure adapters (\`*_gateway.go\`, \`*_datasource.go\`, \`*_presenter.go\`)
