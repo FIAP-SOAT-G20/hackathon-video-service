@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS builder
 LABEL org.opencontainers.image.source="https://github.com/FIAP-SOAT-G20/hackathon-video-service" \
       org.opencontainers.image.authors="FIAP 10SOAT G21" \
       org.opencontainers.image.title="Fiap X Hackathon Video Service" \
