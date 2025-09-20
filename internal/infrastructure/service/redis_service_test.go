@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
@@ -37,10 +38,13 @@ func TestNewRedisService(t *testing.T) {
 		require.NoError(t, err)
 		defer mr.Close()
 
+		port, err := strconv.Atoi(mr.Port())
+		require.NoError(t, err)
+
 		cfg := &config.Config{
 			CacheEnabled:  true,
 			CacheEndpoint: mr.Host(),
-			CachePort:     6379, // Use integer
+			CachePort:     port,
 		}
 
 		service, err := NewRedisService(cfg)
@@ -777,10 +781,13 @@ func TestRedisDataSource_ListOperations(t *testing.T) {
 	require.NoError(t, err)
 	defer mr.Close()
 
+	port, err := strconv.Atoi(mr.Port())
+	require.NoError(t, err)
+
 	cfg := &config.Config{
 		CacheEnabled:  true,
 		CacheEndpoint: mr.Host(),
-		CachePort:     6379,
+		CachePort:     port,
 	}
 
 	// Create Redis data source
@@ -815,10 +822,13 @@ func TestRedisDataSource_AdvancedOperations(t *testing.T) {
 	require.NoError(t, err)
 	defer mr.Close()
 
+	port, err := strconv.Atoi(mr.Port())
+	require.NoError(t, err)
+
 	cfg := &config.Config{
 		CacheEnabled:  true,
 		CacheEndpoint: mr.Host(),
-		CachePort:     6379,
+		CachePort:     port,
 	}
 
 	// Create Redis data source
