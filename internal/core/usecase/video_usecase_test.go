@@ -892,3 +892,63 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 		})
 	}
 }
+
+func (s *VideoUsecaseSuiteTest) TestVideosUseCase_CacheErrors() {
+	t := s.T()
+
+	t.Run("should handle invalid cached data type", func(t *testing.T) {
+		// Arrange - Create input that will trigger cache lookup
+		input := dto.ListVideosInput{
+			Page:  1,
+			Limit: 10,
+		}
+
+		// Mock cache service to return non-string data first, then let it fall through to gateway
+		s.mockCacheService.EXPECT().
+			Get(gomock.Any(), gomock.Any()).
+			Return(123, nil). // Return integer instead of string to trigger error
+			Times(1)
+
+		// Mock gateway call after cache miss
+		s.mockGateway.EXPECT().
+			FindAll(s.ctx, uint64(0), nil, nil, "", 1, 10, "").
+			Return(s.mockVideos, int64(2), nil).
+			Times(1)
+
+		// Mock the async cache Set call that happens in goroutine (may or may not be called due to timing)
+		s.mockCacheService.EXPECT().
+			Set(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+			Return(nil).
+			AnyTimes() // Allow 0 or more calls due to async nature
+
+		// Act
+		videos, total, err := s.useCaseWithCache.List(s.ctx, input)
+
+		// Assert - Should still work due to fallback to database
+		assert.NoError(t, err)
+		assert.Equal(t, s.mockVideos, videos)
+		assert.Equal(t, int64(2), total)
+	})
+
+	t.Run("should handle cache service unavailable in List", func(t *testing.T) {
+		// Arrange - Use useCase without cache (cache service is nil)
+		input := dto.ListVideosInput{
+			Page:  1,
+			Limit: 10,
+		}
+
+		// Mock gateway call since cache is not available
+		s.mockGateway.EXPECT().
+			FindAll(s.ctx, uint64(0), nil, nil, "", 1, 10, "").
+			Return(s.mockVideos, int64(2), nil).
+			Times(1)
+
+		// Act - Use s.useCase which has nil cache service
+		videos, total, err := s.useCase.List(s.ctx, input)
+
+		// Assert - Should work without cache
+		assert.NoError(t, err)
+		assert.Equal(t, s.mockVideos, videos)
+		assert.Equal(t, int64(2), total)
+	})
+}

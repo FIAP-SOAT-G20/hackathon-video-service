@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -537,5 +538,469 @@ func TestInterfaceImplementations(t *testing.T) {
 
 	t.Run("noopCacheDataSource implements CacheDataSource", func(t *testing.T) {
 		var _ port.CacheDataSource = (*noopCacheDataSource)(nil)
+	})
+}
+
+// Test Redis service connection failures and error handling
+func TestRedisService_ConnectionErrors(t *testing.T) {
+	t.Run("should handle connection failure gracefully", func(t *testing.T) {
+		cfg := &config.Config{
+			CacheEnabled:  true,
+			CacheEndpoint: "nonexistent-redis-host",
+			CachePort:     6379,
+		}
+
+		// This should return a noopCacheService due to connection failure
+		service, err := NewRedisService(cfg)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, service)
+
+		// Verify it's a noop service
+		_, ok := service.(*noopCacheService)
+		assert.True(t, ok, "should return noopCacheService when connection fails")
+	})
+
+	t.Run("should handle localhost fallback when endpoint not provided", func(t *testing.T) {
+		cfg := &config.Config{
+			CacheEnabled:  true,
+			CacheEndpoint: "", // Empty endpoint should fallback to localhost
+			CachePort:     6379,
+		}
+
+		service, err := NewRedisService(cfg)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, service)
+	})
+}
+
+// Test Redis service operations with error scenarios
+func TestRedisService_Operations_WithErrors(t *testing.T) {
+	// Start a mini redis server for testing
+	mr, err := miniredis.Run()
+	require.NoError(t, err)
+	defer mr.Close()
+
+	// Create redis client directly for testing
+	rdb := redis.NewClient(&redis.Options{
+		Addr: mr.Addr(),
+	})
+
+	service := &redisService{client: rdb}
+	ctx := context.Background()
+
+	t.Run("Set operation with marshalling error", func(t *testing.T) {
+		// Create a value that can't be marshalled
+		unmarshalable := make(chan int)
+
+		err := service.Set(ctx, "test-key", unmarshalable, time.Minute)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "failed to marshal")
+	})
+
+	t.Run("Get operation with connection error", func(t *testing.T) {
+		// Stop the mini redis server to simulate connection error
+		mr.Close()
+
+		_, err := service.Get(ctx, "test-key")
+		assert.Error(t, err)
+	})
+
+	t.Run("GetString operation", func(t *testing.T) {
+		// Restart mini redis for this test
+		mr2, err := miniredis.Run()
+		require.NoError(t, err)
+		defer mr2.Close()
+
+		rdb2 := redis.NewClient(&redis.Options{
+			Addr: mr2.Addr(),
+		})
+		service2 := &redisService{client: rdb2}
+
+		// Test successful GetString
+		err = service2.Set(ctx, "string-key", "test-value", time.Minute)
+		require.NoError(t, err)
+
+		value, err := service2.GetString(ctx, "string-key")
+		assert.NoError(t, err)
+		assert.Equal(t, "test-value", value)
+
+		// Test GetString with non-existent key
+		_, err = service2.GetString(ctx, "non-existent-key")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "not found")
+	})
+
+	t.Run("Delete operation", func(t *testing.T) {
+		mr3, err := miniredis.Run()
+		require.NoError(t, err)
+		defer mr3.Close()
+
+		rdb3 := redis.NewClient(&redis.Options{
+			Addr: mr3.Addr(),
+		})
+		service3 := &redisService{client: rdb3}
+
+		// Set a key first
+		err = service3.Set(ctx, "delete-key", "value", time.Minute)
+		require.NoError(t, err)
+
+		// Delete the key
+		err = service3.Delete(ctx, "delete-key")
+		assert.NoError(t, err)
+	})
+
+	t.Run("Exists operation", func(t *testing.T) {
+		mr4, err := miniredis.Run()
+		require.NoError(t, err)
+		defer mr4.Close()
+
+		rdb4 := redis.NewClient(&redis.Options{
+			Addr: mr4.Addr(),
+		})
+		service4 := &redisService{client: rdb4}
+
+		// Test non-existent key
+		exists, err := service4.Exists(ctx, "non-existent")
+		assert.NoError(t, err)
+		assert.False(t, exists)
+
+		// Set a key and test existence
+		err = service4.Set(ctx, "exists-key", "value", time.Minute)
+		require.NoError(t, err)
+
+		exists, err = service4.Exists(ctx, "exists-key")
+		assert.NoError(t, err)
+		assert.True(t, exists)
+	})
+
+	t.Run("SetExpiration operation", func(t *testing.T) {
+		mr5, err := miniredis.Run()
+		require.NoError(t, err)
+		defer mr5.Close()
+
+		rdb5 := redis.NewClient(&redis.Options{
+			Addr: mr5.Addr(),
+		})
+		service5 := &redisService{client: rdb5}
+
+		// Set a key first
+		err = service5.Set(ctx, "expire-key", "value", time.Hour)
+		require.NoError(t, err)
+
+		// Set expiration
+		err = service5.SetExpiration(ctx, "expire-key", time.Minute)
+		assert.NoError(t, err)
+	})
+
+	t.Run("GetTTL operation", func(t *testing.T) {
+		mr6, err := miniredis.Run()
+		require.NoError(t, err)
+		defer mr6.Close()
+
+		rdb6 := redis.NewClient(&redis.Options{
+			Addr: mr6.Addr(),
+		})
+		service6 := &redisService{client: rdb6}
+
+		// Set a key with expiration
+		err = service6.Set(ctx, "ttl-key", "value", time.Hour)
+		require.NoError(t, err)
+
+		// Get TTL
+		ttl, err := service6.GetTTL(ctx, "ttl-key")
+		assert.NoError(t, err)
+		assert.Greater(t, ttl, time.Duration(0))
+	})
+
+	t.Run("Flush operation", func(t *testing.T) {
+		mr7, err := miniredis.Run()
+		require.NoError(t, err)
+		defer mr7.Close()
+
+		rdb7 := redis.NewClient(&redis.Options{
+			Addr: mr7.Addr(),
+		})
+		service7 := &redisService{client: rdb7}
+
+		// Set some keys
+		err = service7.Set(ctx, "flush-key1", "value1", time.Hour)
+		require.NoError(t, err)
+		err = service7.Set(ctx, "flush-key2", "value2", time.Hour)
+		require.NoError(t, err)
+
+		// Flush all keys
+		err = service7.Flush(ctx)
+		assert.NoError(t, err)
+
+		// Verify keys are gone
+		exists, err := service7.Exists(ctx, "flush-key1")
+		assert.NoError(t, err)
+		assert.False(t, exists)
+	})
+
+	t.Run("Ping operation", func(t *testing.T) {
+		mr8, err := miniredis.Run()
+		require.NoError(t, err)
+		defer mr8.Close()
+
+		rdb8 := redis.NewClient(&redis.Options{
+			Addr: mr8.Addr(),
+		})
+		service8 := &redisService{client: rdb8}
+
+		// Test ping
+		err = service8.Ping(ctx)
+		assert.NoError(t, err)
+	})
+
+	t.Run("Close operation", func(t *testing.T) {
+		mr9, err := miniredis.Run()
+		require.NoError(t, err)
+		defer mr9.Close()
+
+		rdb9 := redis.NewClient(&redis.Options{
+			Addr: mr9.Addr(),
+		})
+		service9 := &redisService{client: rdb9}
+
+		// Test close
+		err = service9.Close()
+		assert.NoError(t, err)
+	})
+}
+
+// Test Redis data source list operations separately
+func TestRedisDataSource_ListOperations(t *testing.T) {
+	mr, err := miniredis.Run()
+	require.NoError(t, err)
+	defer mr.Close()
+
+	cfg := &config.Config{
+		CacheEnabled:  true,
+		CacheEndpoint: mr.Host(),
+		CachePort:     6379,
+	}
+
+	// Create Redis data source
+	ds, err := NewRedisDataSource(cfg)
+	require.NoError(t, err)
+	require.NotNil(t, ds)
+
+	ctx := context.Background()
+	listKey := fmt.Sprintf("list-operations-key-%d", time.Now().UnixNano())
+
+	// SetList (append to list)
+	err = ds.SetList(ctx, listKey, "item1", "item2", "item3")
+	assert.NoError(t, err)
+
+	// GetList
+	items, err := ds.GetList(ctx, listKey)
+	assert.NoError(t, err)
+	assert.Len(t, items, 3)
+	assert.Equal(t, "item1", items[0])
+
+	// GetListRange
+	rangeItems, err := ds.GetListRange(ctx, listKey, 0, 1)
+	assert.NoError(t, err)
+	assert.Len(t, rangeItems, 2)
+	assert.Equal(t, "item1", rangeItems[0])
+	assert.Equal(t, "item2", rangeItems[1])
+}
+
+// Test Redis data source advanced operations
+func TestRedisDataSource_AdvancedOperations(t *testing.T) {
+	mr, err := miniredis.Run()
+	require.NoError(t, err)
+	defer mr.Close()
+
+	cfg := &config.Config{
+		CacheEnabled:  true,
+		CacheEndpoint: mr.Host(),
+		CachePort:     6379,
+	}
+
+	// Create Redis data source
+	ds, err := NewRedisDataSource(cfg)
+	require.NoError(t, err)
+	require.NotNil(t, ds)
+
+	ctx := context.Background()
+
+	t.Run("Hash operations", func(t *testing.T) {
+		// SetHash with different data types
+		err := ds.SetHash(ctx, "hash-key", "field1", "string-value")
+		assert.NoError(t, err)
+
+		err = ds.SetHash(ctx, "hash-key", "field2", 123)
+		assert.NoError(t, err)
+
+		err = ds.SetHash(ctx, "hash-key", "field3", map[string]interface{}{"nested": "value"})
+		assert.NoError(t, err)
+
+		// GetHash
+		value, err := ds.GetHash(ctx, "hash-key", "field1")
+		assert.NoError(t, err)
+		assert.Equal(t, "string-value", value)
+
+		// GetHash non-existent field
+		_, err = ds.GetHash(ctx, "hash-key", "non-existent")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "not found")
+
+		// GetAllHash
+		allFields, err := ds.GetAllHash(ctx, "hash-key")
+		assert.NoError(t, err)
+		assert.Len(t, allFields, 3)
+
+		// DeleteHash
+		err = ds.DeleteHash(ctx, "hash-key", "field1")
+		assert.NoError(t, err)
+
+		// Verify deletion
+		_, err = ds.GetHash(ctx, "hash-key", "field1")
+		assert.Error(t, err)
+	})
+
+	t.Run("Set operations", func(t *testing.T) {
+		// SetAdd
+		err := ds.SetAdd(ctx, "set-key", "member1", "member2", "member3")
+		assert.NoError(t, err)
+
+		// SetMembers
+		members, err := ds.SetMembers(ctx, "set-key")
+		assert.NoError(t, err)
+		assert.Len(t, members, 3)
+
+		// SetIsMember
+		isMember, err := ds.SetIsMember(ctx, "set-key", "member1")
+		assert.NoError(t, err)
+		assert.True(t, isMember)
+
+		isMember, err = ds.SetIsMember(ctx, "set-key", "non-member")
+		assert.NoError(t, err)
+		assert.False(t, isMember)
+	})
+}
+
+// Test no-op implementations
+func TestNoopCacheImplementations(t *testing.T) {
+	ctx := context.Background()
+
+	t.Run("noopCacheService operations", func(t *testing.T) {
+		noop := &noopCacheService{}
+
+		// All operations should not return errors except where specified
+		err := noop.Set(ctx, "key", "value", time.Minute)
+		assert.NoError(t, err)
+
+		_, err = noop.Get(ctx, "key")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "cache disabled")
+
+		_, err = noop.GetString(ctx, "key")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "cache disabled")
+
+		err = noop.Delete(ctx, "key")
+		assert.NoError(t, err)
+
+		exists, err := noop.Exists(ctx, "key")
+		assert.NoError(t, err)
+		assert.False(t, exists)
+
+		err = noop.SetExpiration(ctx, "key", time.Minute)
+		assert.NoError(t, err)
+
+		ttl, err := noop.GetTTL(ctx, "key")
+		assert.NoError(t, err)
+		assert.Equal(t, time.Duration(0), ttl)
+
+		err = noop.Flush(ctx)
+		assert.NoError(t, err)
+
+		err = noop.Ping(ctx)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "cache disabled")
+
+		err = noop.Close()
+		assert.NoError(t, err)
+	})
+
+	t.Run("noopCacheDataSource operations", func(t *testing.T) {
+		noop := &noopCacheDataSource{noopCacheService: &noopCacheService{}}
+
+		err := noop.SetHash(ctx, "key", "field", "value")
+		assert.NoError(t, err)
+
+		_, err = noop.GetHash(ctx, "key", "field")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "cache disabled")
+
+		_, err = noop.GetAllHash(ctx, "key")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "cache disabled")
+
+		err = noop.DeleteHash(ctx, "key", "field")
+		assert.NoError(t, err)
+
+		err = noop.SetList(ctx, "key", "item1", "item2")
+		assert.NoError(t, err)
+
+		_, err = noop.GetList(ctx, "key")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "cache disabled")
+
+		_, err = noop.GetListRange(ctx, "key", 0, 1)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "cache disabled")
+
+		err = noop.SetAdd(ctx, "key", "member1", "member2")
+		assert.NoError(t, err)
+
+		_, err = noop.SetMembers(ctx, "key")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "cache disabled")
+
+		isMember, err := noop.SetIsMember(ctx, "key", "member")
+		assert.NoError(t, err)
+		assert.False(t, isMember)
+	})
+}
+
+// Test connection error detection
+func TestIsConnectionError(t *testing.T) {
+	t.Run("should detect connection errors", func(t *testing.T) {
+		connectionErrors := []string{
+			"connection refused",
+			"i/o timeout",
+			"no route to host",
+			"network is unreachable",
+			"dial tcp failed",
+			"connection reset by peer",
+		}
+
+		for _, errMsg := range connectionErrors {
+			err := fmt.Errorf("%s", errMsg)
+			assert.True(t, isConnectionError(err), "should detect '%s' as connection error", errMsg)
+		}
+	})
+
+	t.Run("should not detect non-connection errors", func(t *testing.T) {
+		nonConnectionErrors := []string{
+			"key not found",
+			"invalid command",
+			"permission denied",
+		}
+
+		for _, errMsg := range nonConnectionErrors {
+			err := fmt.Errorf("%s", errMsg)
+			assert.False(t, isConnectionError(err), "should not detect '%s' as connection error", errMsg)
+		}
+	})
+
+	t.Run("should handle nil error", func(t *testing.T) {
+		assert.False(t, isConnectionError(nil))
 	})
 }

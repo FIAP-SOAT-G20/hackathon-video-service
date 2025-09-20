@@ -171,3 +171,15 @@ func TestVideoDataSourceInterface(t *testing.T) {
 	_ = datasource.Delete
 	_ = datasource.Transaction
 }
+
+func TestNewVideoDataSourceFactory_UnsupportedDatabaseType(t *testing.T) {
+	dbConfig := &database.DatabaseConfig{
+		Type: "unsupported_db_type", // Use an invalid database type
+	}
+
+	datasource, err := NewVideoDataSourceFactory(dbConfig)
+
+	assert.Error(t, err)
+	assert.Nil(t, datasource)
+	assert.Contains(t, err.Error(), "unsupported database type: unsupported_db_type")
+}
