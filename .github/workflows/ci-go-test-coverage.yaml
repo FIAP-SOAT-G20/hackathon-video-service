@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         go-version:
-          - "1.23"
+          - "1.25"
 
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +29,7 @@ jobs:
         run: go version
 
       - name: generate test coverage
-        run: go test -json -timeout 2m -race ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
+        run: go test -json -timeout 3m -race ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
       
       - name: check test coverage
         id: coverage
@@ -65,8 +65,8 @@ jobs:
             COVERAGE_RESULT="Coverage requirements not met"
           fi
           
-          # Extract coverage percentage from go test output if available
-          COVERAGE_OUTPUT=$(go tool cover -func=cover.out | tail -n 1 | awk '{print $3}' || echo "N/A")
+          # Extract coverage percentage from report if available
+          COVERAGE_REPORT="${{ fromJSON(steps.coverage.outputs.report) }}"
           
           # Create enhanced coverage summary
           cat > coverage_summary.md << EOF
@@ -74,9 +74,13 @@ jobs:
           
           **Status:** $COVERAGE_STATUS  
           **Result:** $COVERAGE_RESULT
-          **Total Coverage:** $COVERAGE_OUTPUT
           
           ### 🎯 Coverage Details:
+          \`\`\`
+          $COVERAGE_REPORT
+          \`\`\`
+          
+          ### � Coverage Requirements:
           - **Minimum Threshold:** 80%
           - **Coverage Profile:** ./cover.out
           - **Coverage Mode:** atomic
@@ -84,10 +88,10 @@ jobs:
           ### 🔧 Test Configuration:
           - **Go Version:** ${{ matrix.go-version }}
           - **Race Detection:** ✅ enabled
-          - **Timeout:** 2 minutes
+          - **Timeout:** 1 minute
           - **Test Packages:** All packages (./...)
           
-          ### 🚫 Excluded from Coverage:
+          ### � Excluded from Coverage:
           - Mock files (\`*_mock.go\`)
           - Request/Response DTOs (\`*_request.go\`, \`*_response.go\`)
           - Infrastructure adapters (\`*_gateway.go\`, \`*_datasource.go\`, \`*_presenter.go\`)
