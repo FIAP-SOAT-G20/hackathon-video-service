@@ -1,0 +1,507 @@
+basePath: /api/v1
+definitions:
+  middleware.ErrorJsonResponse:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: Bad Request
+        type: string
+    type: object
+  presenter.Pagination:
+    properties:
+      limit:
+        example: 10
+        type: integer
+      page:
+        example: 1
+        type: integer
+      total_items:
+        example: 1000
+        type: integer
+      total_pages:
+        example: 100
+        type: integer
+    type: object
+  presenter.VideoJsonPaginatedResponse:
+    properties:
+      pagination:
+        $ref: '#/definitions/presenter.Pagination'
+      videos:
+        items:
+          $ref: '#/definitions/presenter.VideoJsonResponse'
+        type: array
+    type: object
+  presenter.VideoJsonResponse:
+    properties:
+      created_at:
+        example: "2024-02-09T10:00:00Z"
+        type: string
+      description:
+        example: This is a description
+        type: string
+      hash:
+        example: hash_value
+        type: string
+      id:
+        type: integer
+      name:
+        example: My Video
+        type: string
+      presigned_url:
+        example: https://s3.amazonaws.com/bucket/video.mp4?signature=...
+        type: string
+      status:
+        example: PENDING
+        type: string
+      updated_at:
+        example: "2024-02-09T10:00:00Z"
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  request.CreateVideoBodyRequest:
+    properties:
+      description:
+        example: This is my video description
+        type: string
+      name:
+        example: My Video
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    required:
+    - name
+    - user_id
+    type: object
+  request.UpdateVideoBodyRequest:
+    properties:
+      hash:
+        example: abc123hash456
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/valueobject.VideoStatus'
+        example: PROCESSING
+    required:
+    - status
+    type: object
+  request.UpdateVideoPartilRequest:
+    properties:
+      status:
+        allOf:
+        - $ref: '#/definitions/valueobject.VideoStatus'
+        example: PROCESSING
+    type: object
+  response.HealthCheckLivenessResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  response.HealthCheckResponse:
+    properties:
+      checks:
+        additionalProperties:
+          $ref: '#/definitions/response.HealthCheckVerifications'
+        type: object
+      status:
+        $ref: '#/definitions/response.HealthCheckStatus'
+    type: object
+  response.HealthCheckStatus:
+    enum:
+    - pass
+    - warn
+    - fail
+    type: string
+    x-enum-varnames:
+    - HealthCheckStatusPass
+    - HealthCheckStatusWarn
+    - HealthCheckStatusFail
+  response.HealthCheckVerifications:
+    properties:
+      componentId:
+        type: string
+      status:
+        $ref: '#/definitions/response.HealthCheckStatus'
+      time:
+        type: string
+    type: object
+  valueobject.VideoStatus:
+    enum:
+    - CREATED
+    - PROCESSING
+    - FINISHED
+    - FAILED
+    - UNDEFINED
+    type: string
+    x-enum-varnames:
+    - CREATED
+    - PROCESSING
+    - FINISHED
+    - FAILED
+    - UNDEFINED
+externalDocs:
+  description: GitHub Repository
+  url: https://github.com/FIAP-SOAT-G20/hackathon-video-service
+info:
+  contact: {}
+  description: '### FIAP Hackathon - 10SOAT - G21'
+  title: Hackathon Video Service API
+  version: "1"
+paths:
+  /health:
+    get:
+      description: Checks application readiness
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.HealthCheckResponse'
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/response.HealthCheckResponse'
+      summary: Application Readiness
+      tags:
+      - health-check
+  /health/livez:
+    get:
+      description: Checks application liveness
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.HealthCheckLivenessResponse'
+      summary: Application Liveness
+      tags:
+      - health-check
+  /health/readyz:
+    get:
+      description: Checks application readiness
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.HealthCheckResponse'
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/response.HealthCheckResponse'
+      summary: Application Readiness
+      tags:
+      - health-check
+  /videos:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        List all videos
+        ## Video list is sorted by:
+        - **Status** in **descending** order (CREATED > PROCESSING > FINISHED)
+        - **Created date** (CreatedAt) in **ascending** order (oldest first)
+      parameters:
+      - description: Filter by user ID
+        in: query
+        name: user_id
+        type: integer
+      - description: 'Filter by status (Accept many), options: <sub>CREATED, PROCESSING,
+          FINISHED</sub>, ex: <sub>CREATED</sub> or <sub>CREATED,PROCESSING</sub>'
+        in: query
+        name: status
+        type: string
+      - default: FAILED
+        description: 'Exclude by status (Accept many), options: <sub>NONE, CREATED,
+          PROCESSING, FINISHED, FAILED</sub>, ex: <sub>FAILED</sub> (default)'
+        in: query
+        name: status_exclude
+        type: string
+      - description: Filter by hash
+        in: query
+        name: hash
+        type: string
+      - default: status:d,created_at
+        description: Sort by field (Accept many). Use `<field_name>:d` for descending,
+          and the default order is ascending
+        in: query
+        name: sort
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.VideoJsonPaginatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: List videos
+      tags:
+      - videos
+    post:
+      consumes:
+      - application/json
+      description: Creates a new video
+      parameters:
+      - description: Video data
+        in: body
+        name: video
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateVideoBodyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/presenter.VideoJsonResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: Create video
+      tags:
+      - videos
+  /videos/{id}:
+    delete:
+      description: Deletes a video by ID
+      parameters:
+      - description: Video ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.VideoJsonResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: Delete video
+      tags:
+      - videos
+    get:
+      consumes:
+      - application/json
+      description: Search for a video by ID
+      parameters:
+      - description: Video ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.VideoJsonResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: Get video
+      tags:
+      - videos
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Partially updates an existing video
+        The status are: **CREATED**, **FAILED**, **PROCESSING**, **FINISHED**
+        ## Transition of status:
+        - CREATED      -> FAILED || PROCESSING
+        - FAILED       -> {},
+        - PROCESSING   -> FINISHED
+        - FINISHED     -> {}
+      parameters:
+      - description: Video ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Video data
+        in: body
+        name: video
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateVideoPartilRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.VideoJsonResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: Partial update video
+      tags:
+      - videos
+    put:
+      consumes:
+      - application/json
+      description: |-
+        Update an existing video
+        The status are: **CREATED**, **FAILED**, **PROCESSING**, **FINISHED**
+        ## Transition of status:
+        - CREATED      -> FAILED || PROCESSING
+        - FAILED       -> {},
+        - PROCESSING   -> FINISHED
+        - FINISHED     -> {}
+      parameters:
+      - description: Video ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Video data
+        in: body
+        name: video
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateVideoBodyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.VideoJsonResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: Update video
+      tags:
+      - videos
+  /videos/{id}/processed:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Generate a presigned URL to download a processed video from S3
+        Only available for videos with status FINISHED
+      parameters:
+      - description: Video ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK - Returns download_url
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "422":
+          description: Video not processed yet
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/middleware.ErrorJsonResponse'
+      summary: Download processed video
+      tags:
+      - videos
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the access token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
+tags:
+- description: List, create, update and delete videos
+  name: videos
+- description: Health check
+  name: health-check

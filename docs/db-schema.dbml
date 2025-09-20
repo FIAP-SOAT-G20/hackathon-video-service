@@ -1,0 +1,11 @@
+Table videos {
+  id int [pk, increment]
+  name string [not null]
+  description string
+  presigned_url string
+  user_id int
+  status string [default: 'CREATED'] // CREATED, PROCESSING, FINISHED, FAILED
+  hash string
+  created_at datetime [not null, default: `now()`]
+  updated_at datetime [not null, default: `now()`]
+}
