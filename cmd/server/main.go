@@ -90,11 +90,17 @@ func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config) *route
 		panic(fmt.Sprintf("failed to create S3 client: %v", err))
 	}
 
+	// Create Redis/ElastiCache service
+	cacheService, err := service.NewRedisService(cfg)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create cache service: %v", err))
+	}
+
 	// Gateways
 	videoGateway := gateway.NewVideoGateway(videoDS)
 
 	// Use cases
-	videoUC := usecase.NewVideoUseCase(videoGateway, s3Client, cfg)
+	videoUC := usecase.NewVideoUseCase(videoGateway, s3Client, cacheService, cfg)
 
 	// Controllers
 	videoController := controller.NewVideoController(videoUC)

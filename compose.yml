@@ -73,6 +73,20 @@ services:
       - fiapx_video_network
     restart: unless-stopped
 
+  cache:
+    image: redis:7-alpine
+    container_name: fiapx-cache.hackathon.dev
+    ports:
+      - "6379:6379"
+    networks:
+      - fiapx_video_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
 volumes:
   db_data:
     driver: local

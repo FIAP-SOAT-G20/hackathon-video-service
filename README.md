@@ -53,6 +53,7 @@ This project is part of a larger system that includes:
 - **☁️ AWS S3 Integration**: Secure video storage with automatic presigned URL generation for uploads and downloads with configurable expiration times
 - **⚡ Asynchronous Processing**: AWS SQS integration with dedicated worker consumer for scalable, non-blocking video processing workflows
 - **🔐 JWT Authentication**: Stateless, secure token-based authentication with configurable expiration and refresh capabilities
+- **⚡ Redis Caching**: High-performance in-memory caching with Redis and AWS ElastiCache support for improved response times and reduced database load
 - **🏥 Health Monitoring**: Comprehensive health checks with database connectivity validation and service status reporting
 - **🐳 Containerized Deployment**: Multi-stage Docker builds optimized for production with Docker Compose for local development
 - **🧪 Comprehensive Testing**: Unit tests (90%+ coverage), integration tests, BDD tests with Gherkin scenarios, and automated CI/CD pipelines
@@ -68,8 +69,9 @@ This project is part of a larger system that includes:
 
 - **Go 1.24+**
 - **Docker and Docker Compose**
+- **Redis** (for caching - can run via Docker)
 - **Make** (for development commands)
-- **AWS Account** (for S3 and SQS services)
+- **AWS Account** (for S3, SQS, and ElastiCache services)
 
 ### 🚀 Development Setup
 
@@ -79,10 +81,11 @@ git clone <repository-url>
 cd hackathon-video-service
 cp .env.example .env  # Configure your environment variables
 
-# Start PostgreSQL database
+# Start PostgreSQL database and Redis cache
 make run-db
+make run-cache
 
-# Build and run the API server
+# Build and run the API server (includes database and cache)
 make build
 make run-api
 
@@ -108,8 +111,9 @@ The application follows **Clean Architecture** principles with a microservices a
 1. **API Server** (`cmd/server/main.go`) - RESTful API for video management
 2. **Worker Consumer** (`cmd/worker/consumer/main.go`) - SQS message processor for asynchronous video updates
 3. **Database Layer** - PostgreSQL with GORM ORM and migrations
-4. **Message Queue** - AWS SQS for decoupled, scalable message processing
-5. **Object Storage** - AWS S3 for video file storage with presigned URLs
+4. **Caching Layer** - Redis/AWS ElastiCache for high-performance data caching and reduced database load
+5. **Message Queue** - AWS SQS for decoupled, scalable message processing
+6. **Object Storage** - AWS S3 for video file storage with presigned URLs
 
 ### System Design
 
@@ -197,6 +201,25 @@ JWT_SECRET=your-super-secret-jwt-key
 JWT_EXPIRATION=24h
 ```
 
+### Cache Configuration
+
+```bash
+# Redis/ElastiCache Configuration
+CACHE_ENABLED=true                    # Enable/disable caching
+CACHE_ENDPOINT=localhost              # Redis endpoint (local or AWS ElastiCache)
+CACHE_PORT=6379                       # Redis port
+
+# For AWS ElastiCache (production)
+# CACHE_ENDPOINT=your-elasticache-endpoint.cache.amazonaws.com
+```
+
+> **Local Development**: Use Docker to run Redis locally:
+> ```bash
+> docker run -d --name redis -p 6379:6379 redis:alpine
+> ```
+
+> **Production**: Configure AWS ElastiCache endpoint for high availability and managed Redis instances.
+
 ### Worker Message Format
 
 The SQS worker processes messages in the following format:
@@ -227,6 +250,9 @@ The SQS worker processes messages in the following format:
 | `PUT` | `/api/v1/videos/{id}` | Update video metadata | Updated video |
 | `DELETE` | `/api/v1/videos/{id}` | Delete video | Deletion confirmation |
 | `GET` | `/api/v1/videos/{id}/processed` | Get download URL | Presigned download URL |
+
+> [!TIP]
+> **Cache Performance**: Video list queries are cached in Redis for improved response times. Cache duration is 5 minutes for list results.
 
 ### API Examples
 
@@ -341,6 +367,9 @@ make stop-db                    # Stop database services
 make migrate-up                 # Run database migrations
 make migrate-down               # Roll back migrations
 make migrate-create name=<name> # Create new migration
+
+# ⚡ Cache Management
+make run-cache                  # Start Redis cache
 
 # 🐳 Docker Development
 make compose-up                 # Start full environment

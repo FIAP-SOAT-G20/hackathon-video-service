@@ -19,6 +19,7 @@ import (
 	awsclient "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws/s3"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws/sqs"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/service"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 )
 
@@ -59,7 +60,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	videoUC := usecase.NewVideoUseCase(videoGateway, s3Client, appCfg)
+	// Create Redis/ElastiCache service
+	cacheService, err := service.NewRedisService(appCfg)
+	if err != nil {
+		loggerInstance.Error("Failed to create cache service", "error", err.Error())
+		os.Exit(1)
+	}
+
+	videoUC := usecase.NewVideoUseCase(videoGateway, s3Client, cacheService, appCfg)
 
 	if appCfg.AWS_SQS_VideoUpdatedURL == "" {
 		loggerInstance.Error("AWS SQS Order Status Updated URL is not configured")

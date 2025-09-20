@@ -2,7 +2,10 @@ package usecase
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain"
@@ -16,24 +19,59 @@ import (
 type VideoUseCase struct {
 	gateway         port.VideoGateway
 	objectStorageDS port.ObjectStorageDatasource
+	cacheService    port.CacheService
 	config          *config.Config
 }
 
+// listCacheResult represents the cached result of a video list query
+type listCacheResult struct {
+	Videos []*entity.Video `json:"videos"`
+	Total  int64           `json:"total"`
+}
+
 // NewVideoUseCase creates a new VideosUseCase
-func NewVideoUseCase(gateway port.VideoGateway, osDS port.ObjectStorageDatasource, cfg *config.Config) port.VideoUseCase {
+func NewVideoUseCase(gateway port.VideoGateway, osDS port.ObjectStorageDatasource, cacheService port.CacheService, cfg *config.Config) port.VideoUseCase {
 	return &VideoUseCase{
 		gateway:         gateway,
 		objectStorageDS: osDS,
+		cacheService:    cacheService,
 		config:          cfg,
 	}
 }
 
 // List returns a list of Videos
 func (uc *VideoUseCase) List(ctx context.Context, i dto.ListVideosInput) ([]*entity.Video, int64, error) {
+	// Generate cache key based on input parameters
+	cacheKey := uc.generateListCacheKey(i)
+	fmt.Println("Generated cache key:", cacheKey)
+
+	// Try to get from cache first
+	cachedResult, err := uc.getCachedListResult(ctx, cacheKey)
+	if err == nil && cachedResult != nil {
+		fmt.Println("Cache hit for key:", cacheKey)
+		return cachedResult.Videos, cachedResult.Total, nil
+	}
+
+	// Cache miss - fetch from database
 	videos, total, err := uc.gateway.FindAll(ctx, i.UserID, i.Status, i.StatusExclude, i.Hash, i.Page, i.Limit, i.Sort)
 	if err != nil {
 		return nil, 0, domain.NewInternalError(err)
 	}
+
+	// Cache the result for 5 minutes
+	listResult := &listCacheResult{
+		Videos: videos,
+		Total:  total,
+	}
+
+	// Store in cache asynchronously to avoid blocking the response
+	go func() {
+		cacheDuration := 5 * time.Minute
+		if cacheErr := uc.setCachedListResult(context.Background(), cacheKey, listResult, cacheDuration); cacheErr != nil {
+			// Log the cache error but don't fail the request
+			fmt.Printf("Failed to cache list result for key %s: %v\n", cacheKey, cacheErr)
+		}
+	}()
 
 	return videos, total, nil
 }
@@ -166,4 +204,91 @@ func (uc *VideoUseCase) Download(ctx context.Context, i dto.DownloadVideoInput) 
 	}
 
 	return entity.VideoProcessedDownload{URL: downloadURL}, nil
+}
+
+// generateListCacheKey creates a unique cache key for video list queries
+func (uc *VideoUseCase) generateListCacheKey(input dto.ListVideosInput) string {
+	// Convert status arrays to strings for consistent key generation
+	statusStr := ""
+	if len(input.Status) > 0 {
+		statusVals := make([]string, len(input.Status))
+		for i, status := range input.Status {
+			statusVals[i] = string(status)
+		}
+		statusStr = strings.Join(statusVals, ",")
+	}
+
+	statusExcludeStr := ""
+	if len(input.StatusExclude) > 0 {
+		excludeVals := make([]string, len(input.StatusExclude))
+		for i, status := range input.StatusExclude {
+			excludeVals[i] = string(status)
+		}
+		statusExcludeStr = strings.Join(excludeVals, ",")
+	}
+
+	// Create a consistent string representation of the input
+	keyData := fmt.Sprintf("videos:list:uid:%d:status:%s:exclude:%s:hash:%s:page:%d:limit:%d:sort:%s",
+		input.UserID, statusStr, statusExcludeStr, input.Hash, input.Page, input.Limit, input.Sort)
+
+	// Generate MD5 hash for shorter, consistent keys
+	hash := md5.Sum([]byte(keyData))
+	return fmt.Sprintf("videos:list:%x", hash)
+}
+
+// getCachedListResult retrieves cached video list result
+func (uc *VideoUseCase) getCachedListResult(ctx context.Context, key string) (*listCacheResult, error) {
+	if uc.cacheService == nil {
+		fmt.Println("Cache service not available")
+		return nil, fmt.Errorf("cache service not available")
+	}
+
+	// Add timeout context to prevent hanging on cache operations
+	cacheCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+
+	cachedData, err := uc.cacheService.Get(cacheCtx, key)
+	if err != nil {
+		fmt.Printf("Cache miss or error for key %s: %v\n", key, err)
+		return nil, err
+	}
+
+	if cachedData == nil {
+		fmt.Println("Cache miss for key:", key)
+		return nil, fmt.Errorf("cache miss")
+	}
+
+	// Convert cached data to JSON string then unmarshal to struct
+	jsonData, ok := cachedData.(string)
+	if !ok {
+		fmt.Println("Invalid cached data type")
+		return nil, fmt.Errorf("invalid cached data type")
+	}
+
+	var result listCacheResult
+	if err := json.Unmarshal([]byte(jsonData), &result); err != nil {
+		fmt.Println("Error unmarshaling cached data:", err)
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// setCachedListResult stores video list result in cache
+func (uc *VideoUseCase) setCachedListResult(ctx context.Context, key string, result *listCacheResult, expiration time.Duration) error {
+	if uc.cacheService == nil {
+		return fmt.Errorf("cache service not available")
+	}
+
+	// Add timeout context to prevent hanging on cache operations
+	cacheCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+
+	// Marshal to JSON for storage
+	jsonData, err := json.Marshal(result)
+	if err != nil {
+		return err
+	}
+
+	return uc.cacheService.Set(cacheCtx, key, string(jsonData), expiration)
 }

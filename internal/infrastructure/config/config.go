@@ -22,6 +22,11 @@ type Config struct {
 	AWSS3Region                 string
 	AWSS3PresignedURLExpiration time.Duration
 
+	// Cache settings
+	CacheEndpoint string
+	CachePort     int
+	CacheEnabled  bool
+
 	// Database settings
 	DBDSN          string
 	DBMaxOpenConns int
@@ -87,6 +92,10 @@ func LoadConfig() *Config {
 		s3PresignedURLExpiration = 15 * time.Minute
 	}
 
+	// Parse ElastiCache settings
+	cachePort, _ := strconv.Atoi(getEnv("CACHE_PORT", "6379"))
+	cacheEnabled, _ := strconv.ParseBool(getEnv("CACHE_ENABLED", "false"))
+
 	return &Config{
 		// AWS SQS settings
 		AWS_SQS_VideoUpdatedURL:             getEnv("AWS_SQS_VIDEO_UPDATED_URL", ""),
@@ -99,6 +108,11 @@ func LoadConfig() *Config {
 		AWSS3PresignedURLExpiration: s3PresignedURLExpiration,
 		AWSS3BucketRawFolder:        getEnv("AWS_S3_BUCKET_RAW_FOLDER", "raw"),
 		AWSS3BucketProcessedFolder:  getEnv("AWS_S3_BUCKET_PROCESSED_FOLDER", "processed"),
+
+		// Cache settings
+		CacheEndpoint: getEnv("CACHE_ENDPOINT", ""),
+		CachePort:     cachePort,
+		CacheEnabled:  cacheEnabled,
 
 		// Database settings
 		DBEngine: getEnv("DB_ENGINE", "postgresql"),

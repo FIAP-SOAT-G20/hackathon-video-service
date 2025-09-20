@@ -29,7 +29,7 @@ func (s *VideoUsecaseSuiteTest) SetupTest() {
 	s.ctrl = gomock.NewController(s.T())
 	s.mockGateway = mockport.NewMockVideoGateway(s.ctrl)
 	s.mockObjectStorage = mockport.NewMockObjectStorageDatasource(s.ctrl)
-	s.useCase = usecase.NewVideoUseCase(s.mockGateway, s.mockObjectStorage, config.LoadConfig())
+	s.useCase = usecase.NewVideoUseCase(s.mockGateway, s.mockObjectStorage, nil, config.LoadConfig())
 	s.ctx = context.Background()
 	currentTime := time.Now()
 	s.mockVideos = []*entity.Video{
