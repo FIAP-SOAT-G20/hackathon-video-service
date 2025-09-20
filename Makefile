@@ -123,7 +123,7 @@ swagger: ## Generate Swagger documentation
 .PHONY: lint
 lint: ## Run linter
 	@echo  "🟢 Running linter..."
-	@go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.2.2 run
+	@golangci-lint run
 
 .PHONY: migrate-create
 migrate-create: ## Create new migration, usage example: make migrate-create name=create_table_products
