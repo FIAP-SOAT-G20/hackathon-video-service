@@ -40,7 +40,7 @@ func init() {
 	containerPort, _ := container.MappedPort(ctx, port)
 	host, _ := container.Host(ctx)
 
-	err := os.Setenv("DB_HOST", host)
+	err = os.Setenv("DB_HOST", host)
 	if err != nil {
 		panic(err)
 	}
