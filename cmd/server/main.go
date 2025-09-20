@@ -54,7 +54,7 @@ func main() {
 		}
 	}()
 
-	handlers := setupHandlers(dbConfig, cfg)
+	handlers := setupHandlers(dbConfig, cfg, loggerInstance)
 
 	srv := server.NewServer(cfg, loggerInstance, handlers)
 	if err := srv.Start(); err != nil {
@@ -63,7 +63,7 @@ func main() {
 	}
 }
 
-func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config) *route.Handlers {
+func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config, loggerInstance *logger.Logger) *route.Handlers {
 	ctx := context.Background()
 
 	// Create AWS client factory
@@ -100,7 +100,7 @@ func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config) *route
 	videoGateway := gateway.NewVideoGateway(videoDS)
 
 	// Use cases
-	videoUC := usecase.NewVideoUseCase(videoGateway, s3Client, cacheService, cfg)
+	videoUC := usecase.NewVideoUseCase(videoGateway, s3Client, cacheService, cfg, loggerInstance)
 
 	// Controllers
 	videoController := controller.NewVideoController(videoUC)

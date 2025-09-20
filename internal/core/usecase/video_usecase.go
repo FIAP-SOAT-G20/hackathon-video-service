@@ -14,6 +14,7 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/dto"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/config"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
 )
 
 type VideoUseCase struct {
@@ -21,6 +22,7 @@ type VideoUseCase struct {
 	objectStorageDS port.ObjectStorageDatasource
 	cacheService    port.CacheService
 	config          *config.Config
+	logger          *logger.Logger
 }
 
 // listCacheResult represents the cached result of a video list query
@@ -30,12 +32,13 @@ type listCacheResult struct {
 }
 
 // NewVideoUseCase creates a new VideosUseCase
-func NewVideoUseCase(gateway port.VideoGateway, osDS port.ObjectStorageDatasource, cacheService port.CacheService, cfg *config.Config) port.VideoUseCase {
+func NewVideoUseCase(gateway port.VideoGateway, osDS port.ObjectStorageDatasource, cacheService port.CacheService, cfg *config.Config, logger *logger.Logger) port.VideoUseCase {
 	return &VideoUseCase{
 		gateway:         gateway,
 		objectStorageDS: osDS,
 		cacheService:    cacheService,
 		config:          cfg,
+		logger:          logger,
 	}
 }
 
@@ -43,12 +46,11 @@ func NewVideoUseCase(gateway port.VideoGateway, osDS port.ObjectStorageDatasourc
 func (uc *VideoUseCase) List(ctx context.Context, i dto.ListVideosInput) ([]*entity.Video, int64, error) {
 	// Generate cache key based on input parameters
 	cacheKey := uc.generateListCacheKey(i)
-	fmt.Println("Generated cache key:", cacheKey)
 
 	// Try to get from cache first
 	cachedResult, err := uc.getCachedListResult(ctx, cacheKey)
 	if err == nil && cachedResult != nil {
-		fmt.Println("Cache hit for key:", cacheKey)
+		uc.logger.InfoContext(ctx, "Cache hit for video list", "cacheKey", cacheKey)
 		return cachedResult.Videos, cachedResult.Total, nil
 	}
 
@@ -69,7 +71,7 @@ func (uc *VideoUseCase) List(ctx context.Context, i dto.ListVideosInput) ([]*ent
 		cacheDuration := 5 * time.Minute
 		if cacheErr := uc.setCachedListResult(context.Background(), cacheKey, listResult, cacheDuration); cacheErr != nil {
 			// Log the cache error but don't fail the request
-			fmt.Printf("Failed to cache list result for key %s: %v\n", cacheKey, cacheErr)
+			uc.logger.Error("Failed to cache list result", "cacheKey", cacheKey, "error", cacheErr)
 		}
 	}()
 
@@ -239,7 +241,7 @@ func (uc *VideoUseCase) generateListCacheKey(input dto.ListVideosInput) string {
 // getCachedListResult retrieves cached video list result
 func (uc *VideoUseCase) getCachedListResult(ctx context.Context, key string) (*listCacheResult, error) {
 	if uc.cacheService == nil {
-		fmt.Println("Cache service not available")
+		uc.logger.WarnContext(ctx, "Cache service not available")
 		return nil, fmt.Errorf("cache service not available")
 	}
 
@@ -249,25 +251,25 @@ func (uc *VideoUseCase) getCachedListResult(ctx context.Context, key string) (*l
 
 	cachedData, err := uc.cacheService.Get(cacheCtx, key)
 	if err != nil {
-		fmt.Printf("Cache miss or error for key %s: %v\n", key, err)
+		uc.logger.DebugContext(ctx, "Cache miss or error", "cacheKey", key, "error", err)
 		return nil, err
 	}
 
 	if cachedData == nil {
-		fmt.Println("Cache miss for key:", key)
+		uc.logger.DebugContext(ctx, "Cache miss", "cacheKey", key)
 		return nil, fmt.Errorf("cache miss")
 	}
 
 	// Convert cached data to JSON string then unmarshal to struct
 	jsonData, ok := cachedData.(string)
 	if !ok {
-		fmt.Println("Invalid cached data type")
+		uc.logger.ErrorContext(ctx, "Invalid cached data type", "cacheKey", key)
 		return nil, fmt.Errorf("invalid cached data type")
 	}
 
 	var result listCacheResult
 	if err := json.Unmarshal([]byte(jsonData), &result); err != nil {
-		fmt.Println("Error unmarshaling cached data:", err)
+		uc.logger.ErrorContext(ctx, "Error unmarshaling cached data", "cacheKey", key, "error", err)
 		return nil, err
 	}
 

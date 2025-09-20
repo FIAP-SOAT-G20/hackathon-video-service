@@ -67,7 +67,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	videoUC := usecase.NewVideoUseCase(videoGateway, s3Client, cacheService, appCfg)
+	videoUC := usecase.NewVideoUseCase(videoGateway, s3Client, cacheService, appCfg, loggerInstance)
 
 	if appCfg.AWS_SQS_VideoUpdatedURL == "" {
 		loggerInstance.Error("AWS SQS Order Status Updated URL is not configured")
