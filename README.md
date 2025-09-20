@@ -57,7 +57,7 @@ This project is part of a larger system that includes:
 - **⚡ Redis Caching**: High-performance in-memory caching with Redis and AWS ElastiCache support for improved response times and reduced database load
 - **🏥 Health Monitoring**: Comprehensive health checks with database connectivity validation and service status reporting
 - **🐳 Containerized Deployment**: Multi-stage Docker builds optimized for production with Docker Compose for local development
-- **🧪 Comprehensive Testing**: Unit tests (90%+ coverage), integration tests, BDD tests with Gherkin scenarios, and automated CI/CD pipelines
+- **🧪 Comprehensive Testing**: Unit tests (80%+ coverage), integration tests, BDD tests with Gherkin scenarios, and automated CI/CD pipelines
 - **📝 Interactive Documentation**: Auto-generated OpenAPI/Swagger UI with live API testing and comprehensive endpoint documentation
 - **🔧 Enhanced Developer Experience**: Hot reload with Air, extensive Makefile automation, code generation, linting, and Git workflow tools
 - **📈 Production Ready**: Kubernetes deployment manifests, monitoring hooks, graceful shutdowns, and horizontal scaling support
@@ -600,7 +600,7 @@ We welcome contributions! Please follow these guidelines:
 
 - **Go Style**: Follow effective Go practices and `gofmt` formatting
 - **Clean Architecture**: Maintain separation of concerns
-- **Test Coverage**: Maintain >90% coverage for core business logic
+- **Test Coverage**: Maintain >80% coverage for core business logic
 - **Documentation**: Update documentation for API changes
 - **Conventional Commits**: Use conventional commit format
 
