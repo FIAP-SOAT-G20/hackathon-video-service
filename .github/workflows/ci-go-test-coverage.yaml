@@ -11,25 +11,20 @@ permissions:
 jobs:
   go-test-coverage:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go-version:
-          - "1.25"
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: "Setup Go ${{ matrix.go-version }}"
+      - name: "Setup Go"
         uses: actions/setup-go@v5
         with:
-          go-version: "${{ matrix.go-version }}"
+          go-version-file: 'go.mod'
           cache: true
 
       - name: Display Go version
         run: go version
 
       - name: generate test coverage
-        run: go test -json -timeout 3m -race ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
+        run: go test -json -timeout 2m -race ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
       
       - name: check test coverage
         id: coverage
@@ -88,7 +83,7 @@ jobs:
           - **Coverage Mode:** atomic
           
           ### 🔧 Test Configuration:
-          - **Go Version:** ${{ matrix.go-version }}
+          - **Go Version:** $(go version)
           - **Race Detection:** ✅ enabled
           - **Timeout:** 2 minutes
           - **Test Packages:** All packages (./...)
