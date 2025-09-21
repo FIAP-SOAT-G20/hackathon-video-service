@@ -17,6 +17,9 @@ func Logger(log *logger.Logger) gin.HandlerFunc {
 
 		c.Next()
 
+		// Check if response came from cache
+		_, exists := c.Get("cache_miss")
+
 		log.InfoContext(c.Request.Context(),
 			"request completed",
 			"method", c.Request.Method,
@@ -26,6 +29,7 @@ func Logger(log *logger.Logger) gin.HandlerFunc {
 			"latency", time.Since(start),
 			"client_ip", c.ClientIP(),
 			"request_id", requestID,
+			"from_cache", !exists,
 			"errors", c.Errors.String(),
 		)
 	}

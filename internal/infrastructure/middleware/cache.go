@@ -57,6 +57,7 @@ func (cs *CacheStore) NewRedisCacheStore(logger *logger.Logger) port.CacheStore 
 func CachePage(store port.CacheStore, next gin.HandlerFunc) gin.HandlerFunc {
 	return cache.CachePage(store, time.Minute*5, func(c *gin.Context) {
 		// Cache miss - call the next handler to generate the response
+		c.Set("cache_miss", true)
 		next(c)
 	})
 }
