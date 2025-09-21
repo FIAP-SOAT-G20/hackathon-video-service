@@ -93,7 +93,7 @@ func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config, logger
 
 	// Create cache store for middleware
 	cacheStore := middleware.NewCacheStore(cfg, loggerInstance)
-	cacheMiddlewareFunc := cacheStore.CachePageMiddleware
+	cachePageMiddlewareFunc := cacheStore.CachePageMiddleware
 
 	// Gateways
 	videoGateway := gateway.NewVideoGateway(videoDS)
@@ -105,7 +105,7 @@ func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config, logger
 	videoController := controller.NewVideoController(videoUC)
 
 	// Handlers
-	videoHandler := handler.NewVideoHandler(videoController, jwtService, cacheMiddlewareFunc)
+	videoHandler := handler.NewVideoHandler(videoController, jwtService, cachePageMiddlewareFunc)
 	healthCheckHandler := handler.NewHealthCheckHandler()
 	redocHandler := handler.NewRedocHandler()
 

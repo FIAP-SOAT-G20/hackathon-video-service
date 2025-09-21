@@ -12,15 +12,16 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/dto"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler/request"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/middleware"
 )
 
 type VideoHandler struct {
 	controller      port.VideoController
 	jwtService      port.JWTService
-	cacheMiddleware func(next gin.HandlerFunc) gin.HandlerFunc
+	cacheMiddleware middleware.CachePageMiddleware
 }
 
-func NewVideoHandler(controller port.VideoController, jwtService port.JWTService, cacheMiddleware func(next gin.HandlerFunc) gin.HandlerFunc) *VideoHandler {
+func NewVideoHandler(controller port.VideoController, jwtService port.JWTService, cacheMiddleware middleware.CachePageMiddleware) *VideoHandler {
 	return &VideoHandler{
 		controller:      controller,
 		jwtService:      jwtService,

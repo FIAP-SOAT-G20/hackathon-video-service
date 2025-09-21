@@ -13,6 +13,8 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
 )
 
+type CachePageMiddleware func(gin.HandlerFunc) gin.HandlerFunc
+
 // CacheStore holds cache middleware configuration
 type CacheStore struct {
 	Endpoint string
@@ -61,15 +63,6 @@ func (cs *CacheStore) newRedisCacheStore(logger *logger.Logger) port.Cache {
 	logger.Info("Connected to Redis cache", "host", host)
 
 	return store
-}
-
-// CachePage creates a cache middleware specifically for video list endpoint
-func CachePage(store port.Cache, duration time.Duration, next gin.HandlerFunc) gin.HandlerFunc {
-	return cache.CachePage(store, duration, func(c *gin.Context) {
-		// Cache miss - call the next handler to generate the response
-		c.Set("cache_miss", true)
-		next(c)
-	})
 }
 
 // CachePageMiddleware creates a cache middleware with the configured store and duration
