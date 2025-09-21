@@ -22,6 +22,16 @@ type CacheStore struct {
 }
 
 func NewCacheStore(cfg *config.Config, logger *logger.Logger) *CacheStore {
+	// Handle nil config for testing scenarios
+	if cfg == nil {
+		return &CacheStore{
+			Endpoint: "localhost",
+			Port:     6379,
+			Duration: time.Minute,
+			Logger:   logger,
+		}
+	}
+	
 	return &CacheStore{
 		Endpoint: cfg.CacheEndpoint,
 		Port:     cfg.CachePort,
