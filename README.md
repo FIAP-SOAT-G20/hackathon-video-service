@@ -7,12 +7,13 @@
 ![GitHub CI - BDD](https://github.com/FIAP-SOAT-G20/hackathon-video-service/actions/workflows/ci-bdd-tests.yml/badge.svg)
 
 
-# <p align="center"><b>Hackathon FIAP-X</b> <small>Video Service - G21</small></p>
+# <p align="center"><b>Hackathon FIAP-X</b> <small>Video Service - G20</small></p>
 
 <p align="center">
     <img src="https://img.shields.io/badge/Code-Go-informational?style=flat-square&logo=go&color=00ADD8" alt="Go" />
     <img src="https://img.shields.io/badge/Tools-Gin-informational?style=flat-square&logo=go&color=00ADD8" alt="Gin" />
     <img src="https://img.shields.io/badge/Tools-PostgreSQL-informational?style=flat-square&logo=postgresql&color=4169E1" alt="PostgreSQL" />
+    <img src="https://img.shields.io/badge/Tools-Redis-informational?style=flat-square&logo=redis&color=DC382D" alt="Redis" />
     <img src="https://img.shields.io/badge/Tools-Docker-informational?style=flat-square&logo=docker&color=2496ED" alt="Docker" />
     <img src="https://img.shields.io/badge/Tools-Swagger-informational?style=flat-square&logo=swagger&color=85EA2D" alt="Swagger" />
     <br>
@@ -53,9 +54,10 @@ This project is part of a larger system that includes:
 - **☁️ AWS S3 Integration**: Secure video storage with automatic presigned URL generation for uploads and downloads with configurable expiration times
 - **⚡ Asynchronous Processing**: AWS SQS integration with dedicated worker consumer for scalable, non-blocking video processing workflows
 - **🔐 JWT Authentication**: Stateless, secure token-based authentication with configurable expiration and refresh capabilities
+- **⚡ Redis Caching**: High-performance in-memory caching with Redis and AWS ElastiCache support for improved response times and reduced database load
 - **🏥 Health Monitoring**: Comprehensive health checks with database connectivity validation and service status reporting
 - **🐳 Containerized Deployment**: Multi-stage Docker builds optimized for production with Docker Compose for local development
-- **🧪 Comprehensive Testing**: Unit tests (90%+ coverage), integration tests, BDD tests with Gherkin scenarios, and automated CI/CD pipelines
+- **🧪 Comprehensive Testing**: Unit tests (80%+ coverage), integration tests, BDD tests with Gherkin scenarios, and automated CI/CD pipelines
 - **📝 Interactive Documentation**: Auto-generated OpenAPI/Swagger UI with live API testing and comprehensive endpoint documentation
 - **🔧 Enhanced Developer Experience**: Hot reload with Air, extensive Makefile automation, code generation, linting, and Git workflow tools
 - **📈 Production Ready**: Kubernetes deployment manifests, monitoring hooks, graceful shutdowns, and horizontal scaling support
@@ -66,10 +68,11 @@ This project is part of a larger system that includes:
 
 ### Prerequisites
 
-- **Go 1.24+**
+- **Go 1.25+**
 - **Docker and Docker Compose**
+- **Redis** (for caching - can run via Docker)
 - **Make** (for development commands)
-- **AWS Account** (for S3 and SQS services)
+- **AWS Account** (for S3, SQS, and ElastiCache services)
 
 ### 🚀 Development Setup
 
@@ -79,10 +82,11 @@ git clone <repository-url>
 cd hackathon-video-service
 cp .env.example .env  # Configure your environment variables
 
-# Start PostgreSQL database
+# Start PostgreSQL database and Redis cache
 make run-db
+make run-cache
 
-# Build and run the API server
+# Build and run the API server (includes database and cache)
 make build
 make run-api
 
@@ -108,8 +112,9 @@ The application follows **Clean Architecture** principles with a microservices a
 1. **API Server** (`cmd/server/main.go`) - RESTful API for video management
 2. **Worker Consumer** (`cmd/worker/consumer/main.go`) - SQS message processor for asynchronous video updates
 3. **Database Layer** - PostgreSQL with GORM ORM and migrations
-4. **Message Queue** - AWS SQS for decoupled, scalable message processing
-5. **Object Storage** - AWS S3 for video file storage with presigned URLs
+4. **Caching Layer** - Redis/AWS ElastiCache for high-performance data caching and reduced database load
+5. **Message Queue** - AWS SQS for decoupled, scalable message processing
+6. **Object Storage** - AWS S3 for video file storage with presigned URLs
 
 ### System Design
 
@@ -197,6 +202,25 @@ JWT_SECRET=your-super-secret-jwt-key
 JWT_EXPIRATION=24h
 ```
 
+### Cache Configuration
+
+```bash
+# Redis/ElastiCache Configuration
+CACHE_ENABLED=true                    # Enable/disable caching
+CACHE_ENDPOINT=localhost              # Redis endpoint (local or AWS ElastiCache)
+CACHE_PORT=6379                       # Redis port
+
+# For AWS ElastiCache (production)
+# CACHE_ENDPOINT=your-elasticache-endpoint.cache.amazonaws.com
+```
+
+> **Local Development**: Use Docker to run Redis locally:
+> ```bash
+> docker run -d --name redis -p 6379:6379 redis:alpine
+> ```
+
+> **Production**: Configure AWS ElastiCache endpoint for high availability and managed Redis instances.
+
 ### Worker Message Format
 
 The SQS worker processes messages in the following format:
@@ -227,6 +251,9 @@ The SQS worker processes messages in the following format:
 | `PUT` | `/api/v1/videos/{id}` | Update video metadata | Updated video |
 | `DELETE` | `/api/v1/videos/{id}` | Delete video | Deletion confirmation |
 | `GET` | `/api/v1/videos/{id}/processed` | Get download URL | Presigned download URL |
+
+> [!TIP]
+> **Cache Performance**: Video list queries are cached in Redis for improved response times. Cache duration is 5 minutes for list results.
 
 ### API Examples
 
@@ -342,6 +369,9 @@ make migrate-up                 # Run database migrations
 make migrate-down               # Roll back migrations
 make migrate-create name=<name> # Create new migration
 
+# ⚡ Cache Management
+make run-cache                  # Start Redis cache
+
 # 🐳 Docker Development
 make compose-up                 # Start full environment
 make compose-down               # Stop all services
@@ -449,7 +479,7 @@ The application provides multi-stage Docker builds optimized for production:
 
 ```dockerfile
 # API Server
-FROM golang:1.24-alpine AS builder
+FROM golang:1.25-alpine AS builder
 # ... build stage
 FROM alpine:latest
 COPY --from=builder /app/bin/app /app/app
@@ -457,7 +487,7 @@ EXPOSE 8080
 CMD ["/app/app"]
 
 # Worker Consumer
-FROM golang:1.24-alpine AS builder
+FROM golang:1.25-alpine AS builder
 # ... build stage  
 FROM alpine:latest
 COPY --from=builder /app/bin/worker /app/worker
@@ -570,7 +600,7 @@ We welcome contributions! Please follow these guidelines:
 
 - **Go Style**: Follow effective Go practices and `gofmt` formatting
 - **Clean Architecture**: Maintain separation of concerns
-- **Test Coverage**: Maintain >90% coverage for core business logic
+- **Test Coverage**: Maintain >80% coverage for core business logic
 - **Documentation**: Update documentation for API changes
 - **Conventional Commits**: Use conventional commit format
 
@@ -639,6 +669,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Go Testing Best Practices](https://go.dev/doc/tutorial/add-a-test)
 - [Docker Multi-stage Builds](https://docs.docker.com/develop/dev-best-practices/)
 - [GitHub Actions for Go](https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go)
+- [How to Connect Your GitHub Project to Sonar](https://dev.to/olsido/how-to-connect-your-github-project-to-sonar-9ic)
+- [How to Enable SonarCloud for Your Project](https://dev.to/olsido/how-to-enable-sonarcloud-for-your-project-aoi)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

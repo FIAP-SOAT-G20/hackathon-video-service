@@ -46,8 +46,13 @@ run-db: ## Run the database
 	@echo  "🟢 Running the database..."
 	docker compose up -d db dbadmin
 
+.PHONY: run-cache
+run-cache: ## Run the cache (Redis)
+	@echo  "🟢 Running the cache..."
+	docker compose up -d cache
+
 .PHONY: run-api
-run-api: build run-db ## Run the API application
+run-api: build run-db run-cache ## Run the API application
 	@echo  "🟢 Running the application..."
 	$(GORUN) $(MAIN_FILE) || true
 
@@ -118,7 +123,7 @@ swagger: ## Generate Swagger documentation
 .PHONY: lint
 lint: ## Run linter
 	@echo  "🟢 Running linter..."
-	@go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.2.2 run
+	@golangci-lint run
 
 .PHONY: migrate-create
 migrate-create: ## Create new migration, usage example: make migrate-create name=create_table_products

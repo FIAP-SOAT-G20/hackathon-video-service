@@ -33,11 +33,14 @@ func init() {
 
 	port, _ := nat.NewPort("tcp", "5432")
 
-	container, _ := startContainer(ctx)
+	container, err := startContainer(ctx)
+	if err != nil {
+		panic(fmt.Errorf("failed to start test container: %w", err))
+	}
 	containerPort, _ := container.MappedPort(ctx, port)
 	host, _ := container.Host(ctx)
 
-	err := os.Setenv("DB_HOST", host)
+	err = os.Setenv("DB_HOST", host)
 	if err != nil {
 		panic(err)
 	}

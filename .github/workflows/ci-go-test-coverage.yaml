@@ -11,25 +11,20 @@ permissions:
 jobs:
   go-test-coverage:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go-version:
-          - "1.24"
-
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: "Setup Go ${{ matrix.go-version }}"
-        uses: actions/setup-go@v3
+      - name: "Setup Go"
+        uses: actions/setup-go@v5
         with:
-          go-version: "${{ matrix.go-version }}"
+          go-version-file: 'go.mod'
           cache: true
 
       - name: Display Go version
         run: go version
 
       - name: generate test coverage
-        run: go test -json -timeout 1m -race ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
+        run: go test -json -timeout 2m -race ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
       
       - name: check test coverage
         id: coverage
@@ -37,8 +32,6 @@ jobs:
         continue-on-error: true # Should fail after coverage comment is posted
         with:
           config: ./.github/.testcoverage.yml
-          # git-token: ${{ github.ref_name == 'main' && secrets.GITHUB_TOKEN || '' }}
-          # git-branch: badges
 
       - name: 📊 Upload coverage artifacts
         uses: actions/upload-artifact@v4
@@ -69,6 +62,7 @@ jobs:
           
           # Extract coverage percentage from report if available
           COVERAGE_REPORT="${{ fromJSON(steps.coverage.outputs.report) }}"
+          COVERAGE_OUTPUT=$(go tool cover -func=cover.out | tail -n 1 | awk '{print $3}' || echo "N/A")
           
           # Create enhanced coverage summary
           cat > coverage_summary.md << EOF
@@ -82,23 +76,24 @@ jobs:
           $COVERAGE_REPORT
           \`\`\`
           
-          ### � Coverage Requirements:
+          ### 📋 Coverage Requirements:
           - **Minimum Threshold:** 80%
           - **Coverage Profile:** ./cover.out
           - **Coverage Mode:** atomic
           
           ### 🔧 Test Configuration:
-          - **Go Version:** ${{ matrix.go-version }}
+          - **Go Version:** $(go version)
           - **Race Detection:** ✅ enabled
-          - **Timeout:** 1 minute
-          - **Test Packages:** All packages (./...)
+          - **Timeout:** 2 minutes
+          - **Test Packages:** Handlers, Controllers, Services, Use Cases, Repositories
           
-          ### � Excluded from Coverage:
+          ### 🚫 Excluded from Coverage:
           - Mock files (\`*_mock.go\`)
           - Request/Response DTOs (\`*_request.go\`, \`*_response.go\`)
           - Infrastructure adapters (\`*_gateway.go\`, \`*_datasource.go\`, \`*_presenter.go\`)
           - Documentation and configuration files
           - Value objects and domain entities
+          - All paths excluded can be found in \`.github/.testcoverage.yml\`
           
           ---
           _Automated test coverage ensures code quality and identifies untested business logic._

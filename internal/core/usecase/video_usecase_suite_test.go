@@ -11,6 +11,7 @@ import (
 	mockport "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port/mocks"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/usecase"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/config"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
 )
@@ -20,7 +21,9 @@ type VideoUsecaseSuiteTest struct {
 	mockVideos        []*entity.Video
 	mockGateway       *mockport.MockVideoGateway
 	mockObjectStorage *mockport.MockObjectStorageDatasource
+	mockCacheService  *mockport.MockCacheService
 	useCase           port.VideoUseCase
+	useCaseWithCache  port.VideoUseCase
 	ctx               context.Context
 	ctrl              *gomock.Controller
 }
@@ -29,7 +32,10 @@ func (s *VideoUsecaseSuiteTest) SetupTest() {
 	s.ctrl = gomock.NewController(s.T())
 	s.mockGateway = mockport.NewMockVideoGateway(s.ctrl)
 	s.mockObjectStorage = mockport.NewMockObjectStorageDatasource(s.ctrl)
-	s.useCase = usecase.NewVideoUseCase(s.mockGateway, s.mockObjectStorage, config.LoadConfig())
+	s.mockCacheService = mockport.NewMockCacheService(s.ctrl)
+	testLogger := logger.NewLogger("test")
+	s.useCase = usecase.NewVideoUseCase(s.mockGateway, s.mockObjectStorage, nil, config.LoadConfig(), testLogger)
+	s.useCaseWithCache = usecase.NewVideoUseCase(s.mockGateway, s.mockObjectStorage, s.mockCacheService, config.LoadConfig(), testLogger)
 	s.ctx = context.Background()
 	currentTime := time.Now()
 	s.mockVideos = []*entity.Video{
