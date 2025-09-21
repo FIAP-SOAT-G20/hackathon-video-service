@@ -3,7 +3,6 @@ package handler
 import (
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -13,28 +12,25 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/dto"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler/request"
-	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/middleware"
 )
 
 type VideoHandler struct {
 	controller      port.VideoController
 	jwtService      port.JWTService
-	cacheInstance port.Cache
-	cacheDuration   time.Duration
+	cacheMiddleware func(next gin.HandlerFunc) gin.HandlerFunc
 }
 
-func NewVideoHandler(controller port.VideoController, jwtService port.JWTService, cacheInstance port.Cache, cacheDuration time.Duration) *VideoHandler {
+func NewVideoHandler(controller port.VideoController, jwtService port.JWTService, cacheMiddleware func(next gin.HandlerFunc) gin.HandlerFunc) *VideoHandler {
 	return &VideoHandler{
 		controller:      controller,
 		jwtService:      jwtService,
-		cacheInstance: cacheInstance,
-		cacheDuration:   cacheDuration,
+		cacheMiddleware: cacheMiddleware,
 	}
 }
 
 func (h *VideoHandler) Register(router *gin.RouterGroup) {
 	// Apply cache middleware to the List endpoint
-	router.GET("", middleware.CachePage(h.cacheInstance, h.cacheDuration, h.List))
+	router.GET("", h.cacheMiddleware(h.List))
 	router.POST("", h.Create)
 	router.GET("/:id", h.Get)
 	router.PUT("/:id", h.Update)
