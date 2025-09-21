@@ -3,6 +3,7 @@ package handler_test
 import (
 	"context"
 	"testing"
+	"time"
 
 	mockport "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port/mocks"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler"
@@ -37,7 +38,7 @@ func (s *VideoHandlerSuiteTest) SetupTest() {
 
 	// Create a simple in-memory cache store for testing
 	cacheStore := middleware.NewCacheStore(nil, nil).NewMemoryCacheStore()
-	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService, cacheStore)
+	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService, cacheStore, time.Minute*5)
 	s.ctx = context.Background()
 
 	// Register routes

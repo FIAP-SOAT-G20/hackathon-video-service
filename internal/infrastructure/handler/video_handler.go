@@ -18,22 +18,24 @@ import (
 )
 
 type VideoHandler struct {
-	controller port.VideoController
-	jwtService port.JWTService
-	cacheStore port.CacheStore
+	controller    port.VideoController
+	jwtService    port.JWTService
+	cacheStore    port.CacheStore
+	cacheDuration time.Duration
 }
 
-func NewVideoHandler(controller port.VideoController, jwtService port.JWTService, cacheStore port.CacheStore) *VideoHandler {
+func NewVideoHandler(controller port.VideoController, jwtService port.JWTService, cacheStore port.CacheStore, cacheDuration time.Duration) *VideoHandler {
 	return &VideoHandler{
-		controller: controller,
-		jwtService: jwtService,
-		cacheStore: cacheStore,
+		controller:    controller,
+		jwtService:    jwtService,
+		cacheStore:    cacheStore,
+		cacheDuration: cacheDuration,
 	}
 }
 
 func (h *VideoHandler) Register(router *gin.RouterGroup) {
 	// Apply cache middleware to the List endpoint
-	router.GET("", middleware.CachePage(h.cacheStore, h.List))
+	router.GET("", middleware.CachePage(h.cacheStore, h.cacheDuration, h.List))
 	router.POST("", h.Create)
 	router.GET("/:id", h.Get)
 	router.PUT("/:id", h.Update)
