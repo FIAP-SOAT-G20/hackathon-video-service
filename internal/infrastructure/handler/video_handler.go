@@ -19,11 +19,11 @@ import (
 type VideoHandler struct {
 	controller      port.VideoController
 	jwtService      port.JWTService
-	cacheMiddleware port.CacheMiddleware
+	cacheMiddleware port.Cache
 	cacheDuration   time.Duration
 }
 
-func NewVideoHandler(controller port.VideoController, jwtService port.JWTService, cacheStore port.CacheMiddleware, cacheDuration time.Duration) *VideoHandler {
+func NewVideoHandler(controller port.VideoController, jwtService port.JWTService, cacheStore port.Cache, cacheDuration time.Duration) *VideoHandler {
 	return &VideoHandler{
 		controller:      controller,
 		jwtService:      jwtService,
