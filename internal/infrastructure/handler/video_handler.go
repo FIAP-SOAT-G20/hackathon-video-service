@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -66,8 +65,6 @@ func (h *VideoHandler) Register(router *gin.RouterGroup) {
 //	@Failure		500				{object}	middleware.ErrorJsonResponse			"Internal Server Error"
 //	@Router			/videos [get]
 func (h *VideoHandler) List(c *gin.Context) {
-	fmt.Println("====================>>> VideoHandler List <<<====================")
-	fmt.Println("current time:", time.Now().Format(time.RFC3339))
 	var query request.ListVideosQueryRequest
 	if err := c.ShouldBindQuery(&query); err != nil {
 		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidParam))
