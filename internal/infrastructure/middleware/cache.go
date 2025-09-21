@@ -31,7 +31,7 @@ func NewCacheStore(cfg *config.Config, logger *logger.Logger) *CacheStore {
 			Logger:   logger,
 		}
 	}
-	
+
 	return &CacheStore{
 		Endpoint: cfg.CacheEndpoint,
 		Port:     cfg.CachePort,
