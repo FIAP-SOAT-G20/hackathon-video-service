@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -12,19 +14,26 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/dto"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler/request"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/middleware"
 )
 
 type VideoHandler struct {
 	controller port.VideoController
 	jwtService port.JWTService
+	cacheStore port.CacheStore
 }
 
-func NewVideoHandler(controller port.VideoController, jwtService port.JWTService) *VideoHandler {
-	return &VideoHandler{controller: controller, jwtService: jwtService}
+func NewVideoHandler(controller port.VideoController, jwtService port.JWTService, cacheStore port.CacheStore) *VideoHandler {
+	return &VideoHandler{
+		controller: controller,
+		jwtService: jwtService,
+		cacheStore: cacheStore,
+	}
 }
 
 func (h *VideoHandler) Register(router *gin.RouterGroup) {
-	router.GET("", h.List)
+	// Apply cache middleware to the List endpoint
+	router.GET("", middleware.CachePage(h.cacheStore, h.List))
 	router.POST("", h.Create)
 	router.GET("/:id", h.Get)
 	router.PUT("/:id", h.Update)
@@ -55,6 +64,8 @@ func (h *VideoHandler) Register(router *gin.RouterGroup) {
 //	@Failure		500				{object}	middleware.ErrorJsonResponse			"Internal Server Error"
 //	@Router			/videos [get]
 func (h *VideoHandler) List(c *gin.Context) {
+	fmt.Println("====================>>> VideoHandler List <<<====================")
+	fmt.Println("current time:", time.Now().Format(time.RFC3339))
 	var query request.ListVideosQueryRequest
 	if err := c.ShouldBindQuery(&query); err != nil {
 		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidParam))

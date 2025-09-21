@@ -14,6 +14,7 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/datasource"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/middleware"
 	awsclient "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws/s3"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/route"
@@ -90,23 +91,24 @@ func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config, logger
 		panic(fmt.Sprintf("failed to create S3 client: %v", err))
 	}
 
-	// Create Redis/ElastiCache service
-	cacheService, err := service.NewRedisService(cfg)
-	if err != nil {
-		panic(fmt.Sprintf("failed to create cache service: %v", err))
+	// Create cache store for middleware
+	cacheStore := middleware.NewCacheStore(cfg, loggerInstance)
+	cache := cacheStore.NewMemoryCacheStore()
+	if cfg.CacheEnabled {
+		cache = cacheStore.NewRedisCacheStore(loggerInstance)
 	}
 
 	// Gateways
 	videoGateway := gateway.NewVideoGateway(videoDS)
 
 	// Use cases
-	videoUC := usecase.NewVideoUseCase(videoGateway, s3Client, cacheService, cfg, loggerInstance)
+	videoUC := usecase.NewVideoUseCase(videoGateway, s3Client, cfg, loggerInstance)
 
 	// Controllers
 	videoController := controller.NewVideoController(videoUC)
 
 	// Handlers
-	videoHandler := handler.NewVideoHandler(videoController, jwtService)
+	videoHandler := handler.NewVideoHandler(videoController, jwtService, cache)
 	healthCheckHandler := handler.NewHealthCheckHandler()
 	redocHandler := handler.NewRedocHandler()
 
