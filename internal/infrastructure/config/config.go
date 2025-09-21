@@ -26,6 +26,7 @@ type Config struct {
 	CacheEndpoint string
 	CachePort     int
 	CacheEnabled  bool
+	CacheDuration time.Duration
 
 	// Database settings
 	DBDSN          string
@@ -95,6 +96,12 @@ func LoadConfig() *Config {
 	// Parse ElastiCache settings
 	cachePort, _ := strconv.Atoi(getEnv("CACHE_PORT", "6379"))
 	cacheEnabled, _ := strconv.ParseBool(getEnv("CACHE_ENABLED", "false"))
+	cacheDurationStr := getEnv("CACHE_DURATION", "5m")
+	cacheDuration, err := time.ParseDuration(cacheDurationStr)
+	if err != nil {
+		log.Printf("Warning: invalid CACHE_DURATION value %q: %v. Using default value 5m.", cacheDurationStr, err)
+		cacheDuration = 5 * time.Minute
+	}
 
 	return &Config{
 		// AWS SQS settings
@@ -113,6 +120,7 @@ func LoadConfig() *Config {
 		CacheEndpoint: getEnv("CACHE_ENDPOINT", ""),
 		CachePort:     cachePort,
 		CacheEnabled:  cacheEnabled,
+		CacheDuration: cacheDuration,
 
 		// Database settings
 		DBEngine: getEnv("DB_ENGINE", "postgresql"),
