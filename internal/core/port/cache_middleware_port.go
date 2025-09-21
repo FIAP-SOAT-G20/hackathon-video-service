@@ -4,8 +4,8 @@ import (
 	"time"
 )
 
-// CacheStore is the interface of a cache backend
-type CacheStore interface {
+// CacheMiddleware is the interface of a cache backend
+type CacheMiddleware interface {
 	// Get retrieves an item from the cache. Returns the item or nil, and a bool indicating
 	// whether the key was found.
 	Get(key string, value any) error

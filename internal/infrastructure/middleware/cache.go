@@ -41,12 +41,12 @@ func NewCacheStore(cfg *config.Config, logger *logger.Logger) *CacheStore {
 }
 
 // NewMemoryCacheStore creates a new in-memory cache store
-func (cs *CacheStore) NewMemoryCacheStore() port.CacheStore {
+func (cs *CacheStore) NewMemoryCacheStore() port.CacheMiddleware {
 	return persistence.NewInMemoryStore(cs.Duration)
 }
 
 // NewRedisCacheStore creates a new Redis cache store
-func (cs *CacheStore) NewRedisCacheStore(logger *logger.Logger) port.CacheStore {
+func (cs *CacheStore) NewRedisCacheStore(logger *logger.Logger) port.CacheMiddleware {
 
 	// Create Redis store with host:port format
 	host := fmt.Sprintf("%s:%d", cs.Endpoint, cs.Port)
@@ -64,7 +64,7 @@ func (cs *CacheStore) NewRedisCacheStore(logger *logger.Logger) port.CacheStore 
 }
 
 // CachePage creates a cache middleware specifically for video list endpoint
-func CachePage(store port.CacheStore, duration time.Duration, next gin.HandlerFunc) gin.HandlerFunc {
+func CachePage(store port.CacheMiddleware, duration time.Duration, next gin.HandlerFunc) gin.HandlerFunc {
 	return cache.CachePage(store, duration, func(c *gin.Context) {
 		// Cache miss - call the next handler to generate the response
 		c.Set("cache_miss", true)
