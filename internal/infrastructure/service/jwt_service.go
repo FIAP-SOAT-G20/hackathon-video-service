@@ -83,7 +83,7 @@ func (s *jwtService) ExtractUserIDFromToken(tokenString string) (uint64, error) 
 			return 0, errors.New("no user id claim found")
 		}
 	} else {
-		log.Println("could not cast claims")
+		log.Printf("could not cast claims: got type %T with value %v", token.Claims, token.Claims)
 	}
 
 	return 0, nil
