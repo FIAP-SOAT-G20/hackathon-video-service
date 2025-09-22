@@ -46,7 +46,7 @@ func NewDatabase(cfg *config.Config, logger *logger.Logger) (*DatabaseConfig, er
 			return nil, fmt.Errorf("failed to run PostgreSQL migrations: %w", err)
 		}
 
-		logger.Info("Connected to PostgreSQL database")
+		logger.Info("Connected to PostgreSQL database", "dsn", cfg.DBDSN)
 
 	case DocumentDB, MongoDB:
 		db, err := NewDocumentDBConnection(cfg, logger)
@@ -60,7 +60,7 @@ func NewDatabase(cfg *config.Config, logger *logger.Logger) (*DatabaseConfig, er
 			return nil, fmt.Errorf("failed to create DocumentDB indexes: %w", err)
 		}
 
-		logger.Info("Connected to DocumentDB/MongoDB database")
+		logger.Info("Connected to DocumentDB/MongoDB database", "uri", cfg.DBDSN)
 
 	default:
 		return nil, fmt.Errorf("unsupported database type: %s", dbType)

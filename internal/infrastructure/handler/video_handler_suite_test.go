@@ -6,6 +6,7 @@ import (
 
 	mockport "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port/mocks"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/middleware"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/util"
 	"github.com/gin-gonic/gin"
@@ -31,10 +32,14 @@ func (s *VideoHandlerSuiteTest) SetupTest() {
 
 	// Create a new handler
 	ctrl := gomock.NewController(s.T())
-	defer ctrl.Finish()
 	s.mockController = mockport.NewMockVideoController(ctrl)
 	s.mockJWTService = mockport.NewMockJWTService(ctrl)
-	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService)
+
+	// Create a simple cache middleware function for testing
+	testLogger := logger.NewLogger("test")
+	cacheStore := middleware.NewCacheStore(nil, testLogger)
+	cacheMiddlewareFunc := cacheStore.CachePageMiddleware
+	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService, cacheMiddlewareFunc)
 	s.ctx = context.Background()
 
 	// JWT service mocks will be set up in individual test cases
@@ -69,10 +74,12 @@ func (s *VideoHandlerSuiteTest) SetupTest() {
 func (s *VideoHandlerSuiteTest) BeforeTest(_, _ string) {
 	// Reset mocks before each test case
 	ctrl := gomock.NewController(s.T())
-	defer ctrl.Finish()
 	s.mockController = mockport.NewMockVideoController(ctrl)
 	s.mockJWTService = mockport.NewMockJWTService(ctrl)
-	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService)
+	testLogger := logger.NewLogger("test")
+	cacheStore := middleware.NewCacheStore(nil, testLogger)
+	cacheMiddlewareFunc := cacheStore.CachePageMiddleware
+	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService, cacheMiddlewareFunc)
 
 	// Create a new router for each test case
 	s.router = newRouter()
