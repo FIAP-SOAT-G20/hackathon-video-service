@@ -64,27 +64,30 @@ func (s *jwtService) ValidateToken(tokenString string) error {
 }
 
 func (s *jwtService) ExtractUserIDFromToken(tokenString string) (uint64, error) {
-	// Parse token without verifying signature for demo purposes
-
-	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
+	claims := jwt.MapClaims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signature method")
+		}
+		return s.secretKey, nil
+	})
 	if err != nil || token == nil {
 		return 0, err
 	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		fmt.Println("claims", claims)
-		if userID, ok := claims["https://video-manager.hackathon.fiap.com.br/hui"]; ok {
-			userIDInt, err := strconv.ParseUint(userID.(string), 10, 64)
-			if err != nil {
-				return 0, err
-			}
-			return userIDInt, nil
-		} else {
-			return 0, errors.New("no user id claim found")
-		}
-	} else {
-		log.Printf("could not cast claims: got type %T with value %v", token.Claims, token.Claims)
+	if !token.Valid {
+		return 0, errors.New("invalid token")
 	}
-
-	return 0, nil
+	if userID, ok := claims["https://video-manager.hackathon.fiap.com.br/hui"]; ok {
+		userIDStr, ok := userID.(string)
+		if !ok {
+			return 0, errors.New("user id claim is not a string")
+		}
+		userIDInt, err := strconv.ParseUint(userIDStr, 10, 64)
+		if err != nil {
+			return 0, err
+		}
+		return userIDInt, nil
+	} else {
+		return 0, errors.New("no user id claim found")
+	}
 }
