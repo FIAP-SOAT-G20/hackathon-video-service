@@ -118,7 +118,7 @@ func TestVideoDocumentDataSource_Integration(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Find the video
-		found, err := videoDS.FindByID(ctx, video.ID)
+		found, err := videoDS.FindByID(ctx, video.ID, video.UserID)
 		assert.NoError(t, err)
 		assert.NotNil(t, found)
 		assert.Equal(t, video.ID, found.ID)
@@ -146,7 +146,7 @@ func TestVideoDocumentDataSource_Integration(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify update
-		found, err := videoDS.FindByID(ctx, video.ID)
+		found, err := videoDS.FindByID(ctx, video.ID, video.UserID)
 		assert.NoError(t, err)
 		assert.Equal(t, valueobject.FINISHED, found.Status)
 		assert.Equal(t, uint64(102), found.UserID)
@@ -170,7 +170,7 @@ func TestVideoDocumentDataSource_Integration(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify deletion
-		found, err := videoDS.FindByID(ctx, video.ID)
+		found, err := videoDS.FindByID(ctx, video.ID, video.UserID)
 		assert.NoError(t, err)
 		assert.Nil(t, found)
 	})
@@ -230,7 +230,7 @@ func TestVideoDocumentDataSource_Integration(t *testing.T) {
 
 		// Verify the video was created (only if transaction succeeded)
 		if err == nil {
-			found, err := videoDS.FindByID(ctx, 20)
+			found, err := videoDS.FindByID(ctx, 20, 300)
 			assert.NoError(t, err)
 			assert.NotNil(t, found)
 			if found != nil {
@@ -306,7 +306,7 @@ func TestVideoDocumentDataSource_NoAuth(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Find the video
-	found, err := videoDS.FindByID(ctx, 1)
+	found, err := videoDS.FindByID(ctx, 1, 100)
 	assert.NoError(t, err)
 	assert.NotNil(t, found)
 	assert.Equal(t, uint64(1), found.ID)

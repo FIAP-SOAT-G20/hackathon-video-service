@@ -6,6 +6,7 @@ import (
 
 	mockport "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port/mocks"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler"
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/middleware"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -36,14 +37,12 @@ func (s *VideoHandlerSuiteTest) SetupTest() {
 	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService)
 	s.ctx = context.Background()
 
-	// Register routes
-	s.router.GET("/videos", s.handler.List)
-	s.router.POST("/videos", s.handler.Create)
-	s.router.PUT("/videos/:id", s.handler.Update)
-	s.router.PATCH("/videos/:id", s.handler.UpdatePartial)
-	s.router.GET("/videos/:id", s.handler.Get)
-	s.router.DELETE("/videos/:id", s.handler.Delete)
-	s.router.GET("/videos/:id/processed", s.handler.Download)
+	// JWT service mocks will be set up in individual test cases
+
+	// Register routes with JWT middleware
+	videoGroup := s.router.Group("/videos")
+	videoGroup.Use(middleware.JWTAuthMiddleware(s.mockJWTService))
+	s.handler.Register(videoGroup)
 
 	// Mock requests
 	var err error
@@ -67,7 +66,20 @@ func (s *VideoHandlerSuiteTest) SetupTest() {
 	addCommonResponses(&s.responses)
 }
 
-// func (s *VideoHandlerSuiteTest) BeforeTest(_, _ string) {}
+func (s *VideoHandlerSuiteTest) BeforeTest(_, _ string) {
+	// Reset mocks before each test case
+	ctrl := gomock.NewController(s.T())
+	defer ctrl.Finish()
+	s.mockController = mockport.NewMockVideoController(ctrl)
+	s.mockJWTService = mockport.NewMockJWTService(ctrl)
+	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService)
+
+	// Create a new router for each test case
+	s.router = newRouter()
+	videoGroup := s.router.Group("/videos")
+	videoGroup.Use(middleware.JWTAuthMiddleware(s.mockJWTService))
+	s.handler.Register(videoGroup)
+}
 
 func TestVideoHandlerSuiteTest(t *testing.T) {
 	suite.Run(t, new(VideoHandlerSuiteTest))

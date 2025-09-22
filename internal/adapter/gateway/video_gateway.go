@@ -17,8 +17,8 @@ func NewVideoGateway(dataSource port.VideoDataSource) port.VideoGateway {
 	return &videoGateway{dataSource}
 }
 
-func (g *videoGateway) FindByID(ctx context.Context, id uint64) (*entity.Video, error) {
-	return g.dataSource.FindByID(ctx, id)
+func (g *videoGateway) FindByID(ctx context.Context, id uint64, userID uint64) (*entity.Video, error) {
+	return g.dataSource.FindByID(ctx, id, userID)
 }
 
 func (g *videoGateway) FindAll(

@@ -5,6 +5,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
+	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/config"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
@@ -48,7 +49,11 @@ func (r *Router) RegisterRoutes(handlers *Handlers) {
 	// API v1
 	v1 := r.engine.Group("/api/v1")
 	{
-		handlers.Video.Register(v1.Group("/videos"))
+		// Videos routes with JWT authentication
+		videosGroup := v1.Group("/videos")
+		videosGroup.Use(middleware.JWTAuthMiddleware(handlers.JWTService))
+		handlers.Video.Register(videosGroup)
+
 		handlers.HealthCheck.Register(v1.Group("/health"))
 	}
 }
@@ -61,6 +66,7 @@ func (r *Router) Engine() *gin.Engine {
 // Handlers contains all handlers of the application
 type Handlers struct {
 	Video       *handler.VideoHandler
+	JWTService  port.JWTService
 	HealthCheck *handler.HealthCheckHandler
 	Redoc       *handler.RedocHandler
 }

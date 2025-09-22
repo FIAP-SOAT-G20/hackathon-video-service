@@ -387,10 +387,10 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Get() {
 	}{
 		{
 			name:  "should get video successfully",
-			input: dto.GetVideoInput{ID: 1},
+			input: dto.GetVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(s.mockVideos[0], nil)
 			},
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
@@ -401,10 +401,10 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Get() {
 		},
 		{
 			name:  "should return not found error when video doesn't exist",
-			input: dto.GetVideoInput{ID: 1},
+			input: dto.GetVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(nil, nil)
 			},
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
@@ -415,10 +415,10 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Get() {
 		},
 		{
 			name:  "should return internal error when gateway fails",
-			input: dto.GetVideoInput{ID: 1},
+			input: dto.GetVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(nil, assert.AnError)
 			},
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
@@ -467,7 +467,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 					UpdatedAt: time.Now(),
 				}
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(video, nil)
 
 				s.mockGateway.EXPECT().
@@ -492,7 +492,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(nil, assert.AnError)
 			},
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
@@ -510,7 +510,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 			},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(nil, nil)
 			},
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
@@ -536,7 +536,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 					UpdatedAt: time.Now(),
 				}
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(2)).
 					Return(video, nil)
 			},
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
@@ -562,7 +562,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 					UpdatedAt: time.Now(),
 				}
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(video, nil)
 				// No expectation for Update because it should not be called due to invalid transition
 			},
@@ -589,7 +589,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 					UpdatedAt: time.Now(),
 				}
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(video, nil)
 
 				s.mockGateway.EXPECT().
@@ -619,7 +619,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 					UpdatedAt: time.Now(),
 				}
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(video, nil)
 
 				s.mockGateway.EXPECT().
@@ -657,10 +657,10 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Delete() {
 	}{
 		{
 			name:  "should delete video successfully",
-			input: dto.DeleteVideoInput{ID: 1},
+			input: dto.DeleteVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(&entity.Video{ID: 1}, nil)
 
 				s.mockGateway.EXPECT().
@@ -675,10 +675,10 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Delete() {
 		},
 		{
 			name:  "should return not found error when video doesn't exist",
-			input: dto.DeleteVideoInput{ID: 1},
+			input: dto.DeleteVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(nil, nil)
 			},
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
@@ -688,10 +688,10 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Delete() {
 		},
 		{
 			name:  "should return error when gateway fails on find",
-			input: dto.DeleteVideoInput{ID: 1},
+			input: dto.DeleteVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(nil, assert.AnError)
 			},
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
@@ -702,10 +702,10 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Delete() {
 		},
 		{
 			name:  "should return error when gateway fails on delete",
-			input: dto.DeleteVideoInput{ID: 1},
+			input: dto.DeleteVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(&entity.Video{}, nil)
 
 				s.mockGateway.EXPECT().
@@ -743,7 +743,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 	}{
 		{
 			name:  "should download video successfully",
-			input: dto.DownloadVideoInput{ID: 1},
+			input: dto.DownloadVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				video := &entity.Video{
 					ID:     1,
@@ -752,7 +752,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 					Hash:   "abc123hash456",
 				}
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(video, nil)
 
 				s.mockObjectStorage.EXPECT().
@@ -767,10 +767,10 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 		},
 		{
 			name:  "should return error when gateway find fails",
-			input: dto.DownloadVideoInput{ID: 1},
+			input: dto.DownloadVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(nil, assert.AnError)
 			},
 			checkResult: func(t *testing.T, download entity.VideoProcessedDownload, err error) {
@@ -781,10 +781,10 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 		},
 		{
 			name:  "should return not found error when video doesn't exist",
-			input: dto.DownloadVideoInput{ID: 1},
+			input: dto.DownloadVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(nil, nil)
 			},
 			checkResult: func(t *testing.T, download entity.VideoProcessedDownload, err error) {
@@ -795,7 +795,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 		},
 		{
 			name:  "should return error when video is not processed (CREATED status)",
-			input: dto.DownloadVideoInput{ID: 1},
+			input: dto.DownloadVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				video := &entity.Video{
 					ID:     1,
@@ -804,7 +804,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 					Hash:   "abc123hash456",
 				}
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(video, nil)
 			},
 			checkResult: func(t *testing.T, download entity.VideoProcessedDownload, err error) {
@@ -815,7 +815,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 		},
 		{
 			name:  "should return error when video is not processed (PROCESSING status)",
-			input: dto.DownloadVideoInput{ID: 1},
+			input: dto.DownloadVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				video := &entity.Video{
 					ID:     1,
@@ -824,7 +824,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 					Hash:   "abc123hash456",
 				}
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(video, nil)
 			},
 			checkResult: func(t *testing.T, download entity.VideoProcessedDownload, err error) {
@@ -835,7 +835,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 		},
 		{
 			name:  "should return error when video is not processed (FAILED status)",
-			input: dto.DownloadVideoInput{ID: 1},
+			input: dto.DownloadVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				video := &entity.Video{
 					ID:     1,
@@ -844,7 +844,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 					Hash:   "abc123hash456",
 				}
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(video, nil)
 			},
 			checkResult: func(t *testing.T, download entity.VideoProcessedDownload, err error) {
@@ -855,7 +855,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 		},
 		{
 			name:  "should return error when object storage fails to generate download URL",
-			input: dto.DownloadVideoInput{ID: 1},
+			input: dto.DownloadVideoInput{ID: 1, UserID: 1},
 			setupMocks: func() {
 				video := &entity.Video{
 					ID:     1,
@@ -864,7 +864,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Download() {
 					Hash:   "abc123hash456",
 				}
 				s.mockGateway.EXPECT().
-					FindByID(s.ctx, uint64(1)).
+					FindByID(s.ctx, uint64(1), uint64(1)).
 					Return(video, nil)
 
 				s.mockObjectStorage.EXPECT().

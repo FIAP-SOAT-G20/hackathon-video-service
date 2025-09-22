@@ -27,12 +27,11 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 			name: "success",
 			url:  "/videos",
 			setupMocks: func() {
-				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListVideosInput{
-					StatusExclude: []valueobject.VideoStatus{valueobject.FAILED},
-					Page:          1,
-					Limit:         10,
-					Sort:          "status:d,created_at",
-				}).Return([]byte(s.responses["list_success"]), nil)
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(0), nil).
+					AnyTimes()
+				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any()).Return([]byte(s.responses["list_success"]), nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusOK, res.Code)
@@ -43,14 +42,11 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 			name: "success - with query",
 			url:  "/videos?user_id=1&status=CREATED,PROCESSING",
 			setupMocks: func() {
-				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListVideosInput{
-					UserID:        1,
-					Status:        []valueobject.VideoStatus{valueobject.CREATED, valueobject.PROCESSING},
-					StatusExclude: []valueobject.VideoStatus{valueobject.FAILED},
-					Page:          1,
-					Limit:         10,
-					Sort:          "status:d,created_at",
-				}).Return([]byte(s.responses["list_success_with_query"]), nil)
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
+				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any()).Return([]byte(s.responses["list_success_with_query"]), nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusOK, res.Code)
@@ -58,18 +54,14 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 			},
 		},
 		{
-			name:       "invalid query - user_id",
-			url:        "/videos?user_id=invalid",
-			setupMocks: func() {},
-			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
-				assert.Equal(t, http.StatusBadRequest, res.Code)
-				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_invalid_parameter"])
+			name: "invalid query - status",
+			url:  "/videos?status=invalid",
+			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(0), nil).
+					AnyTimes()
 			},
-		},
-		{
-			name:       "invalid query - status",
-			url:        "/videos?status=invalid",
-			setupMocks: func() {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_invalid_parameter"])
@@ -79,12 +71,11 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 			name: "controller error",
 			url:  "/videos",
 			setupMocks: func() {
-				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), dto.ListVideosInput{
-					StatusExclude: []valueobject.VideoStatus{valueobject.FAILED},
-					Page:          1,
-					Limit:         10,
-					Sort:          "status:d,created_at",
-				}).Return(nil, domain.NewInternalError(nil))
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(0), nil).
+					AnyTimes()
+				s.mockController.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, domain.NewInternalError(nil))
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusInternalServerError, res.Code)
@@ -99,6 +90,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 			tt.setupMocks()
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, tt.url, nil)
+			req.Header.Set("Authorization", "Bearer test-token")
 
 			// Act
 			s.router.ServeHTTP(w, req)
@@ -122,6 +114,10 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Create() {
 			url:  "/videos",
 			body: strings.NewReader(s.requests["create_success"]),
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
 					Create(gomock.Any(), gomock.Any(), dto.CreateVideoInput{
 						UserID:      1,
@@ -136,19 +132,29 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Create() {
 			},
 		},
 		{
-			name:       "invalid request - body is not a valid json",
-			url:        "/videos",
-			body:       strings.NewReader("invalid"),
-			setupMocks: func() {},
+			name: "invalid request - body is not a valid json",
+			url:  "/videos",
+			body: strings.NewReader("invalid"),
+			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
+			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 			},
 		},
 		{
-			name:       "invalid request - user_id is not a number",
-			url:        "/videos",
-			body:       strings.NewReader(s.requests["create_invalid_body"]),
-			setupMocks: func() {},
+			name: "invalid request - user_id is not a number",
+			url:  "/videos",
+			body: strings.NewReader(s.requests["create_invalid_body"]),
+			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
+			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 			},
@@ -158,6 +164,10 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Create() {
 			url:  "/videos",
 			body: strings.NewReader(s.requests["create_success"]),
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
 					Create(gomock.Any(), gomock.Any(), dto.CreateVideoInput{
 						UserID:      1,
@@ -179,6 +189,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Create() {
 			tt.setupMocks()
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodPost, tt.url, tt.body)
+			req.Header.Set("Authorization", "Bearer test-token")
 
 			// Act
 			s.router.ServeHTTP(w, req)
@@ -200,8 +211,12 @@ func (s *VideoHandlerSuiteTest) TestOrderHandler_Get() {
 			name: "success",
 			url:  "/videos/5",
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
-					Get(gomock.Any(), gomock.Any(), dto.GetVideoInput{ID: 5}).
+					Get(gomock.Any(), gomock.Any(), dto.GetVideoInput{ID: 5, UserID: 1}).
 					Return([]byte(s.responses["get_success"]), nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -213,8 +228,12 @@ func (s *VideoHandlerSuiteTest) TestOrderHandler_Get() {
 			name: "not found",
 			url:  "/videos/5",
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
-					Get(gomock.Any(), gomock.Any(), dto.GetVideoInput{ID: 5}).
+					Get(gomock.Any(), gomock.Any(), dto.GetVideoInput{ID: 5, UserID: 1}).
 					Return(nil, domain.NewNotFoundError(domain.ErrNotFound))
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -223,9 +242,14 @@ func (s *VideoHandlerSuiteTest) TestOrderHandler_Get() {
 			},
 		},
 		{
-			name:       "invalid request - id is not a number",
-			url:        "/videos/invalid",
-			setupMocks: func() {},
+			name: "invalid request - id is not a number",
+			url:  "/videos/invalid",
+			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
+			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_invalid_parameter"])
@@ -239,6 +263,7 @@ func (s *VideoHandlerSuiteTest) TestOrderHandler_Get() {
 			tt.setupMocks()
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, tt.url, nil)
+			req.Header.Set("Authorization", "Bearer test-token")
 
 			// Act
 			s.router.ServeHTTP(w, req)
@@ -262,9 +287,14 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 			url:  "/videos/15",
 			body: strings.NewReader(s.requests["update_success"]),
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:     15,
+						UserID: 1,
 						Status: valueobject.PROCESSING,
 						Hash:   "abc123hash456",
 					}).
@@ -276,30 +306,45 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 			},
 		},
 		{
-			name:       "invalid request - body is not a valid json",
-			url:        "/videos/5",
-			body:       strings.NewReader("invalid"),
-			setupMocks: func() {},
+			name: "invalid request - body is not a valid json",
+			url:  "/videos/5",
+			body: strings.NewReader("invalid"),
+			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
+			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_invalid_body"])
 			},
 		},
 		{
-			name:       "invalid request - user_id is not a number",
-			url:        "/videos/5",
-			body:       strings.NewReader(s.requests["update_invalid_body"]),
-			setupMocks: func() {},
+			name: "invalid request - user_id is not a number",
+			url:  "/videos/5",
+			body: strings.NewReader(s.requests["update_invalid_body"]),
+			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
+			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_invalid_body"])
 			},
 		},
 		{
-			name:       "invalid request - id is not a number",
-			url:        "/videos/invalid",
-			body:       strings.NewReader(s.requests["update_success"]),
-			setupMocks: func() {},
+			name: "invalid request - id is not a number",
+			url:  "/videos/invalid",
+			body: strings.NewReader(s.requests["update_success"]),
+			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
+			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_invalid_parameter"])
@@ -310,9 +355,14 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 			url:  "/videos/15",
 			body: strings.NewReader(s.requests["update_success"]),
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:     15,
+						UserID: 1,
 						Status: valueobject.PROCESSING,
 						Hash:   "abc123hash456",
 					}).
@@ -331,6 +381,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 			tt.setupMocks()
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodPut, tt.url, tt.body)
+			req.Header.Set("Authorization", "Bearer test-token")
 
 			// Act
 			s.router.ServeHTTP(w, req)
@@ -354,9 +405,14 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 			url:  "/videos/15",
 			body: strings.NewReader(s.requests["update_success"]),
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:     15,
+						UserID: 1,
 						Status: valueobject.PROCESSING,
 						Hash:   "abc123hash456",
 					}).
@@ -368,30 +424,45 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 			},
 		},
 		{
-			name:       "invalid request - body is not a valid json",
-			url:        "/videos/5",
-			body:       strings.NewReader("invalid"),
-			setupMocks: func() {},
+			name: "invalid request - body is not a valid json",
+			url:  "/videos/5",
+			body: strings.NewReader("invalid"),
+			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
+			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_invalid_body"])
 			},
 		},
 		{
-			name:       "invalid request - user_id is not a number",
-			url:        "/videos/5",
-			body:       strings.NewReader(s.requests["update_invalid_body"]),
-			setupMocks: func() {},
+			name: "invalid request - user_id is not a number",
+			url:  "/videos/5",
+			body: strings.NewReader(s.requests["update_invalid_body"]),
+			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
+			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_invalid_body"])
 			},
 		},
 		{
-			name:       "invalid request - id is not a number",
-			url:        "/videos/invalid",
-			body:       strings.NewReader(s.requests["update_success"]),
-			setupMocks: func() {},
+			name: "invalid request - id is not a number",
+			url:  "/videos/invalid",
+			body: strings.NewReader(s.requests["update_success"]),
+			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
+			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_invalid_parameter"])
@@ -402,9 +473,14 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 			url:  "/videos/15",
 			body: strings.NewReader(s.requests["update_success"]),
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
 					Update(gomock.Any(), gomock.Any(), dto.UpdateVideoInput{
 						ID:     15,
+						UserID: 1,
 						Status: valueobject.PROCESSING,
 						Hash:   "abc123hash456",
 					}).
@@ -423,6 +499,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 			tt.setupMocks()
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodPatch, tt.url, tt.body)
+			req.Header.Set("Authorization", "Bearer test-token")
 
 			// Act
 			s.router.ServeHTTP(w, req)
@@ -444,8 +521,12 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Delete() {
 			name: "success",
 			url:  "/videos/9",
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
-					Delete(gomock.Any(), gomock.Any(), dto.DeleteVideoInput{ID: 9}).
+					Delete(gomock.Any(), gomock.Any(), dto.DeleteVideoInput{ID: 9, UserID: 1}).
 					Return([]byte(s.responses["delete_success"]), nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -457,8 +538,12 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Delete() {
 			name: "not found",
 			url:  "/videos/9",
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
-					Delete(gomock.Any(), gomock.Any(), dto.DeleteVideoInput{ID: 9}).
+					Delete(gomock.Any(), gomock.Any(), dto.DeleteVideoInput{ID: 9, UserID: 1}).
 					Return(nil, domain.NewNotFoundError(domain.ErrNotFound))
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -467,9 +552,14 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Delete() {
 			},
 		},
 		{
-			name:       "invalid request - id is not a number",
-			url:        "/videos/invalid",
-			setupMocks: func() {},
+			name: "invalid request - id is not a number",
+			url:  "/videos/invalid",
+			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
+			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_invalid_parameter"])
@@ -483,6 +573,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Delete() {
 			tt.setupMocks()
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodDelete, tt.url, nil)
+			req.Header.Set("Authorization", "Bearer test-token")
 
 			// Act
 			s.router.ServeHTTP(w, req)
@@ -540,8 +631,12 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Download() {
 			name: "success",
 			url:  "/videos/5/processed",
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
-					Download(gomock.Any(), gomock.Any(), dto.DownloadVideoInput{ID: 5}).
+					Download(gomock.Any(), gomock.Any(), dto.DownloadVideoInput{ID: 5, UserID: 1}).
 					Return([]byte(s.responses["download_success"]), nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -554,8 +649,12 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Download() {
 			name: "video not found",
 			url:  "/videos/5/processed",
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
-					Download(gomock.Any(), gomock.Any(), dto.DownloadVideoInput{ID: 5}).
+					Download(gomock.Any(), gomock.Any(), dto.DownloadVideoInput{ID: 5, UserID: 1}).
 					Return(nil, domain.NewNotFoundError(domain.ErrNotFound))
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -567,8 +666,12 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Download() {
 			name: "video not processed yet",
 			url:  "/videos/5/processed",
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
-					Download(gomock.Any(), gomock.Any(), dto.DownloadVideoInput{ID: 5}).
+					Download(gomock.Any(), gomock.Any(), dto.DownloadVideoInput{ID: 5, UserID: 1}).
 					Return(nil, domain.NewValidationError(errors.New(domain.ErrVideoNotProcessed)))
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -576,9 +679,14 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Download() {
 			},
 		},
 		{
-			name:       "invalid request - id is not a number",
-			url:        "/videos/invalid/processed",
-			setupMocks: func() {},
+			name: "invalid request - id is not a number",
+			url:  "/videos/invalid/processed",
+			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
+			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 				assert.Contains(t, util.RemoveAllSpaces(res.Body.String()), s.responses["error_invalid_parameter"])
@@ -588,8 +696,12 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Download() {
 			name: "controller error",
 			url:  "/videos/5/processed",
 			setupMocks: func() {
+				s.mockJWTService.EXPECT().
+					ExtractUserIDFromToken(gomock.Any()).
+					Return(uint64(1), nil).
+					AnyTimes()
 				s.mockController.EXPECT().
-					Download(gomock.Any(), gomock.Any(), dto.DownloadVideoInput{ID: 5}).
+					Download(gomock.Any(), gomock.Any(), dto.DownloadVideoInput{ID: 5, UserID: 1}).
 					Return(nil, domain.NewInternalError(nil))
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -605,6 +717,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Download() {
 			tt.setupMocks()
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, tt.url, nil)
+			req.Header.Set("Authorization", "Bearer test-token")
 
 			// Act
 			s.router.ServeHTTP(w, req)

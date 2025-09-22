@@ -22,11 +22,13 @@ type UpdateVideoInput struct {
 }
 
 type GetVideoInput struct {
-	ID uint64
+	ID     uint64
+	UserID uint64
 }
 
 type DeleteVideoInput struct {
-	ID uint64
+	ID     uint64
+	UserID uint64
 }
 
 type ListVideosInput struct {
@@ -40,5 +42,6 @@ type ListVideosInput struct {
 }
 
 type DownloadVideoInput struct {
-	ID uint64
+	ID     uint64
+	UserID uint64
 }

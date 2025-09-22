@@ -41,7 +41,7 @@ func NewVideoDocumentDataSource(db *database.DocumentDatabase) port.VideoDataSou
 	}
 }
 
-func (ds *videoDocumentDataSource) FindByID(ctx context.Context, id uint64) (*entity.Video, error) {
+func (ds *videoDocumentDataSource) FindByID(ctx context.Context, id uint64, userID uint64) (*entity.Video, error) {
 	filter := bson.M{"video_id": id}
 
 	var doc VideoDocument

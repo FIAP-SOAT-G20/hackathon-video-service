@@ -7,7 +7,7 @@ import (
 )
 
 type VideoDataSource interface {
-	FindByID(ctx context.Context, id uint64) (*entity.Video, error)
+	FindByID(ctx context.Context, id uint64, userID uint64) (*entity.Video, error)
 	FindAll(ctx context.Context, filters map[string]any, sort string, page, limit int) ([]*entity.Video, int64, error)
 	Create(ctx context.Context, video *entity.Video) error
 	Update(ctx context.Context, video *entity.Video) error

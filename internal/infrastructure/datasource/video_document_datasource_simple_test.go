@@ -85,7 +85,7 @@ func TestVideoDocumentDataSource_Simple(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Find the video
-		found, err := videoDS.FindByID(ctx, 1)
+		found, err := videoDS.FindByID(ctx, 1, 100)
 		assert.NoError(t, err)
 		assert.NotNil(t, found)
 		assert.Equal(t, uint64(1), found.ID)
@@ -95,7 +95,7 @@ func TestVideoDocumentDataSource_Simple(t *testing.T) {
 
 	t.Run("Update Video", func(t *testing.T) {
 		// Find the video created in previous test
-		video, err := videoDS.FindByID(ctx, 1)
+		video, err := videoDS.FindByID(ctx, 1, 100)
 		require.NoError(t, err)
 		require.NotNil(t, video)
 
@@ -107,7 +107,7 @@ func TestVideoDocumentDataSource_Simple(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify the update
-		updated, err := videoDS.FindByID(ctx, 1)
+		updated, err := videoDS.FindByID(ctx, 1, 100)
 		assert.NoError(t, err)
 		assert.NotNil(t, updated)
 		assert.Equal(t, valueobject.PROCESSING, updated.Status)
@@ -119,7 +119,7 @@ func TestVideoDocumentDataSource_Simple(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify deletion
-		found, err := videoDS.FindByID(ctx, 1)
+		found, err := videoDS.FindByID(ctx, 1, 100)
 		assert.NoError(t, err)
 		assert.Nil(t, found)
 	})
@@ -179,7 +179,7 @@ func TestVideoDocumentDataSource_Simple(t *testing.T) {
 
 		// Verify the video was created (only if transaction succeeded)
 		if err == nil {
-			found, err := videoDS.FindByID(ctx, 20)
+			found, err := videoDS.FindByID(ctx, 20, 300)
 			assert.NoError(t, err)
 			assert.NotNil(t, found)
 			if found != nil {

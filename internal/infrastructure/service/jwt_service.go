@@ -2,6 +2,8 @@ package service
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -59,4 +61,30 @@ func (s *jwtService) ValidateToken(tokenString string) error {
 	}
 
 	return nil
+}
+
+func (s *jwtService) ExtractUserIDFromToken(tokenString string) (uint64, error) {
+	// Parse token without verifying signature for demo purposes
+
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
+	if err != nil || token == nil {
+		return 0, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		fmt.Println("claims", claims)
+		if userID, ok := claims["https://video-manager.hackathon.fiap.com.br/hui"]; ok {
+			userIDInt, err := strconv.ParseUint(userID.(string), 10, 64)
+			if err != nil {
+				return 0, err
+			}
+			return userIDInt, nil
+		} else {
+			return 0, errors.New("no user id claim found")
+		}
+	} else {
+		log.Println("could not cast claims")
+	}
+
+	return 0, nil
 }
