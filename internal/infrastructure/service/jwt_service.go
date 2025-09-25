@@ -92,7 +92,6 @@ func (s *jwtService) ValidateToken(tokenString string) error {
 }
 
 func (s *jwtService) ExtractUserIDFromToken(tokenString string) (uint64, error) {
-<<<<<<< HEAD
 	// Parse token without verifying signature for demo purposes
 	vc, err := s.validator.ValidateToken(context.Background(), tokenString)
 	if err != nil {
@@ -104,27 +103,6 @@ func (s *jwtService) ExtractUserIDFromToken(tokenString string) (uint64, error) 
 
 	if tokenClaims.UserID != "" {
 		userIDInt, err := strconv.ParseUint(tokenClaims.UserID, 10, 64)
-=======
-	claims := jwt.MapClaims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("invalid signature method")
-		}
-		return s.secretKey, nil
-	})
-	if err != nil || token == nil {
-		return 0, err
-	}
-	if !token.Valid {
-		return 0, errors.New("invalid token")
-	}
-	if userID, ok := claims["https://video-manager.hackathon.fiap.com.br/hui"]; ok {
-		userIDStr, ok := userID.(string)
-		if !ok {
-			return 0, errors.New("user id claim is not a string")
-		}
-		userIDInt, err := strconv.ParseUint(userIDStr, 10, 64)
->>>>>>> f47cc4c3e4266c5e3fd1ddfcb1ff97420c261f6e
 		if err != nil {
 			return 0, err
 		}
