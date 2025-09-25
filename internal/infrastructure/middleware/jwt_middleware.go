@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +25,7 @@ func JWTAuthMiddleware(jwtService port.JWTService) gin.HandlerFunc {
 			return
 		}
 
-		if len(parts) != 2 || parts[1] == "" {
+		if parts[1] == "" {
 			_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
 			c.Abort()
 			return
@@ -34,7 +33,6 @@ func JWTAuthMiddleware(jwtService port.JWTService) gin.HandlerFunc {
 
 		userID, err := jwtService.ExtractUserIDFromToken(parts[1])
 		if err != nil {
-			fmt.Printf("err extract user id from token: %v\n", err)
 			_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
 			c.Abort()
 			return
