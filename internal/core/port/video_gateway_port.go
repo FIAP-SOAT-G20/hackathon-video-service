@@ -8,7 +8,7 @@ import (
 )
 
 type VideoGateway interface {
-	FindByID(ctx context.Context, id uint64) (*entity.Video, error)
+	FindByID(ctx context.Context, id uint64, userID uint64) (*entity.Video, error)
 	FindAll(ctx context.Context, customerId uint64, status []valueobject.VideoStatus, statusExclude []valueobject.VideoStatus, hash string, page, limit int, sort string) ([]*entity.Video, int64, error)
 	Create(ctx context.Context, video *entity.Video) error
 	Update(ctx context.Context, video *entity.Video) error

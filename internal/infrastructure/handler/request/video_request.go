@@ -3,7 +3,6 @@ package request
 import valueobject "github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/value_object"
 
 type ListVideosQueryRequest struct {
-	UserID        uint64 `form:"user_id" example:"1" default:"0"`
 	Status        string `form:"status" binding:"omitempty" example:"PROCESSING"`
 	StatusExclude string `form:"status_exclude" binding:"omitempty" example:"FAILED,FINISHED"`
 	Hash          string `form:"hash" binding:"omitempty" example:"abc123hash456"`
@@ -14,7 +13,6 @@ type ListVideosQueryRequest struct {
 }
 
 type CreateVideoBodyRequest struct {
-	UserID      uint64 `json:"user_id" binding:"required" example:"1"`
 	Name        string `json:"name" binding:"required" example:"My Video"`
 	Description string `json:"description" binding:"omitempty" example:"This is my video description"`
 }

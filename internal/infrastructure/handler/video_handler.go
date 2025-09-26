@@ -99,8 +99,14 @@ func (h *VideoHandler) List(c *gin.Context) {
 		}
 	}
 
+	userID, ok := c.Get("user_id")
+	if !ok {
+		_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
+		return
+	}
+
 	input := dto.ListVideosInput{
-		UserID:        query.UserID,
+		UserID:        userID.(uint64),
 		Status:        status,
 		StatusExclude: statusExclude,
 		Hash:          query.Hash,
@@ -141,8 +147,14 @@ func (h *VideoHandler) Create(c *gin.Context) {
 		return
 	}
 
+	userID, ok := c.Get("user_id")
+	if !ok {
+		_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
+		return
+	}
+
 	input := dto.CreateVideoInput{
-		UserID:      body.UserID,
+		UserID:      userID.(uint64),
 		Name:        body.Name,
 		Description: body.Description,
 	}
@@ -180,8 +192,15 @@ func (h *VideoHandler) Get(c *gin.Context) {
 		return
 	}
 
+	userID, ok := c.Get("user_id")
+	if !ok {
+		_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
+		return
+	}
+
 	input := dto.GetVideoInput{
-		ID: uri.ID,
+		ID:     uri.ID,
+		UserID: userID.(uint64),
 	}
 
 	output, err := h.controller.Get(
@@ -230,8 +249,15 @@ func (h *VideoHandler) Update(c *gin.Context) {
 		return
 	}
 
+	userID, ok := c.Get("user_id")
+	if !ok {
+		_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
+		return
+	}
+
 	input := dto.UpdateVideoInput{
 		ID:     uri.ID,
+		UserID: userID.(uint64),
 		Status: body.Status,
 		Hash:   body.Hash,
 	}
@@ -282,8 +308,15 @@ func (h *VideoHandler) UpdatePartial(c *gin.Context) {
 		return
 	}
 
+	userID, ok := c.Get("user_id")
+	if !ok {
+		_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
+		return
+	}
+
 	input := dto.UpdateVideoInput{
 		ID:     uri.ID,
+		UserID: userID.(uint64),
 		Status: body.Status,
 		Hash:   body.Hash,
 	}
@@ -320,8 +353,15 @@ func (h *VideoHandler) Delete(c *gin.Context) {
 		return
 	}
 
+	userID, ok := c.Get("user_id")
+	if !ok {
+		_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
+		return
+	}
+
 	input := dto.DeleteVideoInput{
-		ID: uri.ID,
+		ID:     uri.ID,
+		UserID: userID.(uint64),
 	}
 
 	output, err := h.controller.Delete(
@@ -359,8 +399,15 @@ func (h *VideoHandler) Download(c *gin.Context) {
 		return
 	}
 
+	userID, ok := c.Get("user_id")
+	if !ok {
+		_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
+		return
+	}
+
 	input := dto.DownloadVideoInput{
-		ID: uri.ID,
+		ID:     uri.ID,
+		UserID: userID.(uint64),
 	}
 
 	output, err := h.controller.Download(

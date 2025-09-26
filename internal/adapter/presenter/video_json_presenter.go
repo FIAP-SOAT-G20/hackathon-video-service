@@ -3,6 +3,7 @@ package presenter
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/domain/entity"
@@ -59,8 +60,12 @@ func ToVideoJsonResponse(video *entity.Video) VideoJsonResponse {
 		Status:       string(video.Status),
 		Hash:         video.Hash,
 		PresignedURL: video.PresignedURL,
-		CreatedAt:    video.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt:    video.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
+		PresignedURLHeaders: map[string]string{
+			"x-amz-meta-user-id":  fmt.Sprintf("%d", video.UserID),
+			"x-amz-meta-video-id": fmt.Sprintf("%d", video.ID),
+		},
+		CreatedAt: video.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
+		UpdatedAt: video.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
 	}
 }
 

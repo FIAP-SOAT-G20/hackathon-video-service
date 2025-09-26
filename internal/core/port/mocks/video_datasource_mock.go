@@ -86,18 +86,18 @@ func (mr *MockVideoDataSourceMockRecorder) FindAll(ctx, filters, sort, page, lim
 }
 
 // FindByID mocks base method.
-func (m *MockVideoDataSource) FindByID(ctx context.Context, id uint64) (*entity.Video, error) {
+func (m *MockVideoDataSource) FindByID(ctx context.Context, id, userID uint64) (*entity.Video, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByID", ctx, id)
+	ret := m.ctrl.Call(m, "FindByID", ctx, id, userID)
 	ret0, _ := ret[0].(*entity.Video)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindByID indicates an expected call of FindByID.
-func (mr *MockVideoDataSourceMockRecorder) FindByID(ctx, id any) *gomock.Call {
+func (mr *MockVideoDataSourceMockRecorder) FindByID(ctx, id, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockVideoDataSource)(nil).FindByID), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockVideoDataSource)(nil).FindByID), ctx, id, userID)
 }
 
 // Transaction mocks base method.

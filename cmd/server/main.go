@@ -113,6 +113,7 @@ func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config, logger
 		Video:       videoHandler,
 		HealthCheck: healthCheckHandler,
 		Redoc:       redocHandler,
+		JWTService:  jwtService,
 	}
 
 	return handlers

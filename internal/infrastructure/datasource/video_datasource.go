@@ -22,9 +22,9 @@ func NewVideoDataSource(db *gorm.DB) port.VideoDataSource {
 	return &videoDataSource{db}
 }
 
-func (ds *videoDataSource) FindByID(ctx context.Context, id uint64) (*entity.Video, error) {
+func (ds *videoDataSource) FindByID(ctx context.Context, id uint64, userID uint64) (*entity.Video, error) {
 	var video entity.Video
-	result := ds.db.WithContext(ctx).First(&video, id)
+	result := ds.db.WithContext(ctx).First(&video, "id = ? AND user_id = ?", id, userID)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			return nil, nil

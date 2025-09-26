@@ -39,6 +39,21 @@ func (m *MockJWTService) EXPECT() *MockJWTServiceMockRecorder {
 	return m.recorder
 }
 
+// ExtractUserIDFromToken mocks base method.
+func (m *MockJWTService) ExtractUserIDFromToken(token string) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExtractUserIDFromToken", token)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExtractUserIDFromToken indicates an expected call of ExtractUserIDFromToken.
+func (mr *MockJWTServiceMockRecorder) ExtractUserIDFromToken(token any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExtractUserIDFromToken", reflect.TypeOf((*MockJWTService)(nil).ExtractUserIDFromToken), token)
+}
+
 // GenerateToken mocks base method.
 func (m *MockJWTService) GenerateToken(customerID uint64) (string, error) {
 	m.ctrl.T.Helper()

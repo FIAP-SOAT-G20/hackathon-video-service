@@ -83,7 +83,7 @@ func (uc *VideoUseCase) Create(ctx context.Context, i dto.CreateVideoInput) (*en
 
 // Get returns a Video by ID
 func (uc *VideoUseCase) Get(ctx context.Context, i dto.GetVideoInput) (*entity.Video, error) {
-	video, err := uc.gateway.FindByID(ctx, i.ID)
+	video, err := uc.gateway.FindByID(ctx, i.ID, i.UserID)
 	if err != nil {
 		return nil, domain.NewInternalError(err)
 	}
@@ -97,7 +97,7 @@ func (uc *VideoUseCase) Get(ctx context.Context, i dto.GetVideoInput) (*entity.V
 
 // Update updates a Video
 func (uc *VideoUseCase) Update(ctx context.Context, i dto.UpdateVideoInput) (*entity.Video, error) {
-	video, err := uc.gateway.FindByID(ctx, i.ID)
+	video, err := uc.gateway.FindByID(ctx, i.ID, i.UserID)
 	if err != nil {
 		return nil, domain.NewInternalError(err)
 	}
@@ -128,7 +128,7 @@ func (uc *VideoUseCase) Update(ctx context.Context, i dto.UpdateVideoInput) (*en
 
 // Delete deletes a Video
 func (uc *VideoUseCase) Delete(ctx context.Context, i dto.DeleteVideoInput) (*entity.Video, error) {
-	video, err := uc.gateway.FindByID(ctx, i.ID)
+	video, err := uc.gateway.FindByID(ctx, i.ID, i.UserID)
 	if err != nil {
 		return nil, domain.NewInternalError(err)
 	}
@@ -145,7 +145,7 @@ func (uc *VideoUseCase) Delete(ctx context.Context, i dto.DeleteVideoInput) (*en
 
 // Download generates a presigned URL for downloading a processed video
 func (uc *VideoUseCase) Download(ctx context.Context, i dto.DownloadVideoInput) (entity.VideoProcessedDownload, error) {
-	video, err := uc.gateway.FindByID(ctx, i.ID)
+	video, err := uc.gateway.FindByID(ctx, i.ID, i.UserID)
 	if err != nil {
 		return entity.VideoProcessedDownload{}, domain.NewInternalError(err)
 	}

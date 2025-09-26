@@ -56,6 +56,10 @@ type Config struct {
 	// JWT Settings
 	JWTSecret     string
 	JWTExpiration time.Duration
+
+	Auth0Domain   string
+	Auth0Audience string
+	Auth0JWKSURL  string
 }
 
 func LoadConfig() *Config {
@@ -150,6 +154,10 @@ func LoadConfig() *Config {
 		// JWT Settings
 		JWTSecret:     getEnv("JWT_SECRET", "SUPER_SECRET_KEY_DONT_TELL_ANYONE"),
 		JWTExpiration: jwtExpiration,
+
+		Auth0Domain:   getEnv("AUTH0_DOMAIN", "atomaz.us.auth0.com"),
+		Auth0Audience: getEnv("AUTH0_AUDIENCE", "https://video-service.fiapx.com.br"),
+		Auth0JWKSURL:  getEnv("AUTH0_JWKS_URL", "https://atomaz.us.auth0.com/.well-known/jwks.json"),
 	}
 }
 
