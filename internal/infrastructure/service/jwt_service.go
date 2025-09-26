@@ -54,7 +54,7 @@ func NewJWTService(cfg *config.Config) port.JWTService {
 		validator.WithAllowedClockSkew(time.Minute),
 	)
 	if err != nil {
-		log.Fatalf("Failed to set up the jwt validator")
+		log.Fatalf("Failed to set up the jwt validator: %v", err)
 	}
 
 	return &jwtService{
