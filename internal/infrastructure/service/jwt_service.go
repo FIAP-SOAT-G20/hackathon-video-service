@@ -107,7 +107,6 @@ func (s *jwtService) ExtractUserIDFromToken(tokenString string) (uint64, error) 
 			return 0, err
 		}
 		return userIDInt, nil
-	} else {
-		return 0, errors.New("no user id claim found")
 	}
+	return 0, errors.New("no user id claim found")
 }
