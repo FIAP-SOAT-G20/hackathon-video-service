@@ -9,7 +9,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}-api
 
 jobs:
-  ecr:
+  ecr-gen-image-api:
     name: ecr
     runs-on: ubuntu-latest
     permissions:
