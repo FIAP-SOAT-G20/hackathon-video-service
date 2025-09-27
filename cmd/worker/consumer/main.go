@@ -66,7 +66,7 @@ func main() {
 
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
-		port := "8081"
+		port := appCfg.MetricsPort
 		loggerInstance.Info("Prometheus metrics server running", "port", port)
 		if err := http.ListenAndServe(":"+port, nil); err != nil {
 			loggerInstance.Error("Metrics server failed", "error", err.Error())

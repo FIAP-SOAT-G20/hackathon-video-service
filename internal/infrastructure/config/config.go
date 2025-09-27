@@ -57,9 +57,13 @@ type Config struct {
 	JWTSecret     string
 	JWTExpiration time.Duration
 
+	// Auth0 Settings
 	Auth0Domain   string
 	Auth0Audience string
 	Auth0JWKSURL  string
+
+	// Metrics settings
+	MetricsPort   string
 }
 
 func LoadConfig() *Config {
@@ -158,6 +162,8 @@ func LoadConfig() *Config {
 		Auth0Domain:   getEnv("AUTH0_DOMAIN", "atomaz.us.auth0.com"),
 		Auth0Audience: getEnv("AUTH0_AUDIENCE", "https://video-service.fiapx.com.br"),
 		Auth0JWKSURL:  getEnv("AUTH0_JWKS_URL", "https://atomaz.us.auth0.com/.well-known/jwks.json"),
+
+		MetricsPort: getEnv("METRICS_PORT", "8081"),
 	}
 }
 
