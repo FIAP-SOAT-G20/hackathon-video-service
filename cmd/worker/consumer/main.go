@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"os"
 
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/adapter/gateway"
@@ -20,6 +21,7 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws/s3"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/pkg/aws/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type VideoUpdated struct {
@@ -61,6 +63,15 @@ func main() {
 
 	// Since this is a worker, we don't need cache service for the use case
 	videoUC := usecase.NewVideoUseCase(videoGateway, s3Client, appCfg, loggerInstance)
+
+	go func() {
+		http.Handle("/metrics", promhttp.Handler())
+		port := appCfg.MetricsPort
+		loggerInstance.Info("Prometheus metrics server running", "port", port)
+		if err := http.ListenAndServe(":"+port, nil); err != nil {
+			loggerInstance.Error("Metrics server failed", "error", err.Error())
+		}
+	}()
 
 	if appCfg.AWS_SQS_VideoUpdatedURL == "" {
 		loggerInstance.Error("AWS SQS Order Status Updated URL is not configured")

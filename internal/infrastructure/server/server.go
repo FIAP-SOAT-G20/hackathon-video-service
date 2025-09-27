@@ -13,9 +13,10 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/handler"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/logger"
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/infrastructure/route"
+	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-
 	"github.com/go-playground/validator/v10"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Server struct {
@@ -29,6 +30,8 @@ func NewServer(cfg *config.Config, logger *logger.Logger, handlers *route.Handle
 
 	RegisterCustomValidation()
 	router.RegisterRoutes(handlers)
+
+	router.Engine().GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	return &Server{
 		router: router,
