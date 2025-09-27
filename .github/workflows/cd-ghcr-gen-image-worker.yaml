@@ -1,4 +1,4 @@
-name: cd/push-api-to-registry
+name: cd/ghcr-gen-image-worker
 
 on:
   release:
@@ -7,10 +7,10 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}-api
+  IMAGE_NAME: ${{ github.repository }}-worker-consumer
 
 jobs:
-  build-and-push-image:
+  gen-image-worker:
     name: ghcr
     runs-on: ubuntu-latest
     permissions:
@@ -55,6 +55,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: Dockerfile.worker.consumer
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
