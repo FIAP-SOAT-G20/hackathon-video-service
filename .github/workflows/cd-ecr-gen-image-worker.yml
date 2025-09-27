@@ -5,9 +5,6 @@ on:
     types: [created]
   workflow_dispatch:
 
-env:
-  IMAGE_NAME: ${{ github.repository }}-worker
-
 jobs:
   ecr-gen-image-worker:
     name: ecr
@@ -15,10 +12,15 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    env:
+      IMAGE_NAME: ${{ github.repository }}-worker
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set lowercase image name
+        run: echo "IMAGE_NAME_LOWER=$(echo '${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -43,7 +45,7 @@ jobs:
           provenance: false
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_NAME_LOWER }}:latest
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_NAME_LOWER }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
