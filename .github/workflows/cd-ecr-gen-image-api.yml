@@ -13,8 +13,7 @@ jobs:
       contents: read
       id-token: write
     env:
-      IMAGE_NAME: ${{ format('{0}-api', github.repository) }}
-
+      IMAGE_NAME: ${{ github.repository }}-api
 
     steps:
       - name: Checkout repository
