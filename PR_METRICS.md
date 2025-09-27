@@ -6,7 +6,7 @@ Este PR adiciona suporte a métricas do Prometheus tanto para o servidor da API 
 
 ## Mudanças
 
-- **Adicionada dependência do Prometheus**: `github.com/prometheus/client_golang v1.20.5` no `go.mod`
+- **Adicionada dependência do Prometheus**: `github.com/prometheus/client_golang v1.23.2` no `go.mod`
 - **Métricas do servidor**: Adicionado endpoint `/metrics` na porta 8081 para o deployment do servidor da API
 - **Métricas do worker**: Adicionado endpoint `/metrics` na porta 8081 para o deployment do worker consumer
 - **Integração no router**: Exposto endpoint `/metrics` através do router principal para acesso adicional
