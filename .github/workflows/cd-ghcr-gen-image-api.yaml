@@ -66,10 +66,3 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
-      - name: Update repository variable with image URL
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          IMAGE_URL="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
-          gh variable set VIDEO_SERVICE_API_IMAGE_URL --body "$IMAGE_URL"
