@@ -31,9 +31,7 @@ func NewServer(cfg *config.Config, logger *logger.Logger, handlers *route.Handle
 	RegisterCustomValidation()
 	router.RegisterRoutes(handlers)
 
-	if router.Engine() != nil {
-		router.Engine().GET("/metrics", gin.WrapH(promhttp.Handler()))
-	}
+	router.Engine().GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	return &Server{
 		router: router,
