@@ -43,6 +43,7 @@ type VideoUpdated struct {
 	UserID     uint64                  `json:"user_id"`
 	Status     valueobject.VideoStatus `json:"status"`
 	OccurredAt string                  `json:"occurred_at"`
+	Hash       *string                 `json:"hash,omitempty"`
 }
 
 func main() {
@@ -170,6 +171,10 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 		ID:     updatedVideo.VideoID,
 		UserID: updatedVideo.UserID,
 		Status: updatedVideo.Status,
+	}
+
+	if updatedVideo.Hash != nil {
+		uoi.Hash = *updatedVideo.Hash
 	}
 
 	_, err = uc.Update(ctx, uoi)

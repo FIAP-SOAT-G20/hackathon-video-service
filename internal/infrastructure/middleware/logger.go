@@ -33,4 +33,3 @@ func Logger(log *logger.Logger) gin.HandlerFunc {
 		)
 	}
 }
-
