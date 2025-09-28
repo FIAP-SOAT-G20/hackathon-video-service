@@ -45,7 +45,7 @@ func (h *VideoHandler) Register(router *gin.RouterGroup) {
 //	@Summary		List videos
 //	@Description	List all videos
 //	@Description	## Video list is sorted by:
-//	@Description	- **Status** in **descending** order (CREATED > PROCESSING > FINISHED)
+//	@Description	- **Status** in **descending** order (CREATED > UPLOADED > PROCESSING > FINISHED)
 //	@Description	- **Created date** (CreatedAt) in **ascending** order (oldest first)
 //	@Tags			videos
 //	@Accept			json
@@ -221,12 +221,13 @@ func (h *VideoHandler) Get(c *gin.Context) {
 //
 //	@Summary		Update video
 //	@Description	Update an existing video
-//	@Description	The status are: **CREATED**, **FAILED**, **PROCESSING**, **FINISHED**
+//	@Description	The status are: **CREATED**, **UPLOADED**, **PROCESSING**, **FINISHED**, **FAILED**
 //	@Description	## Transition of status:
-//	@Description	- CREATED      -> FAILED || PROCESSING
-//	@Description	- FAILED       -> {},
+//	@Description	- CREATED      -> FAILED || UPLOADED
+//	@Description	- UPLOADED     -> FAILED || PROCESSING
 //	@Description	- PROCESSING   -> FINISHED
 //	@Description	- FINISHED     -> {}
+//	@Description	- FAILED       -> {},
 //	@Tags			videos
 //	@Accept			json
 //	@Produce		json
@@ -280,12 +281,13 @@ func (h *VideoHandler) Update(c *gin.Context) {
 //
 //	@Summary		Partial update video
 //	@Description	Partially updates an existing video
-//	@Description	The status are: **CREATED**, **FAILED**, **PROCESSING**, **FINISHED**
+//	@Description	The status are: **CREATED**, **UPLOADED**, **PROCESSING**, **FINISHED**, **FAILED**
 //	@Description	## Transition of status:
-//	@Description	- CREATED      -> FAILED || PROCESSING
-//	@Description	- FAILED       -> {},
+//	@Description	- CREATED      -> FAILED || UPLOADED
+//	@Description	- UPLOADED     -> FAILED || PROCESSING
 //	@Description	- PROCESSING   -> FINISHED
 //	@Description	- FINISHED     -> {}
+//	@Description	- FAILED       -> {},
 //	@Tags			videos
 //	@Accept			json
 //	@Produce		json
