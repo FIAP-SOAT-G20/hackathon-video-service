@@ -100,6 +100,12 @@ func (h *VideoHandler) List(c *gin.Context) {
 		}
 	}
 
+	// Check for nil UserID before dereferencing
+	if query.UserID == nil {
+		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidParam))
+		return
+	}
+
 	input := dto.ListVideosInput{
 		UserID:        *query.UserID,
 		Status:        status,
