@@ -39,6 +39,7 @@ func JWTAuth(jwtService port.JWTService) gin.HandlerFunc {
 		}
 
 		c.Set("user_id", userID)
+
 		c.Next()
 	}
 }

@@ -31,7 +31,7 @@ func NewVideoHandler(controller port.VideoController, jwtService port.JWTService
 
 func (h *VideoHandler) Register(router *gin.RouterGroup) {
 	// Apply cache middleware to the List endpoint
-	router.GET("", h.cacheMiddleware(h.List))
+	router.GET("", middleware.TransformUserIDFromContextToQuery(), h.cacheMiddleware(h.List))
 	router.POST("", h.Create)
 	router.GET("/:id", h.Get)
 	router.PUT("/:id", h.Update)
@@ -54,6 +54,7 @@ func (h *VideoHandler) Register(router *gin.RouterGroup) {
 //	@Param			status			query		string									false	"Filter by status (Accept many), options: <sub>CREATED, PROCESSING, FINISHED</sub>, ex: <sub>CREATED</sub> or <sub>CREATED,PROCESSING</sub>"
 //	@Param			status_exclude	query		string									false	"Exclude by status (Accept many), options: <sub>NONE, CREATED, PROCESSING, FINISHED, FAILED</sub>, ex: <sub>FAILED</sub> (default)"	default(FAILED)
 //	@Param			hash			query		string									false	"Filter by hash"
+//	@Param			user_id			query		int										false	"Filter by user ID"
 //	@Param			sort			query		string									false	"Sort by field (Accept many). Use `<field_name>:d` for descending, and the default order is ascending"	default(status:d,created_at)
 //	@Param			page			query		int										false	"Page number"																							default(1)
 //	@Param			limit			query		int										false	"Items per page"																						default(10)
@@ -99,23 +100,8 @@ func (h *VideoHandler) List(c *gin.Context) {
 		}
 	}
 
-	// Determine which user ID to use for filtering
-	var filterUserID uint64
-	if query.UserID != nil {
-		// Use the user_id from query parameter if provided
-		filterUserID = *query.UserID
-	} else {
-		// Fall back to authenticated user's ID from JWT token
-		userID, ok := c.Get("user_id")
-		if !ok {
-			_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
-			return
-		}
-		filterUserID = userID.(uint64)
-	}
-
 	input := dto.ListVideosInput{
-		UserID:        filterUserID,
+		UserID:        *query.UserID,
 		Status:        status,
 		StatusExclude: statusExclude,
 		Hash:          query.Hash,
