@@ -131,7 +131,8 @@ func main() {
 func processedMessage(ctx context.Context, message types.Message, logger *logger.Logger, uc port.VideoUseCase) (reprocess bool, err error) {
 	// Here you can implement the logic to process the message
 	// For example, you can unmarshal the message body and update the order status in your database
-	//{\n  \"Type\" : \"Notification\",\n  \"MessageId\" : \"2a33bf6b-bb93-57c3-afd0-de38c7b6f234\",\n  \"TopicArn\" : \"arn:aws:sns:us-east-1:905417995957:video-status-updated\",\n  \"Message\" : \"{\\\"video_id\\\":25,\\\"user_id\\\":5,\\\"status\\\":\\\"FINISHED\\\",\\\"occurred_at\\\":\\\"2025-09-28T18:09:41.110973622Z\\\"}\",\n  \"Timestamp\" : \"2025-09-28T18:09:41.115Z\",\n  \"SignatureVersion\" : \"1\",\n  \"Signature\" : \"n2sK9472MGBlYH6D58MSJjo64pxWlpevdXgJxqmPLhkKf2Aox+90cADrCmycfQaHpRVqFCJwbMvKl2JSofOBjtpdw33LQzyJi9KsQQ6IbjYiiIsgf2SVTqJZdeZeJbBAZ533iFyfOhK5lVM//nLiRSVrz5zHYHQfmzKLYfY/B6KxvE8S3X5nxYG3sAg7bk3gnp92kpLAVRojwNif+XUnDYrliCyBNmEPQg/z9Y7hR+LT+K5OPiwKjZ/u6wLB7ht0E4c+uRU6+l7WONIAshM95HFh4tpO8g7UuVKYXPQ8C9XnLNsTAxminr8vTnHiD4Mewfh3N9WgA2eAXF/N1bh8Ww==\",\n  \"SigningCertURL\" : \"https://sns.us-east-1.amazonaws.com/SimpleNotificationService-6209c161c6221fdf56ec1eb5c821d112.pem\",\n  \"UnsubscribeURL\" : \"https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe\u0026SubscriptionArn=arn:aws:sns:us-east-1:905417995957:video-status-updated:c9aa674a-a2e1-4d99-9871-327425c720d1\"\n}
+	// SNS message body is a JSON object with fields such as:
+	//   Type, MessageId, TopicArn, Message (stringified JSON with video update info), Timestamp, etc.
 	logger.Info("Processing message", "messageID", *message.MessageId, "body", *message.Body)
 
 	// First unmarshal the SNS notification structure
