@@ -56,8 +56,8 @@ func (cs *CacheStore) newRedisCacheStore(logger *logger.Logger) port.Cache {
 
 	// Test Redis connection
 	if err := store.Set("cache_test_key", "test", time.Second*10); err != nil {
-		logger.Error("failed to connect to Redis cache, falling back to in-memory cache", "error", err.Error())
-		return cs.newMemoryCacheStore()
+		logger.Error("failed to connect to Redis cache", "error", err.Error())
+		return nil
 	}
 
 	logger.Info("Connected to Redis cache", "host", host)
@@ -68,7 +68,10 @@ func (cs *CacheStore) newRedisCacheStore(logger *logger.Logger) port.Cache {
 // CachePageMiddleware creates a cache middleware with the configured store and duration
 func (cs *CacheStore) CachePageMiddleware(next gin.HandlerFunc) gin.HandlerFunc {
 	// You can choose which store to use based on your configuration
-	store := cs.newRedisCacheStore(cs.Logger) // or cs.NewMemoryCacheStore()
+	store := cs.newRedisCacheStore(cs.Logger)
+	if store == nil {
+		return next
+	}
 
 	return cache.CachePage(store, cs.Duration, func(c *gin.Context) {
 		// Cache miss - call the next handler to generate the response
