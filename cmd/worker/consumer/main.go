@@ -174,7 +174,7 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 	}
 
 	if updatedVideo.Hash != nil {
-		uoi.Hash = *updatedVideo.Hash
+		uoi.Hash = updatedVideo.Hash
 	}
 
 	_, err = uc.Update(ctx, uoi)

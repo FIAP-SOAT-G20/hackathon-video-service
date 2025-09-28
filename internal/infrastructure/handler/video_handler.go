@@ -261,7 +261,7 @@ func (h *VideoHandler) Update(c *gin.Context) {
 		ID:     uri.ID,
 		UserID: userID.(uint64),
 		Status: body.Status,
-		Hash:   body.Hash,
+		Hash:   &body.Hash,
 	}
 
 	output, err := h.controller.Update(
@@ -321,7 +321,7 @@ func (h *VideoHandler) UpdatePartial(c *gin.Context) {
 		ID:     uri.ID,
 		UserID: userID.(uint64),
 		Status: body.Status,
-		Hash:   body.Hash,
+		Hash:   &body.Hash,
 	}
 
 	output, err := h.controller.Update(
