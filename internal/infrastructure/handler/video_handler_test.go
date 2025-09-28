@@ -16,6 +16,8 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
+var hash = "abc123hash456"
+
 func (s *VideoHandlerSuiteTest) TestVideoHandler_List() {
 	tests := []struct {
 		name        string
@@ -297,7 +299,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 						ID:     15,
 						UserID: 1,
 						Status: valueobject.PROCESSING,
-						Hash:   "abc123hash456",
+						Hash:   &hash,
 					}).
 					Return([]byte(s.responses["update_success"]), nil)
 			},
@@ -365,7 +367,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_Update() {
 						ID:     15,
 						UserID: 1,
 						Status: valueobject.PROCESSING,
-						Hash:   "abc123hash456",
+						Hash:   &hash,
 					}).
 					Return(nil, domain.NewInternalError(nil))
 			},
@@ -415,7 +417,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 						ID:     15,
 						UserID: 1,
 						Status: valueobject.PROCESSING,
-						Hash:   "abc123hash456",
+						Hash:   &hash,
 					}).
 					Return([]byte(s.responses["update_success"]), nil)
 			},
@@ -483,7 +485,7 @@ func (s *VideoHandlerSuiteTest) TestVideoHandler_UpdatePartial() {
 						ID:     15,
 						UserID: 1,
 						Status: valueobject.PROCESSING,
-						Hash:   "abc123hash456",
+						Hash:   &hash,
 					}).
 					Return(nil, domain.NewInternalError(nil))
 			},
