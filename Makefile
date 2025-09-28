@@ -289,3 +289,7 @@ test-integration: ## Run integration tests for both databases
 	make documentdb-down
 	make compose-down
 
+.PHONY: grafana-port-forward
+grafana-port-forward: ## Port forward Grafana service to localhost:3000
+	@echo "🟢 Port forwarding Grafana to http://localhost:3000..."
+	kubectl --namespace grafana port-forward service/grafana 3000:3000

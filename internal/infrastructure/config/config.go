@@ -63,7 +63,7 @@ type Config struct {
 	Auth0JWKSURL  string
 
 	// Metrics settings
-	MetricsPort   string
+	MetricsPort string
 }
 
 func LoadConfig() *Config {
