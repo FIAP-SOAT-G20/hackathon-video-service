@@ -52,6 +52,12 @@ definitions:
       presigned_url:
         example: https://s3.amazonaws.com/bucket/video.mp4?signature=...
         type: string
+      presigned_url_headers:
+        additionalProperties:
+          type: string
+        example:
+          '{"x-amz-meta-user-id"': ' "1"}'
+        type: object
       status:
         example: PENDING
         type: string
@@ -70,12 +76,8 @@ definitions:
       name:
         example: My Video
         type: string
-      user_id:
-        example: 1
-        type: integer
     required:
     - name
-    - user_id
     type: object
   request.UpdateVideoBodyRequest:
     properties:
@@ -236,6 +238,10 @@ paths:
         in: query
         name: hash
         type: string
+      - description: Filter by user ID
+        in: query
+        name: user_id
+        type: integer
       - default: status:d,created_at
         description: Sort by field (Accept many). Use `<field_name>:d` for descending,
           and the default order is ascending
