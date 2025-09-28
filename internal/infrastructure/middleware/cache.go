@@ -23,15 +23,23 @@ type CacheStore struct {
 	Logger   *logger.Logger
 }
 
-func NewCacheStore(cfg *config.Config, logger *logger.Logger) *CacheStore {
+func NewCache(cfg *config.Config, logger *logger.Logger) CachePageMiddleware {
 	// Handle nil config for testing scenarios
-	if cfg == nil {
-		return &CacheStore{
-			Endpoint: "localhost",
-			Port:     6379,
-			Duration: time.Minute,
-			Logger:   logger,
+	if cfg == nil || !cfg.CacheEnabled {
+		logger.Info("Cache middleware is disabled")
+		return func(next gin.HandlerFunc) gin.HandlerFunc {
+			return next
 		}
+	}
+
+	cacheStore := newCacheStore(cfg, logger)
+	return cacheStore.CachePageMiddleware
+}
+
+func newCacheStore(cfg *config.Config, logger *logger.Logger) *CacheStore {
+	// Handle nil config for testing scenarios
+	if cfg == nil || !cfg.CacheEnabled {
+		return nil
 	}
 
 	return &CacheStore{
