@@ -91,9 +91,8 @@ func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config, logger
 		panic(fmt.Sprintf("failed to create S3 client: %v", err))
 	}
 
-	// Create cache store for middleware
-	cacheStore := middleware.NewCacheStore(cfg, loggerInstance)
-	cachePageMiddlewareFunc := cacheStore.CachePageMiddleware
+	// Create Cache middleware
+	cacheMiddleware := middleware.NewCache(cfg, loggerInstance)
 
 	// Gateways
 	videoGateway := gateway.NewVideoGateway(videoDS)
@@ -105,7 +104,7 @@ func setupHandlers(dbConfig *database.DatabaseConfig, cfg *config.Config, logger
 	videoController := controller.NewVideoController(videoUC)
 
 	// Handlers
-	videoHandler := handler.NewVideoHandler(videoController, jwtService, cachePageMiddlewareFunc)
+	videoHandler := handler.NewVideoHandler(videoController, jwtService, cacheMiddleware)
 	healthCheckHandler := handler.NewHealthCheckHandler()
 	redocHandler := handler.NewRedocHandler()
 

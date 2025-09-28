@@ -233,7 +233,7 @@ The SQS worker processes messages in the following format:
 }
 ```
 
-> **Valid Status Values**: `CREATED`, `PROCESSING`, `FINISHED`, `FAILED`
+> **Valid Status Values**: `CREATED`, `UPLOADED`, `PROCESSING`, `FINISHED`, `FAILED`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

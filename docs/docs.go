@@ -139,6 +139,12 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "integer",
+                        "description": "Filter by user ID",
+                        "name": "user_id",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "default": "status:d,created_at",
                         "description": "Sort by field (Accept many). Use ` + "`" + `\u003cfield_name\u003e:d` + "`" + ` for descending, and the default order is ascending",
@@ -570,6 +576,15 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://s3.amazonaws.com/bucket/video.mp4?signature=..."
                 },
+                "presigned_url_headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "example": {
+                        "{\"x-amz-meta-user-id\"": " \"1\"}"
+                    }
+                },
                 "status": {
                     "type": "string",
                     "example": "PENDING"
@@ -587,8 +602,7 @@ const docTemplate = `{
         "request.CreateVideoBodyRequest": {
             "type": "object",
             "required": [
-                "name",
-                "user_id"
+                "name"
             ],
             "properties": {
                 "description": {
@@ -598,10 +612,6 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "example": "My Video"
-                },
-                "user_id": {
-                    "type": "integer",
-                    "example": 1
                 }
             }
         },

@@ -327,7 +327,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 			input: dto.UpdateVideoInput{
 				ID:     1,
 				UserID: 1,
-				Status: valueobject.PROCESSING,
+				Status: valueobject.UPLOADED,
 			},
 			setupMocks: func() {
 				// Create a fresh video entity for this test to avoid state pollution
@@ -352,7 +352,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 			checkResult: func(t *testing.T, video *entity.Video, err error) {
 				assert.NoError(t, err)
 				assert.NotNil(t, video)
-				assert.Equal(t, valueobject.PROCESSING, video.Status)
+				assert.Equal(t, valueobject.UPLOADED, video.Status)
 			},
 		},
 		{
@@ -418,7 +418,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 			},
 		},
 		{
-			name: "should return error when status is different and can't transition",
+			name: "should return error when status transition is invalid (CREATED to FINISHED)",
 			input: dto.UpdateVideoInput{
 				ID:     1,
 				UserID: 1,
@@ -445,7 +445,7 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 			},
 		},
 		{
-			name: "should return error when gateway update fails",
+			name: "should return error when status transition is invalid (CREATED to PROCESSING)",
 			input: dto.UpdateVideoInput{
 				ID:     1,
 				UserID: 1,
@@ -453,6 +453,63 @@ func (s *VideoUsecaseSuiteTest) TestVideoUseCase_Update() {
 			},
 			setupMocks: func() {
 				// Create a fresh video entity for this test to avoid state pollution
+				video := &entity.Video{
+					ID:        1,
+					UserID:    uint64(1),
+					Status:    valueobject.CREATED, // Cannot transition directly from CREATED to PROCESSING
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				}
+				s.mockGateway.EXPECT().
+					FindByID(s.ctx, uint64(1), uint64(1)).
+					Return(video, nil)
+				// No expectation for Update because it should not be called due to invalid transition
+			},
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
+				assert.Error(t, err)
+				assert.Nil(t, video)
+				assert.IsType(t, &domain.InvalidInputError{}, err)
+			},
+		},
+		{
+			name: "should update video successfully when transitioning from UPLOADED to PROCESSING",
+			input: dto.UpdateVideoInput{
+				ID:     1,
+				UserID: 1,
+				Status: valueobject.PROCESSING,
+			},
+			setupMocks: func() {
+				// Create a fresh video entity for this test to avoid state pollution
+				video := &entity.Video{
+					ID:        1,
+					UserID:    uint64(1),
+					Status:    valueobject.UPLOADED, // Valid transition from UPLOADED to PROCESSING
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				}
+				s.mockGateway.EXPECT().
+					FindByID(s.ctx, uint64(1), uint64(1)).
+					Return(video, nil)
+
+				s.mockGateway.EXPECT().
+					Update(s.ctx, gomock.Any()).
+					Return(nil)
+			},
+			checkResult: func(t *testing.T, video *entity.Video, err error) {
+				assert.NoError(t, err)
+				assert.NotNil(t, video)
+				assert.Equal(t, valueobject.PROCESSING, video.Status)
+			},
+		},
+		{
+			name: "should return error when gateway update fails",
+			input: dto.UpdateVideoInput{
+				ID:     1,
+				UserID: 1,
+				Status: valueobject.UPLOADED,
+			},
+			setupMocks: func() {
+				// Create a fresh video entity for this test to avoid state pollution - use valid transition from CREATED to UPLOADED
 				video := &entity.Video{
 					ID:        1,
 					UserID:    uint64(1),
