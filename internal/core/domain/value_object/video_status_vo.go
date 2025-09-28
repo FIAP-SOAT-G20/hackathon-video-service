@@ -60,7 +60,7 @@ func ToVideoStatus(status string) (VideoStatus, bool) {
 // VideoStatusTransitions defines the allowed transitions between VideoStatuses
 var VideoStatusTransitions = map[VideoStatus][]VideoStatus{
 	CREATED:    {FAILED, UPLOADED},
-	UPLOADED:   {FAILED, PROCESSING},
+	UPLOADED:   {FAILED, PROCESSING, FINISHED},
 	PROCESSING: {FAILED, FINISHED},
 	FINISHED:   {},
 	FAILED:     {},
