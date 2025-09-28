@@ -24,10 +24,25 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+// SNSNotification represents the AWS SNS notification structure
+type SNSNotification struct {
+	Type             string `json:"Type"`
+	MessageID        string `json:"MessageId"`
+	TopicArn         string `json:"TopicArn"`
+	Message          string `json:"Message"`
+	Timestamp        string `json:"Timestamp"`
+	SignatureVersion string `json:"SignatureVersion"`
+	Signature        string `json:"Signature"`
+	SigningCertURL   string `json:"SigningCertURL"`
+	UnsubscribeURL   string `json:"UnsubscribeURL"`
+}
+
+// VideoUpdated represents the video update data nested in SNS Message
 type VideoUpdated struct {
-	VideoID uint64                  `json:"video_id"`
-	Status  valueobject.VideoStatus `json:"status"`
-	Hash    string                  `json:"hash"`
+	VideoID    uint64                  `json:"video_id"`
+	UserID     uint64                  `json:"user_id"`
+	Status     valueobject.VideoStatus `json:"status"`
+	OccurredAt string                  `json:"occurred_at"`
 }
 
 func main() {
@@ -116,11 +131,20 @@ func main() {
 func processedMessage(ctx context.Context, message types.Message, logger *logger.Logger, uc port.VideoUseCase) (reprocess bool, err error) {
 	// Here you can implement the logic to process the message
 	// For example, you can unmarshal the message body and update the order status in your database
+	// SNS message body is a JSON object with fields such as:
+	//   Type, MessageId, TopicArn, Message (stringified JSON with video update info), Timestamp, etc.
 	logger.Info("Processing message", "messageID", *message.MessageId, "body", *message.Body)
 
-	// Unmarshal the message body to your entity
+	// First unmarshal the SNS notification structure
+	var snsNotification SNSNotification
+	err = json.Unmarshal([]byte(*message.Body), &snsNotification)
+	if err != nil {
+		return false, err
+	}
+
+	// Then unmarshal the nested Message field to get the video update data
 	var updatedVideo VideoUpdated
-	err = json.Unmarshal([]byte(*message.Body), &updatedVideo)
+	err = json.Unmarshal([]byte(snsNotification.Message), &updatedVideo)
 	if err != nil {
 		return false, err
 	}
@@ -133,8 +157,7 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 		return false, domain.NewValidationError(errors.New(domain.ErrStatusIsMandatory))
 	}
 
-	// Get Video by ID
-	_, err = uc.Get(ctx, dto.GetVideoInput{ID: updatedVideo.VideoID})
+	_, err = uc.Get(ctx, dto.GetVideoInput{ID: updatedVideo.VideoID, UserID: updatedVideo.UserID})
 	if err != nil {
 		if err.Error() == domain.ErrInternalError {
 			return true, err
@@ -145,8 +168,8 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 	// Update the video status in the database
 	uoi := dto.UpdateVideoInput{
 		ID:     updatedVideo.VideoID,
+		UserID: updatedVideo.UserID,
 		Status: updatedVideo.Status,
-		Hash:   updatedVideo.Hash,
 	}
 
 	_, err = uc.Update(ctx, uoi)
@@ -159,8 +182,9 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 
 	logger.Info("Message processed successfully",
 		"videoID", updatedVideo.VideoID,
+		"userID", updatedVideo.UserID,
 		"status", updatedVideo.Status,
-		"hash", updatedVideo.Hash,
+		"occurredAt", updatedVideo.OccurredAt,
 	)
 
 	return false, nil
