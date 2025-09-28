@@ -50,11 +50,6 @@ func newCacheStore(cfg *config.Config, logger *logger.Logger) *CacheStore {
 	}
 }
 
-// newMemoryCacheStore creates a new in-memory cache store
-func (cs *CacheStore) newMemoryCacheStore() port.Cache {
-	return persistence.NewInMemoryStore(cs.Duration)
-}
-
 // newRedisCacheStore creates a new Redis cache store
 func (cs *CacheStore) newRedisCacheStore(logger *logger.Logger) port.Cache {
 

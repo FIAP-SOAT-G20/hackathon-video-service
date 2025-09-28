@@ -37,8 +37,7 @@ func (s *VideoHandlerSuiteTest) SetupTest() {
 
 	// Create a simple cache middleware function for testing
 	testLogger := logger.NewLogger("test")
-	cacheStore := middleware.NewCacheStore(nil, testLogger)
-	cacheMiddlewareFunc := cacheStore.CachePageMiddleware
+	cacheMiddlewareFunc := middleware.NewCache(nil, testLogger)
 	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService, cacheMiddlewareFunc)
 	s.ctx = context.Background()
 
@@ -77,8 +76,7 @@ func (s *VideoHandlerSuiteTest) BeforeTest(_, _ string) {
 	s.mockController = mockport.NewMockVideoController(ctrl)
 	s.mockJWTService = mockport.NewMockJWTService(ctrl)
 	testLogger := logger.NewLogger("test")
-	cacheStore := middleware.NewCacheStore(nil, testLogger)
-	cacheMiddlewareFunc := cacheStore.CachePageMiddleware
+	cacheMiddlewareFunc := middleware.NewCache(nil, testLogger)
 	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService, cacheMiddlewareFunc)
 
 	// Create a new router for each test case
