@@ -14,8 +14,15 @@ func TransformUserIDFromContextToQuery() gin.HandlerFunc {
 			return
 		}
 
+		// Safe type assertion with check
+		userIDUint64, ok := userID.(uint64)
+		if !ok {
+			c.AbortWithStatusJSON(400, gin.H{"error": "Invalid user_id type - expected uint64"})
+			return
+		}
+
 		query := c.Request.URL.Query()
-		query.Set("user_id", fmt.Sprintf("%d", userID.(uint64)))
+		query.Set("user_id", fmt.Sprintf("%d", userIDUint64))
 		c.Request.URL.RawQuery = query.Encode()
 
 		c.Next()
