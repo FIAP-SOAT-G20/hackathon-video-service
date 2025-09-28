@@ -99,14 +99,23 @@ func (h *VideoHandler) List(c *gin.Context) {
 		}
 	}
 
-	userID, ok := c.Get("user_id")
-	if !ok {
-		_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
-		return
+	// Determine which user ID to use for filtering
+	var filterUserID uint64
+	if query.UserID != nil {
+		// Use the user_id from query parameter if provided
+		filterUserID = *query.UserID
+	} else {
+		// Fall back to authenticated user's ID from JWT token
+		userID, ok := c.Get("user_id")
+		if !ok {
+			_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
+			return
+		}
+		filterUserID = userID.(uint64)
 	}
 
 	input := dto.ListVideosInput{
-		UserID:        userID.(uint64),
+		UserID:        filterUserID,
 		Status:        status,
 		StatusExclude: statusExclude,
 		Hash:          query.Hash,
