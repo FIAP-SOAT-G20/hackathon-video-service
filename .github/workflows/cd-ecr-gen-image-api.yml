@@ -30,9 +30,40 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Set AWS environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Create ECR repository if it doesn't exist
+        run: |
+          echo "Checking if ECR repository '${{ env.IMAGE_NAME_LOWER }}' exists in region '$AWS_DEFAULT_REGION'..."
+          
+          if aws ecr describe-repositories --repository-names ${{ env.IMAGE_NAME_LOWER }} --region $AWS_DEFAULT_REGION >/dev/null 2>&1; then
+            echo "✅ Repository '${{ env.IMAGE_NAME_LOWER }}' already exists"
+          else
+            echo "Repository '${{ env.IMAGE_NAME_LOWER }}' not found. Creating repository..."
+            
+            if aws ecr create-repository --repository-name ${{ env.IMAGE_NAME_LOWER }} --region $AWS_DEFAULT_REGION; then
+              echo "✅ Successfully created ECR repository '${{ env.IMAGE_NAME_LOWER }}'"
+              echo "Repository URI: $(aws ecr describe-repositories --repository-names ${{ env.IMAGE_NAME_LOWER }} --region $AWS_DEFAULT_REGION --query 'repositories[0].repositoryUri' --output text)"
+            else
+              echo "❌ Failed to create ECR repository '${{ env.IMAGE_NAME_LOWER }}'"
+              echo "Debug information:"
+              echo "  - Repository name: ${{ env.IMAGE_NAME_LOWER }}"
+              echo "  - AWS region: $AWS_DEFAULT_REGION"
+              echo "  - AWS account: $(aws sts get-caller-identity --query Account --output text 2>/dev/null || echo 'Unable to retrieve account ID')"
+              echo ""
+              echo "Please verify:"
+              echo "  - AWS credentials have ECR permissions (ecr:CreateRepository, ecr:DescribeRepositories)"
+              echo "  - Repository name follows ECR naming conventions (lowercase, alphanumeric, hyphens, underscores, periods)"
+              echo "  - AWS region is correct and ECR is available in this region"
+              exit 1
+            fi
+          fi
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
