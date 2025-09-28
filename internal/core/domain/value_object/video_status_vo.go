@@ -9,6 +9,7 @@ type VideoStatus string
 
 const (
 	CREATED    VideoStatus = "CREATED"
+	UPLOADED   VideoStatus = "UPLOADED"
 	PROCESSING VideoStatus = "PROCESSING"
 	FINISHED   VideoStatus = "FINISHED"
 	FAILED     VideoStatus = "FAILED"
@@ -25,6 +26,8 @@ func (o VideoStatus) String() string {
 	switch o {
 	case CREATED:
 		return "CREATED"
+	case UPLOADED:
+		return "UPLOADED"
 	case PROCESSING:
 		return "PROCESSING"
 	case FINISHED:
@@ -41,6 +44,8 @@ func ToVideoStatus(status string) (VideoStatus, bool) {
 	switch strings.ToUpper(status) {
 	case "CREATED":
 		return CREATED, true
+	case "UPLOADED":
+		return UPLOADED, true
 	case "PROCESSING":
 		return PROCESSING, true
 	case "FINISHED":
@@ -54,7 +59,8 @@ func ToVideoStatus(status string) (VideoStatus, bool) {
 
 // VideoStatusTransitions defines the allowed transitions between VideoStatuses
 var VideoStatusTransitions = map[VideoStatus][]VideoStatus{
-	CREATED:    {FAILED, PROCESSING},
+	CREATED:    {FAILED, UPLOADED},
+	UPLOADED:   {FAILED, PROCESSING},
 	PROCESSING: {FAILED, FINISHED},
 	FINISHED:   {},
 	FAILED:     {},

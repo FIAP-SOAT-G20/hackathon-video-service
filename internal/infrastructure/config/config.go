@@ -63,7 +63,7 @@ type Config struct {
 	Auth0JWKSURL  string
 
 	// Metrics settings
-	MetricsPort   string
+	MetricsPort string
 }
 
 func LoadConfig() *Config {
@@ -104,10 +104,10 @@ func LoadConfig() *Config {
 	// Parse ElastiCache settings
 	cachePort, _ := strconv.Atoi(getEnv("CACHE_PORT", "6379"))
 	cacheEnabled, _ := strconv.ParseBool(getEnv("CACHE_ENABLED", "false"))
-	cacheDurationStr := getEnv("CACHE_DURATION", "5m")
+	cacheDurationStr := getEnv("CACHE_DURATION", "1m")
 	cacheDuration, err := time.ParseDuration(cacheDurationStr)
 	if err != nil {
-		log.Printf("Warning: invalid CACHE_DURATION value %q: %v. Using default value 5m.", cacheDurationStr, err)
+		log.Printf("Warning: invalid CACHE_DURATION value %q: %v. Using default value 1m.", cacheDurationStr, err)
 		cacheDuration = 5 * time.Minute
 	}
 

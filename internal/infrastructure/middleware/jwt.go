@@ -9,7 +9,7 @@ import (
 	"github.com/FIAP-SOAT-G20/hackathon-video-service/internal/core/port"
 )
 
-func JWTAuthMiddleware(jwtService port.JWTService) gin.HandlerFunc {
+func JWTAuth(jwtService port.JWTService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -39,6 +39,7 @@ func JWTAuthMiddleware(jwtService port.JWTService) gin.HandlerFunc {
 		}
 
 		c.Set("user_id", userID)
+
 		c.Next()
 	}
 }

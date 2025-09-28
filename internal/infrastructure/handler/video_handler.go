@@ -31,7 +31,7 @@ func NewVideoHandler(controller port.VideoController, jwtService port.JWTService
 
 func (h *VideoHandler) Register(router *gin.RouterGroup) {
 	// Apply cache middleware to the List endpoint
-	router.GET("", h.cacheMiddleware(h.List))
+	router.GET("", middleware.TransformUserIDFromContextToQuery(), h.cacheMiddleware(h.List))
 	router.POST("", h.Create)
 	router.GET("/:id", h.Get)
 	router.PUT("/:id", h.Update)
@@ -45,7 +45,7 @@ func (h *VideoHandler) Register(router *gin.RouterGroup) {
 //	@Summary		List videos
 //	@Description	List all videos
 //	@Description	## Video list is sorted by:
-//	@Description	- **Status** in **descending** order (CREATED > PROCESSING > FINISHED)
+//	@Description	- **Status** in **descending** order (CREATED > UPLOADED > PROCESSING > FINISHED)
 //	@Description	- **Created date** (CreatedAt) in **ascending** order (oldest first)
 //	@Tags			videos
 //	@Accept			json
@@ -54,6 +54,7 @@ func (h *VideoHandler) Register(router *gin.RouterGroup) {
 //	@Param			status			query		string									false	"Filter by status (Accept many), options: <sub>CREATED, PROCESSING, FINISHED</sub>, ex: <sub>CREATED</sub> or <sub>CREATED,PROCESSING</sub>"
 //	@Param			status_exclude	query		string									false	"Exclude by status (Accept many), options: <sub>NONE, CREATED, PROCESSING, FINISHED, FAILED</sub>, ex: <sub>FAILED</sub> (default)"	default(FAILED)
 //	@Param			hash			query		string									false	"Filter by hash"
+//	@Param			user_id			query		int										false	"Filter by user ID"
 //	@Param			sort			query		string									false	"Sort by field (Accept many). Use `<field_name>:d` for descending, and the default order is ascending"	default(status:d,created_at)
 //	@Param			page			query		int										false	"Page number"																							default(1)
 //	@Param			limit			query		int										false	"Items per page"																						default(10)
@@ -99,14 +100,14 @@ func (h *VideoHandler) List(c *gin.Context) {
 		}
 	}
 
-	userID, ok := c.Get("user_id")
-	if !ok {
-		_ = c.Error(domain.NewUnauthorizedError(domain.ErrInvalidToken))
+	// Check for nil UserID before dereferencing
+	if query.UserID == nil {
+		_ = c.Error(domain.NewInvalidInputError(domain.ErrInvalidParam))
 		return
 	}
 
 	input := dto.ListVideosInput{
-		UserID:        userID.(uint64),
+		UserID:        *query.UserID,
 		Status:        status,
 		StatusExclude: statusExclude,
 		Hash:          query.Hash,
@@ -220,12 +221,13 @@ func (h *VideoHandler) Get(c *gin.Context) {
 //
 //	@Summary		Update video
 //	@Description	Update an existing video
-//	@Description	The status are: **CREATED**, **FAILED**, **PROCESSING**, **FINISHED**
+//	@Description	The status are: **CREATED**, **UPLOADED**, **PROCESSING**, **FINISHED**, **FAILED**
 //	@Description	## Transition of status:
-//	@Description	- CREATED      -> FAILED || PROCESSING
-//	@Description	- FAILED       -> {},
+//	@Description	- CREATED      -> FAILED || UPLOADED
+//	@Description	- UPLOADED     -> FAILED || PROCESSING
 //	@Description	- PROCESSING   -> FINISHED
 //	@Description	- FINISHED     -> {}
+//	@Description	- FAILED       -> {},
 //	@Tags			videos
 //	@Accept			json
 //	@Produce		json
@@ -279,12 +281,13 @@ func (h *VideoHandler) Update(c *gin.Context) {
 //
 //	@Summary		Partial update video
 //	@Description	Partially updates an existing video
-//	@Description	The status are: **CREATED**, **FAILED**, **PROCESSING**, **FINISHED**
+//	@Description	The status are: **CREATED**, **UPLOADED**, **PROCESSING**, **FINISHED**, **FAILED**
 //	@Description	## Transition of status:
-//	@Description	- CREATED      -> FAILED || PROCESSING
-//	@Description	- FAILED       -> {},
+//	@Description	- CREATED      -> FAILED || UPLOADED
+//	@Description	- UPLOADED     -> FAILED || PROCESSING
 //	@Description	- PROCESSING   -> FINISHED
 //	@Description	- FINISHED     -> {}
+//	@Description	- FAILED       -> {},
 //	@Tags			videos
 //	@Accept			json
 //	@Produce		json

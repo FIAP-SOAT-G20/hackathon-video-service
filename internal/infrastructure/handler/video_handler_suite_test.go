@@ -37,8 +37,7 @@ func (s *VideoHandlerSuiteTest) SetupTest() {
 
 	// Create a simple cache middleware function for testing
 	testLogger := logger.NewLogger("test")
-	cacheStore := middleware.NewCacheStore(nil, testLogger)
-	cacheMiddlewareFunc := cacheStore.CachePageMiddleware
+	cacheMiddlewareFunc := middleware.NewCache(nil, testLogger)
 	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService, cacheMiddlewareFunc)
 	s.ctx = context.Background()
 
@@ -46,7 +45,7 @@ func (s *VideoHandlerSuiteTest) SetupTest() {
 
 	// Register routes with JWT middleware
 	videoGroup := s.router.Group("/videos")
-	videoGroup.Use(middleware.JWTAuthMiddleware(s.mockJWTService))
+	videoGroup.Use(middleware.JWTAuth(s.mockJWTService))
 	s.handler.Register(videoGroup)
 
 	// Mock requests
@@ -77,14 +76,13 @@ func (s *VideoHandlerSuiteTest) BeforeTest(_, _ string) {
 	s.mockController = mockport.NewMockVideoController(ctrl)
 	s.mockJWTService = mockport.NewMockJWTService(ctrl)
 	testLogger := logger.NewLogger("test")
-	cacheStore := middleware.NewCacheStore(nil, testLogger)
-	cacheMiddlewareFunc := cacheStore.CachePageMiddleware
+	cacheMiddlewareFunc := middleware.NewCache(nil, testLogger)
 	s.handler = handler.NewVideoHandler(s.mockController, s.mockJWTService, cacheMiddlewareFunc)
 
 	// Create a new router for each test case
 	s.router = newRouter()
 	videoGroup := s.router.Group("/videos")
-	videoGroup.Use(middleware.JWTAuthMiddleware(s.mockJWTService))
+	videoGroup.Use(middleware.JWTAuth(s.mockJWTService))
 	s.handler.Register(videoGroup)
 }
 

@@ -23,15 +23,23 @@ type CacheStore struct {
 	Logger   *logger.Logger
 }
 
-func NewCacheStore(cfg *config.Config, logger *logger.Logger) *CacheStore {
+func NewCache(cfg *config.Config, logger *logger.Logger) CachePageMiddleware {
 	// Handle nil config for testing scenarios
-	if cfg == nil {
-		return &CacheStore{
-			Endpoint: "localhost",
-			Port:     6379,
-			Duration: time.Minute,
-			Logger:   logger,
+	if cfg == nil || !cfg.CacheEnabled {
+		logger.Info("Cache middleware is disabled")
+		return func(next gin.HandlerFunc) gin.HandlerFunc {
+			return next
 		}
+	}
+
+	cacheStore := newCacheStore(cfg, logger)
+	return cacheStore.CachePageMiddleware
+}
+
+func newCacheStore(cfg *config.Config, logger *logger.Logger) *CacheStore {
+	// Handle nil config for testing scenarios
+	if cfg == nil || !cfg.CacheEnabled {
+		return nil
 	}
 
 	return &CacheStore{
@@ -40,11 +48,6 @@ func NewCacheStore(cfg *config.Config, logger *logger.Logger) *CacheStore {
 		Duration: cfg.CacheDuration,
 		Logger:   logger,
 	}
-}
-
-// newMemoryCacheStore creates a new in-memory cache store
-func (cs *CacheStore) newMemoryCacheStore() port.Cache {
-	return persistence.NewInMemoryStore(cs.Duration)
 }
 
 // newRedisCacheStore creates a new Redis cache store
@@ -56,8 +59,8 @@ func (cs *CacheStore) newRedisCacheStore(logger *logger.Logger) port.Cache {
 
 	// Test Redis connection
 	if err := store.Set("cache_test_key", "test", time.Second*10); err != nil {
-		logger.Error("failed to connect to Redis cache, falling back to in-memory cache", "error", err.Error())
-		return cs.newMemoryCacheStore()
+		logger.Error("failed to connect to Redis cache", "error", err.Error())
+		return nil
 	}
 
 	logger.Info("Connected to Redis cache", "host", host)
@@ -68,7 +71,10 @@ func (cs *CacheStore) newRedisCacheStore(logger *logger.Logger) port.Cache {
 // CachePageMiddleware creates a cache middleware with the configured store and duration
 func (cs *CacheStore) CachePageMiddleware(next gin.HandlerFunc) gin.HandlerFunc {
 	// You can choose which store to use based on your configuration
-	store := cs.newRedisCacheStore(cs.Logger) // or cs.NewMemoryCacheStore()
+	store := cs.newRedisCacheStore(cs.Logger)
+	if store == nil {
+		return next
+	}
 
 	return cache.CachePage(store, cs.Duration, func(c *gin.Context) {
 		// Cache miss - call the next handler to generate the response
