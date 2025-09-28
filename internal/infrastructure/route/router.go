@@ -51,7 +51,7 @@ func (r *Router) RegisterRoutes(handlers *Handlers) {
 	{
 		// Videos routes with JWT authentication
 		videosGroup := v1.Group("/videos")
-		videosGroup.Use(middleware.JWTAuthMiddleware(handlers.JWTService))
+		videosGroup.Use(middleware.JWTAuth(handlers.JWTService))
 		handlers.Video.Register(videosGroup)
 
 		handlers.HealthCheck.Register(v1.Group("/health"))

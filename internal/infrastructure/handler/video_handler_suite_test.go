@@ -46,7 +46,7 @@ func (s *VideoHandlerSuiteTest) SetupTest() {
 
 	// Register routes with JWT middleware
 	videoGroup := s.router.Group("/videos")
-	videoGroup.Use(middleware.JWTAuthMiddleware(s.mockJWTService))
+	videoGroup.Use(middleware.JWTAuth(s.mockJWTService))
 	s.handler.Register(videoGroup)
 
 	// Mock requests
@@ -84,7 +84,7 @@ func (s *VideoHandlerSuiteTest) BeforeTest(_, _ string) {
 	// Create a new router for each test case
 	s.router = newRouter()
 	videoGroup := s.router.Group("/videos")
-	videoGroup.Use(middleware.JWTAuthMiddleware(s.mockJWTService))
+	videoGroup.Use(middleware.JWTAuth(s.mockJWTService))
 	s.handler.Register(videoGroup)
 }
 
