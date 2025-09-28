@@ -156,12 +156,7 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 		return false, domain.NewValidationError(errors.New(domain.ErrStatusIsMandatory))
 	}
 
-	// Get Video by ID - use UserID from the message if provided, otherwise use VideoID as fallback
-	userID := updatedVideo.UserID
-	if userID == 0 {
-		userID = updatedVideo.VideoID // fallback for backward compatibility
-	}
-	_, err = uc.Get(ctx, dto.GetVideoInput{ID: updatedVideo.VideoID, UserID: userID})
+	_, err = uc.Get(ctx, dto.GetVideoInput{ID: updatedVideo.VideoID, UserID: updatedVideo.UserID})
 	if err != nil {
 		if err.Error() == domain.ErrInternalError {
 			return true, err
