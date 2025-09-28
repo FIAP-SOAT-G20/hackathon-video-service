@@ -24,10 +24,25 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+// SNSNotification represents the AWS SNS notification structure
+type SNSNotification struct {
+	Type             string `json:"Type"`
+	MessageID        string `json:"MessageId"`
+	TopicArn         string `json:"TopicArn"`
+	Message          string `json:"Message"`
+	Timestamp        string `json:"Timestamp"`
+	SignatureVersion string `json:"SignatureVersion"`
+	Signature        string `json:"Signature"`
+	SigningCertURL   string `json:"SigningCertURL"`
+	UnsubscribeURL   string `json:"UnsubscribeURL"`
+}
+
+// VideoUpdated represents the video update data nested in SNS Message
 type VideoUpdated struct {
-	VideoID uint64                  `json:"video_id"`
-	Status  valueobject.VideoStatus `json:"status"`
-	Hash    string                  `json:"hash"`
+	VideoID    uint64                  `json:"video_id"`
+	UserID     uint64                  `json:"user_id"`
+	Status     valueobject.VideoStatus `json:"status"`
+	OccurredAt string                  `json:"occurred_at"`
 }
 
 func main() {
@@ -116,11 +131,19 @@ func main() {
 func processedMessage(ctx context.Context, message types.Message, logger *logger.Logger, uc port.VideoUseCase) (reprocess bool, err error) {
 	// Here you can implement the logic to process the message
 	// For example, you can unmarshal the message body and update the order status in your database
+	//{\n  \"Type\" : \"Notification\",\n  \"MessageId\" : \"2a33bf6b-bb93-57c3-afd0-de38c7b6f234\",\n  \"TopicArn\" : \"arn:aws:sns:us-east-1:905417995957:video-status-updated\",\n  \"Message\" : \"{\\\"video_id\\\":25,\\\"user_id\\\":5,\\\"status\\\":\\\"FINISHED\\\",\\\"occurred_at\\\":\\\"2025-09-28T18:09:41.110973622Z\\\"}\",\n  \"Timestamp\" : \"2025-09-28T18:09:41.115Z\",\n  \"SignatureVersion\" : \"1\",\n  \"Signature\" : \"n2sK9472MGBlYH6D58MSJjo64pxWlpevdXgJxqmPLhkKf2Aox+90cADrCmycfQaHpRVqFCJwbMvKl2JSofOBjtpdw33LQzyJi9KsQQ6IbjYiiIsgf2SVTqJZdeZeJbBAZ533iFyfOhK5lVM//nLiRSVrz5zHYHQfmzKLYfY/B6KxvE8S3X5nxYG3sAg7bk3gnp92kpLAVRojwNif+XUnDYrliCyBNmEPQg/z9Y7hR+LT+K5OPiwKjZ/u6wLB7ht0E4c+uRU6+l7WONIAshM95HFh4tpO8g7UuVKYXPQ8C9XnLNsTAxminr8vTnHiD4Mewfh3N9WgA2eAXF/N1bh8Ww==\",\n  \"SigningCertURL\" : \"https://sns.us-east-1.amazonaws.com/SimpleNotificationService-6209c161c6221fdf56ec1eb5c821d112.pem\",\n  \"UnsubscribeURL\" : \"https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe\u0026SubscriptionArn=arn:aws:sns:us-east-1:905417995957:video-status-updated:c9aa674a-a2e1-4d99-9871-327425c720d1\"\n}
 	logger.Info("Processing message", "messageID", *message.MessageId, "body", *message.Body)
 
-	// Unmarshal the message body to your entity
+	// First unmarshal the SNS notification structure
+	var snsNotification SNSNotification
+	err = json.Unmarshal([]byte(*message.Body), &snsNotification)
+	if err != nil {
+		return false, err
+	}
+
+	// Then unmarshal the nested Message field to get the video update data
 	var updatedVideo VideoUpdated
-	err = json.Unmarshal([]byte(*message.Body), &updatedVideo)
+	err = json.Unmarshal([]byte(snsNotification.Message), &updatedVideo)
 	if err != nil {
 		return false, err
 	}
@@ -133,8 +156,12 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 		return false, domain.NewValidationError(errors.New(domain.ErrStatusIsMandatory))
 	}
 
-	// Get Video by ID
-	_, err = uc.Get(ctx, dto.GetVideoInput{ID: updatedVideo.VideoID})
+	// Get Video by ID - use UserID from the message if provided, otherwise use VideoID as fallback
+	userID := updatedVideo.UserID
+	if userID == 0 {
+		userID = updatedVideo.VideoID // fallback for backward compatibility
+	}
+	_, err = uc.Get(ctx, dto.GetVideoInput{ID: updatedVideo.VideoID, UserID: userID})
 	if err != nil {
 		if err.Error() == domain.ErrInternalError {
 			return true, err
@@ -145,8 +172,8 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 	// Update the video status in the database
 	uoi := dto.UpdateVideoInput{
 		ID:     updatedVideo.VideoID,
+		UserID: updatedVideo.UserID,
 		Status: updatedVideo.Status,
-		Hash:   updatedVideo.Hash,
 	}
 
 	_, err = uc.Update(ctx, uoi)
@@ -159,8 +186,9 @@ func processedMessage(ctx context.Context, message types.Message, logger *logger
 
 	logger.Info("Message processed successfully",
 		"videoID", updatedVideo.VideoID,
+		"userID", updatedVideo.UserID,
 		"status", updatedVideo.Status,
-		"hash", updatedVideo.Hash,
+		"occurredAt", updatedVideo.OccurredAt,
 	)
 
 	return false, nil
